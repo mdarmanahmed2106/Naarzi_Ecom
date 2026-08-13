@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4e0b1e;
+  --color-primary-container: #6b2233;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ed899b;
+  --color-secondary: #765a1e;
+  --color-secondary-container: #fed88f;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #795c20;
+  --color-tertiary: #1b253f;
+  --color-tertiary-container: #313b56;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #9ba5c5;
+  --color-surface: #fff9ed;
+  --color-surface-dim: #dfd9cf;
+  --color-surface-bright: #fff9ed;
+  --color-surface-container: #f3ede2;
+  --color-surface-container-low: #f9f3e8;
+  --color-surface-container-high: #ede8dd;
+  --color-surface-container-highest: #e8e2d7;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #1d1c15;
+  --color-on-surface-variant: #544244;
+  --color-outline: #867274;
+  --color-outline-variant: #d9c1c3;
+  --color-background: #fff9ed;
+  --color-on-background: #1d1c15;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* Spacing and margins matching design guidelines */
+  --spacing-margin-desktop: 64px;
+  --spacing-margin-mobile: 20px;
+  --spacing-container-max: 1440px;
+  --spacing-gutter: 24px;
+  --spacing-section-gap: 120px;
+
+  /* Typography mapping to loaded next/font google variables */
+  --font-display-lg: var(--font-playfair-display), serif;
+  --font-headline-md: var(--font-playfair-display), serif;
+  --font-headline-sm: var(--font-playfair-display), serif;
+  --font-body-lg: var(--font-dm-sans), sans-serif;
+  --font-body-md: var(--font-dm-sans), sans-serif;
+  --font-label-caps: var(--font-dm-sans), sans-serif;
+  --font-label-sm: var(--font-dm-sans), sans-serif;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-body-md);
+}
+
+/* Custom micro-animations and style tweaks */
+.transition-slow {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
