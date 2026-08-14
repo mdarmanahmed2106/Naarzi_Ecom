@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
-import { productsApi, categoriesApi, ordersApi } from '@/lib/api';
+import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi } from '@/lib/api';
 
 function AdminHeader() {
   const { user, logout } = useApp();
@@ -61,10 +61,26 @@ export default function AdminDashboardPage() {
   const [discountedPrice, setDiscountedPrice] = useState('');
   const [category, setCategory] = useState('');
   const [imagesText, setImagesText] = useState('');
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [pasteUrl, setPasteUrl] = useState('');
+  
+  // Category Form Field States
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [categoryModalMode, setCategoryModalMode] = useState('add'); // 'add' | 'edit'
+  const [currentCategoryId, setCurrentCategoryId] = useState(null);
+  const [categoryName, setCategoryName] = useState('');
+  const [categoryImage, setCategoryImage] = useState('');
+  const [categoryUploading, setCategoryUploading] = useState(false);
   const [occasionsText, setOccasionsText] = useState('');
   const [tagsText, setTagsText] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBestSeller, setIsBestSeller] = useState(false);
+
+  // Reviews & Customers States
+  const [allReviews, setAllReviews] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [ratingFilter, setRatingFilter] = useState('all');
   
   // Sizes stocks in Form
   const standardSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size'];
@@ -107,6 +123,16 @@ export default function AdminDashboardPage() {
       if (orderResponse.success) {
         setOrders(orderResponse.orders || []);
       }
+
+      const reviewResponse = await adminApi.getReviews();
+      if (reviewResponse.success) {
+        setAllReviews(reviewResponse.data);
+      }
+
+      const customerResponse = await adminApi.getCustomers();
+      if (customerResponse.success) {
+        setCustomers(customerResponse.data);
+      }
     } catch (err) {
       console.error('Failed to load admin stats:', err);
     } finally {
@@ -124,6 +150,7 @@ export default function AdminDashboardPage() {
     setDiscountedPrice(product.discountedPrice !== undefined && product.discountedPrice !== null ? product.discountedPrice : '');
     setCategory(product.category?._id || product.category || '');
     setImagesText(product.images.join('\n'));
+    setUploadedImages(product.images ? product.images.map((url, idx) => ({ id: `existing-${idx}-${Date.now()}`, url, status: 'success' })) : []);
     setOccasionsText(product.occasion ? product.occasion.join(', ') : '');
     setTagsText(product.tags ? product.tags.join(', ') : '');
     setIsFeatured(product.isFeatured || false);
@@ -156,6 +183,7 @@ export default function AdminDashboardPage() {
     setDiscountedPrice('');
     setCategory(categories[0]?._id || '');
     setImagesText('');
+    setUploadedImages([]);
     setOccasionsText('');
     setTagsText('');
     setIsFeatured(false);
@@ -170,6 +198,110 @@ export default function AdminDashboardPage() {
     setErrorMsg('');
     setSuccessMsg('');
     setIsFormModalOpen(true);
+  };
+
+  const handleFileUpload = async (files) => {
+    const filesArray = Array.from(files);
+    const newItems = filesArray.map(file => {
+      const id = `upload-${Date.now()}-${Math.random()}`;
+      return {
+        id,
+        file,
+        name: file.name,
+        status: 'uploading'
+      };
+    });
+    
+    setUploadedImages(prev => [...prev, ...newItems]);
+
+    newItems.forEach(async (item) => {
+      const formData = new FormData();
+      formData.append('image', item.file);
+
+      try {
+        const response = await uploadApi.uploadImage(formData);
+        if (response.success && response.url) {
+          setUploadedImages(prev => prev.map(img => 
+            img.id === item.id 
+              ? { ...img, url: response.url, status: 'success' }
+              : img
+          ));
+        } else {
+          throw new Error(response.message || 'Upload failed');
+        }
+      } catch (err) {
+        console.error('File Upload Failed:', err);
+        setUploadedImages(prev => prev.map(img => 
+          img.id === item.id 
+            ? { ...img, status: 'failed', error: err.message || 'Upload failed' }
+            : img
+        ));
+      }
+    });
+  };
+
+  const handleRetryUpload = async (item) => {
+    setUploadedImages(prev => prev.map(img => 
+      img.id === item.id 
+        ? { ...img, status: 'uploading', error: null }
+        : img
+    ));
+
+    const formData = new FormData();
+    formData.append('image', item.file);
+
+    try {
+      const response = await uploadApi.uploadImage(formData);
+      if (response.success && response.url) {
+        setUploadedImages(prev => prev.map(img => 
+          img.id === item.id 
+            ? { ...img, url: response.url, status: 'success' }
+            : img
+        ));
+      } else {
+        throw new Error(response.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('File Retry Upload Failed:', err);
+      setUploadedImages(prev => prev.map(img => 
+        img.id === item.id 
+          ? { ...img, status: 'failed', error: err.message || 'Upload failed' }
+          : img
+      ));
+    }
+  };
+
+  const handleRemoveImage = (id) => {
+    setUploadedImages(prev => prev.filter(img => img.id !== id));
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files);
+    }
+  };
+
+  const handleAddPasteUrl = () => {
+    if (pasteUrl.trim()) {
+      setUploadedImages(prev => [
+        ...prev,
+        { id: `paste-${Date.now()}-${Math.random()}`, url: pasteUrl.trim(), status: 'success' }
+      ]);
+      setPasteUrl('');
+    }
   };
 
   // Submit Product Form (Create / Update)
@@ -200,12 +332,11 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    const imageUrls = imagesText
-      .split('\n')
-      .map(url => url.trim())
-      .filter(url => url !== '');
+    const imageUrls = uploadedImages
+      .filter(img => img.status === 'success')
+      .map(img => img.url);
     if (imageUrls.length === 0) {
-      setErrorMsg('At least one valid image URL is required');
+      setErrorMsg('At least one valid image is required (upload or paste a URL)');
       return;
     }
 
@@ -356,6 +487,132 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleCategoryFileUpload = async (file) => {
+    if (!file) return;
+    setCategoryUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const response = await uploadApi.uploadImage(formData);
+      if (response.success && response.url) {
+        setCategoryImage(response.url);
+      } else {
+        throw new Error(response.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Category file upload failed:', err);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setCategoryUploading(false);
+    }
+  };
+
+  const openCategoryAddModal = () => {
+    setCategoryModalMode('add');
+    setCurrentCategoryId(null);
+    setCategoryName('');
+    setCategoryImage('');
+    setErrorMsg('');
+    setSuccessMsg('');
+    setIsCategoryModalOpen(true);
+  };
+
+  const openCategoryEditModal = (cat) => {
+    setCategoryModalMode('edit');
+    setCurrentCategoryId(cat._id);
+    setCategoryName(cat.name);
+    setCategoryImage(cat.image || '');
+    setErrorMsg('');
+    setSuccessMsg('');
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleSubmitCategory = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    if (!categoryName || categoryName.trim().length < 2) {
+      setErrorMsg('Category name must be at least 2 characters');
+      return;
+    }
+    if (!categoryImage) {
+      setErrorMsg('Category image is required');
+      return;
+    }
+
+    const payload = {
+      name: categoryName.trim(),
+      image: categoryImage
+    };
+
+    try {
+      let response;
+      if (categoryModalMode === 'add') {
+        response = await categoriesApi.create(payload);
+        if (response.success) {
+          setSuccessMsg('Category created successfully!');
+          setIsCategoryModalOpen(false);
+          loadData();
+        }
+      } else {
+        response = await categoriesApi.update(currentCategoryId, payload);
+        if (response.success) {
+          setSuccessMsg('Category updated successfully!');
+          setIsCategoryModalOpen(false);
+          loadData();
+        }
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Operation failed.');
+    }
+  };
+
+  const handleDeleteCategory = async (catId, catName) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    
+    // Check if category has products assigned
+    const count = products.filter(p => {
+      const pCatId = p.category?._id || p.category;
+      return pCatId === catId;
+    }).length;
+
+    if (count > 0) {
+      setErrorMsg(`Reassign ${count} products before deleting this category`);
+      window.alert(`Reassign ${count} products before deleting this category`);
+      return;
+    }
+
+    if (window.confirm(`Are you sure you want to delete category "${catName}"?`)) {
+      try {
+        const response = await categoriesApi.delete(catId);
+        if (response.success) {
+          setSuccessMsg(`Deleted category: ${catName}`);
+          loadData();
+        }
+      } catch (err) {
+        setErrorMsg(`Failed to delete category: ${err.message}`);
+      }
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    if (window.confirm('Are you sure you want to delete this review?')) {
+      try {
+        const response = await adminApi.deleteReview(reviewId);
+        if (response.success) {
+          setSuccessMsg('Review deleted successfully');
+          setAllReviews(prev => prev.filter(r => r._id !== reviewId));
+        }
+      } catch (err) {
+        setErrorMsg(`Failed to delete review: ${err.message}`);
+      }
+    }
+  };
+
   // Stats summaries
   const totalProducts = products.length;
   const lowStockAlertCount = products.reduce((count, p) => {
@@ -364,6 +621,9 @@ export default function AdminDashboardPage() {
   }, 0);
   const totalOrdersCount = orders.length;
   const pendingOrdersCount = orders.filter(o => o.orderStatus === 'processing').length;
+  const totalRevenue = orders
+    .filter(o => o.paymentStatus === 'paid')
+    .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
   // Filter products or orders by search term
   const filteredProducts = products.filter((p) =>
@@ -376,6 +636,27 @@ export default function AdminDashboardPage() {
     (o.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (o.user?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (o.shippingAddress?.phone || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredCategories = categories.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (c.slug || '').toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredReviews = allReviews.filter((r) => {
+    const matchesSearch = 
+      (r.product?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.user?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (r.comment || '').toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRating = ratingFilter === 'all' || r.rating.toString() === ratingFilter;
+    
+    return matchesSearch && matchesRating;
+  });
+
+  const filteredCustomers = customers.filter((c) =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // 1. Loading User Check
@@ -445,13 +726,23 @@ export default function AdminDashboardPage() {
             <h1 className="font-display-lg text-4xl text-primary font-bold">Dashboard</h1>
           </div>
           
-          <button 
-            onClick={openAddModal}
-            className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            ADD NEW PRODUCT
-          </button>
+          {(activeTab === 'products' || activeTab === 'inventory') ? (
+            <button 
+              onClick={openAddModal}
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              ADD NEW PRODUCT
+            </button>
+          ) : activeTab === 'categories' ? (
+            <button 
+              onClick={openCategoryAddModal}
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              ADD NEW CATEGORY
+            </button>
+          ) : null}
         </div>
 
         {/* Feedback Messages */}
@@ -474,8 +765,8 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* Stats Grid - 4 Columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-12">
+        {/* Stats Grid - 5 Columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-gutter mb-12">
           {/* Card 1 */}
           <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-sm flex items-center justify-between">
             <div className="space-y-1">
@@ -528,6 +819,18 @@ export default function AdminDashboardPage() {
               <span className="material-symbols-outlined">local_mall</span>
             </div>
           </div>
+          {/* Card 5 */}
+          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL REVENUE</span>
+              <span className="font-display-lg text-2xl font-bold text-primary">
+                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalRevenue)}
+              </span>
+            </div>
+            <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined">payments</span>
+            </div>
+          </div>
         </div>
 
         {/* Dashboard Tabs & Controls */}
@@ -566,20 +869,78 @@ export default function AdminDashboardPage() {
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
               )}
             </button>
+            <button 
+              onClick={() => { setActiveTab('categories'); setSearchTerm(''); }}
+              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
+                activeTab === 'categories' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              CATEGORIES
+              {activeTab === 'categories' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
+              )}
+            </button>
+            <button 
+              onClick={() => { setActiveTab('reviews'); setSearchTerm(''); }}
+              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
+                activeTab === 'reviews' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              REVIEWS
+              {activeTab === 'reviews' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
+              )}
+            </button>
+            <button 
+              onClick={() => { setActiveTab('customers'); setSearchTerm(''); }}
+              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
+                activeTab === 'customers' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              CUSTOMERS
+              {activeTab === 'customers' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
+              )}
+            </button>
           </div>
 
-          {/* Quick Search */}
-          <div className="relative w-full md:w-80">
-            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">
-              search
-            </span>
-            <input 
-              type="text" 
-              placeholder={activeTab === 'orders' ? "Search by Order ID or User..." : "Search directory..."}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white border border-outline-variant/40 rounded-xl text-sm focus:border-primary focus:outline-none transition-colors"
-            />
+          {/* Quick Search & Rating Filter */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
+            {activeTab === 'reviews' && (
+              <select
+                value={ratingFilter}
+                onChange={(e) => setRatingFilter(e.target.value)}
+                className="px-3 py-2 bg-white border border-outline-variant/40 rounded-xl text-xs font-semibold focus:outline-none cursor-pointer"
+              >
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            )}
+
+            <div className="relative w-full md:w-80">
+              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">
+                search
+              </span>
+              <input 
+                type="text" 
+                placeholder={
+                  activeTab === 'orders' 
+                    ? "Search by Order ID or User..." 
+                    : activeTab === 'customers'
+                    ? "Search by Name or Email..."
+                    : activeTab === 'reviews'
+                    ? "Search reviews..."
+                    : "Search directory..."
+                }
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-white border border-outline-variant/40 rounded-xl text-sm focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
           </div>
         </div>
 
@@ -589,7 +950,13 @@ export default function AdminDashboardPage() {
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary mx-auto mb-4"></div>
             <p className="font-body-md text-sm text-on-surface-variant">Syncing directory...</p>
           </div>
-        ) : (activeTab === 'orders' ? filteredOrders.length === 0 : filteredProducts.length === 0) ? (
+        ) : (
+          (activeTab === 'orders' && filteredOrders.length === 0) ||
+          ((activeTab === 'products' || activeTab === 'inventory') && filteredProducts.length === 0) ||
+          (activeTab === 'categories' && filteredCategories.length === 0) ||
+          (activeTab === 'reviews' && filteredReviews.length === 0) ||
+          (activeTab === 'customers' && filteredCustomers.length === 0)
+        ) ? (
           <div className="py-24 text-center bg-white rounded-2xl border border-outline-variant/30 shadow-sm">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-3 block">inventory_2</span>
             <p className="font-body-md text-on-surface-variant text-sm">No items match your search or filter settings.</p>
@@ -766,7 +1133,7 @@ export default function AdminDashboardPage() {
               </table>
             </div>
           </div>
-        ) : (
+        ) : activeTab === 'orders' ? (
           /* Orders Management Tab Table */
           <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
@@ -845,7 +1212,161 @@ export default function AdminDashboardPage() {
               </table>
             </div>
           </div>
-        )}
+        ) : activeTab === 'categories' ? (
+          /* Categories Management Tab Table */
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
+                    <th className="py-4 px-6">Image</th>
+                    <th className="py-4 px-6">Category Name</th>
+                    <th className="py-4 px-6">Slug</th>
+                    <th className="py-4 px-6 text-center">Products Count</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/20 font-body-md">
+                  {filteredCategories.map((cat) => {
+                    const prodCount = products.filter(p => (p.category?._id || p.category) === cat._id).length;
+                    return (
+                      <tr key={cat._id} className="hover:bg-surface-container/10 transition-colors">
+                        <td className="py-4 px-6">
+                          <img 
+                            src={cat.image || 'https://placehold.co/100x100?text=No+Image'} 
+                            alt={cat.name} 
+                            className="w-12 h-12 object-cover rounded-lg bg-surface-container border border-outline-variant/25 shadow-sm"
+                          />
+                        </td>
+                        <td className="py-4 px-6 font-semibold text-on-surface font-sans">
+                          {cat.name}
+                        </td>
+                        <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">
+                          {cat.slug}
+                        </td>
+                        <td className="py-4 px-6 text-center font-bold text-primary font-sans">
+                          {prodCount}
+                        </td>
+                        <td className="py-4 px-6 text-right space-x-2">
+                          <button 
+                            onClick={() => openCategoryEditModal(cat)}
+                            className="px-3 py-1.5 bg-transparent border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary text-[10px] font-label-caps tracking-widest rounded-lg transition-colors cursor-pointer font-bold inline-block"
+                          >
+                            EDIT
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteCategory(cat._id, cat.name)}
+                            className="px-3 py-1.5 bg-transparent border border-error/30 hover:bg-error hover:text-white text-error text-[10px] font-label-caps tracking-widest rounded-lg transition-colors cursor-pointer font-bold inline-block"
+                          >
+                            DELETE
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : activeTab === 'reviews' ? (
+          /* Reviews Moderation Tab Table */
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
+                    <th className="py-4 px-6">Product</th>
+                    <th className="py-4 px-6">Reviewer</th>
+                    <th className="py-4 px-6">Rating</th>
+                    <th className="py-4 px-6">Comment</th>
+                    <th className="py-4 px-6">Date</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/20 font-body-md">
+                  {filteredReviews.map((rev) => (
+                    <tr key={rev._id} className="hover:bg-surface-container/10 transition-colors">
+                      <td className="py-4 px-6 font-semibold text-primary font-sans">
+                        {rev.product ? (
+                          <Link href={`/products/${rev.product.slug}`} className="hover:underline">
+                            {rev.product.name}
+                          </Link>
+                        ) : (
+                          '[Deleted Product]'
+                        )}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-semibold text-on-surface block leading-tight">{rev.user?.name || 'Anonymous'}</span>
+                        <span className="text-[10px] text-on-surface-variant block mt-0.5 font-light">{rev.user?.email || ''}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex gap-0.5 text-secondary">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span 
+                              key={star} 
+                              className={`material-symbols-outlined text-sm ${rev.rating >= star ? 'fill-1' : 'opacity-25'}`}
+                              style={{ fontVariationSettings: rev.rating >= star ? "'FILL' 1" : "'FILL' 0" }}
+                            >
+                              star
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-on-surface-variant max-w-xs truncate" title={rev.comment}>
+                        {rev.comment}
+                      </td>
+                      <td className="py-4 px-6 text-on-surface-variant text-xs font-sans">
+                        {new Date(rev.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button 
+                          onClick={() => handleDeleteReview(rev._id)}
+                          className="px-3.5 py-1.5 bg-transparent border border-error/30 hover:bg-error hover:text-white text-error text-[10px] font-label-caps tracking-widest rounded-lg transition-colors cursor-pointer font-bold inline-block"
+                        >
+                          DELETE
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : activeTab === 'customers' ? (
+          /* Customers Directory Tab Table */
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
+                    <th className="py-4 px-6">Customer Name</th>
+                    <th className="py-4 px-6">Email Address</th>
+                    <th className="py-4 px-6">Signup Date</th>
+                    <th className="py-4 px-6 text-center font-sans">Orders Placed</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/20 font-body-md">
+                  {filteredCustomers.map((cust) => (
+                    <tr key={cust._id} className="hover:bg-surface-container/10 transition-colors">
+                      <td className="py-4 px-6 font-semibold text-on-surface font-sans">
+                        {cust.name}
+                      </td>
+                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">
+                        {cust.email}
+                      </td>
+                      <td className="py-4 px-6 text-on-surface-variant text-xs font-sans">
+                        {new Date(cust.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 px-6 text-center font-bold text-primary font-sans">
+                        {cust.orderCount || 0}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
 
       </main>
 
@@ -943,17 +1464,111 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Image URLs */}
-              <div className="space-y-1">
-                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">IMAGE URLS (ONE URL PER LINE) *</label>
-                <textarea 
-                  required
-                  rows={3}
-                  value={imagesText}
-                  onChange={(e) => setImagesText(e.target.value)}
-                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs leading-relaxed"
-                />
+              {/* Product Images Upload / Management */}
+              <div className="space-y-3">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">PRODUCT IMAGES *</label>
+                
+                {/* Drag and Drop Zone */}
+                <div 
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
+                    dragActive ? 'border-primary bg-primary/5' : 'border-outline-variant/60 bg-surface hover:bg-surface-container/20'
+                  }`}
+                  onClick={() => document.getElementById('file-upload-input').click()}
+                >
+                  <input 
+                    id="file-upload-input" 
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    className="hidden" 
+                    onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                  />
+                  <span className="material-symbols-outlined text-4xl text-on-surface-variant/50 mb-2">cloud_upload</span>
+                  <p className="text-xs font-semibold text-on-surface">Drag & drop your product images here, or click to browse</p>
+                  <p className="text-[10px] text-on-surface-variant mt-1">Supports PNG, JPG, JPEG (max 5MB per file)</p>
+                </div>
+
+                {/* Thumbnails Grid Preview */}
+                {uploadedImages.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                    {uploadedImages.map((img) => (
+                      <div key={img.id} className="relative aspect-[3/4] bg-surface-container rounded-xl overflow-hidden border border-outline-variant/30 flex items-center justify-center p-1 group">
+                        {img.status === 'success' && (
+                          <>
+                            <img src={img.url} className="w-full h-full object-cover rounded-lg" alt="Preview" />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(img.id);
+                              }}
+                              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
+                              title="Remove"
+                            >
+                              <span className="material-symbols-outlined text-xs">close</span>
+                            </button>
+                          </>
+                        )}
+
+                        {img.status === 'uploading' && (
+                          <div className="flex flex-col items-center justify-center p-2 text-center space-y-2">
+                            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary"></div>
+                            <span className="text-[9px] font-label-caps text-on-surface-variant tracking-wider block font-bold">UPLOADING...</span>
+                          </div>
+                        )}
+
+                        {img.status === 'failed' && (
+                          <div className="flex flex-col items-center justify-center p-2 text-center space-y-2 bg-error-container/20 w-full h-full rounded-lg">
+                            <span className="material-symbols-outlined text-xl text-error">warning</span>
+                            <span className="text-[9px] text-error font-semibold leading-tight line-clamp-2">{img.error || 'Failed'}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRetryUpload(img);
+                              }}
+                              className="px-2 py-1 bg-primary text-white text-[9px] font-label-caps tracking-wider rounded hover:bg-primary-container font-bold cursor-pointer"
+                            >
+                              RETRY
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(img.id);
+                              }}
+                              className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-primary cursor-pointer"
+                            >
+                              <span className="material-symbols-outlined text-[10px]">close</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Direct Paste Fallback Option */}
+                <div className="flex gap-2 items-center pt-2">
+                  <input 
+                    type="text" 
+                    placeholder="Or paste direct image URL here..." 
+                    value={pasteUrl}
+                    onChange={(e) => setPasteUrl(e.target.value)}
+                    className="flex-1 px-4 py-2 bg-surface border border-outline-variant/40 rounded-xl text-xs focus:border-primary focus:outline-none transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddPasteUrl}
+                    className="px-4 py-2 bg-primary text-white text-[10px] font-label-caps tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer shrink-0"
+                  >
+                    ADD URL
+                  </button>
+                </div>
               </div>
 
               {/* Size and Stock configuration */}
@@ -1232,6 +1847,102 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Category Add / Edit Modal */}
+      {isCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+            {/* Title */}
+            <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
+              <h2 className="font-display-lg text-xl text-primary font-bold">
+                {categoryModalMode === 'add' ? 'Add New Category' : 'Edit Category'}
+              </h2>
+              <button 
+                onClick={() => setIsCategoryModalOpen(false)}
+                className="material-symbols-outlined text-on-surface-variant/70 hover:text-primary cursor-pointer text-xl bg-transparent border-none"
+              >
+                close
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmitCategory} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">CATEGORY NAME *</label>
+                <input 
+                  type="text" 
+                  required
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  placeholder="e.g. Apparel, Accessories"
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Category Image upload widget */}
+              <div className="space-y-2">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">CATEGORY IMAGE *</label>
+                
+                {/* Image upload area */}
+                <div 
+                  className="border-2 border-dashed border-outline-variant/60 rounded-xl p-4 text-center cursor-pointer hover:bg-surface-container/20 transition-colors"
+                  onClick={() => document.getElementById('category-file-input').click()}
+                >
+                  <input 
+                    id="category-file-input" 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => e.target.files && handleCategoryFileUpload(e.target.files[0])}
+                  />
+                  {categoryUploading ? (
+                    <div className="flex flex-col items-center py-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary mb-2"></div>
+                      <span className="text-[9px] font-label-caps text-on-surface-variant tracking-wider font-bold">UPLOADING...</span>
+                    </div>
+                  ) : categoryImage ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <img src={categoryImage} alt="Category preview" className="w-16 h-16 object-cover rounded-lg border border-outline-variant/25" />
+                      <span className="text-[10px] text-primary font-semibold underline">Change Image</span>
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      <span className="material-symbols-outlined text-3xl text-on-surface-variant/50 mb-1">cloud_upload</span>
+                      <p className="text-xs text-on-surface font-semibold">Click to upload category image</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Paste URL Option */}
+                <input 
+                  type="text" 
+                  placeholder="Or paste image URL here..." 
+                  value={categoryImage}
+                  onChange={(e) => setCategoryImage(e.target.value)}
+                  className="w-full px-4 py-2 bg-surface border border-outline-variant/40 rounded-xl text-xs focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-4 border-t border-outline-variant/20 pt-6 mt-6">
+                <button 
+                  type="submit"
+                  className="flex-1 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer"
+                >
+                  {categoryModalMode === 'add' ? 'CREATE' : 'SAVE'}
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsCategoryModalOpen(false)}
+                  className="flex-1 py-3 bg-transparent border border-outline-variant/50 text-on-surface-variant font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors font-bold cursor-pointer"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

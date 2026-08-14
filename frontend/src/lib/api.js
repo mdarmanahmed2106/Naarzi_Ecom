@@ -7,16 +7,21 @@ async function fetchApi(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   
   // Set credentials to 'include' to ensure HTTP cookies are sent and stored
+  const headers = { ...options.headers };
+  const isFormData = options.body && options.body instanceof FormData;
+
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const defaultOptions = {
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     ...options,
+    headers,
   };
 
-  // If body is object, stringify it
-  if (defaultOptions.body && typeof defaultOptions.body === 'object') {
+  // If body is object (and not FormData), stringify it
+  if (defaultOptions.body && typeof defaultOptions.body === 'object' && !isFormData) {
     defaultOptions.body = JSON.stringify(defaultOptions.body);
   }
 
@@ -47,6 +52,9 @@ export const authApi = {
 export const categoriesApi = {
   getAll: () => fetchApi('/categories'),
   getOne: (idOrSlug) => fetchApi(`/categories/${idOrSlug}`),
+  create: (categoryData) => fetchApi('/categories', { method: 'POST', body: categoryData }),
+  update: (id, categoryData) => fetchApi(`/categories/${id}`, { method: 'PUT', body: categoryData }),
+  delete: (id) => fetchApi(`/categories/${id}`, { method: 'DELETE' }),
 };
 
 // Products API
@@ -77,6 +85,11 @@ export const wishlistApi = {
   remove: (productId) => fetchApi(`/wishlist/${productId}`, { method: 'DELETE' }),
 };
 
+// Upload API
+export const uploadApi = {
+  uploadImage: (formData) => fetchApi('/upload', { method: 'POST', body: formData }),
+};
+
 // Reviews API
 export const reviewsApi = {
   getByProduct: (productId) => fetchApi(`/products/${productId}/reviews`),
@@ -95,4 +108,10 @@ export const ordersApi = {
 export const paymentApi = {
   createRazorpayOrder: (orderId) => fetchApi('/payment/create-order', { method: 'POST', body: { orderId } }),
   verifyPayment: (paymentDetails) => fetchApi('/payment/verify', { method: 'POST', body: paymentDetails }),
+};
+
+export const adminApi = {
+  getReviews: () => fetchApi('/admin/reviews'),
+  deleteReview: (id) => fetchApi(`/admin/reviews/${id}`, { method: 'DELETE' }),
+  getCustomers: () => fetchApi('/admin/users'),
 };

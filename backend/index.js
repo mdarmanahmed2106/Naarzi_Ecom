@@ -21,6 +21,7 @@ const orderRoutes = require('./src/routes/order');
 const paymentRoutes = require('./src/routes/payment');
 const wishlistRoutes = require('./src/routes/wishlist');
 const uploadRoutes = require('./src/routes/upload');
+const adminRoutes = require('./src/routes/admin');
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Welcome route
 app.get('/', (req, res) => {

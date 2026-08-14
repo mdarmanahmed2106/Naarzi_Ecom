@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authApi } from '@/lib/api';
+import { authApi, wishlistApi } from '@/lib/api';
 
 const AppContext = createContext(null);
 
@@ -12,6 +12,8 @@ export function AppProvider({ children }) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState('login'); // 'login' | 'signup'
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [wishlistLoading, setWishlistLoading] = useState(true);
 
   // Load user profile on mount
   useEffect(() => {
@@ -29,6 +31,29 @@ export function AppProvider({ children }) {
     }
     loadUser();
   }, []);
+
+  // Load wishlist on user changes
+  useEffect(() => {
+    async function loadWishlist() {
+      if (!user) {
+        setWishlistItems([]);
+        setWishlistLoading(false);
+        return;
+      }
+      setWishlistLoading(true);
+      try {
+        const response = await wishlistApi.get();
+        if (response.success && response.data) {
+          setWishlistItems(response.data.products || []);
+        }
+      } catch (err) {
+        console.error('Failed to load wishlist in AppContext:', err);
+      } finally {
+        setWishlistLoading(false);
+      }
+    }
+    loadWishlist();
+  }, [user]);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -87,6 +112,42 @@ export function AppProvider({ children }) {
       setUser(null);
     } catch (error) {
       console.error('Logout failed:', error.message);
+    }
+  };
+
+  // Wishlist actions
+  const addToWishlist = async (productId) => {
+    try {
+      const response = await wishlistApi.add(productId);
+      if (response.success && response.data) {
+        setWishlistItems(response.data.products || []);
+        return { success: true };
+      }
+      return { success: false, message: response.message || 'Failed to add to wishlist' };
+    } catch (error) {
+      console.error('Failed to add to wishlist:', error);
+      return { success: false, message: error.message };
+    }
+  };
+
+  const removeFromWishlist = async (productId) => {
+    // Optimistic Update
+    const previousWishlist = [...wishlistItems];
+    setWishlistItems(wishlistItems.filter(item => item._id !== productId));
+
+    try {
+      const response = await wishlistApi.remove(productId);
+      if (response.success && response.data) {
+        setWishlistItems(response.data.products || []);
+        return { success: true };
+      }
+      // Revert on error/non-success
+      setWishlistItems(previousWishlist);
+      return { success: false, message: response.message || 'Failed to remove from wishlist' };
+    } catch (error) {
+      console.error('Failed to remove from wishlist:', error);
+      setWishlistItems(previousWishlist);
+      return { success: false, message: error.message };
     }
   };
 
@@ -164,6 +225,10 @@ export function AppProvider({ children }) {
         setIsAuthOpen,
         authModalTab,
         setAuthModalTab,
+        wishlistItems,
+        wishlistLoading,
+        addToWishlist,
+        removeFromWishlist,
       }}
     >
       {children}

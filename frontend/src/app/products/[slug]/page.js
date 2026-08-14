@@ -13,7 +13,7 @@ export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
 
-  const { addToCart, user, setIsAuthOpen, setAuthModalTab } = useApp();
+  const { addToCart, user, setIsAuthOpen, setAuthModalTab, wishlistItems, addToWishlist, removeFromWishlist } = useApp();
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -35,6 +35,40 @@ export default function ProductDetailPage({ params }) {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [reviewSuccess, setReviewSuccess] = useState('');
+
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    if (product && wishlistItems) {
+      setIsWishlisted(wishlistItems.some(item => item._id === product._id));
+    }
+  }, [product, wishlistItems]);
+
+  const handleWishlistToggle = async () => {
+    if (!user) {
+      setAuthModalTab('login');
+      setIsAuthOpen(true);
+      return;
+    }
+
+    const productId = product._id;
+    const nextState = !isWishlisted;
+
+    // Optimistic UI update
+    setIsWishlisted(nextState);
+
+    try {
+      if (nextState) {
+        await addToWishlist(productId);
+      } else {
+        await removeFromWishlist(productId);
+      }
+    } catch (err) {
+      console.error('Wishlist toggle error:', err);
+      // Revert on error
+      setIsWishlisted(!nextState);
+    }
+  };
 
   // Load product, reviews, and related products
   useEffect(() => {
@@ -338,10 +372,17 @@ export default function ProductDetailPage({ params }) {
 
                 {/* Wishlist Button */}
                 <button 
-                  aria-label="Add to Wishlist" 
-                  className="w-14 h-14 rounded-xl border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary hover:text-primary transition-colors focus:outline-none cursor-pointer"
+                  onClick={handleWishlistToggle}
+                  aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"} 
+                  className={`w-14 h-14 rounded-xl border flex items-center justify-center transition-colors focus:outline-none cursor-pointer ${
+                    isWishlisted
+                      ? 'border-primary text-primary bg-primary/5 hover:bg-primary/10'
+                      : 'border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary'
+                  }`}
                 >
-                  <span className="material-symbols-outlined">favorite</span>
+                  <span className={`material-symbols-outlined ${isWishlisted ? 'fill-1' : ''}`} style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}>
+                    favorite
+                  </span>
                 </button>
               </div>
 

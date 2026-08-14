@@ -50,6 +50,13 @@ export default function Header() {
             <span className="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">
               search
             </span>
+
+            {/* Wishlist Icon */}
+            <Link href="/wishlist" className="flex items-center">
+              <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="My Wishlist">
+                favorite
+              </span>
+            </Link>
             
             {/* Cart Icon */}
             <div className="relative cursor-pointer" onClick={() => setIsCartOpen(true)}>
