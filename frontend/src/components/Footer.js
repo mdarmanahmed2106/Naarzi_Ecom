@@ -2,8 +2,21 @@
 
 import React from 'react';
 import Link from 'next/link';
-
 export default function Footer() {
+  const [email, setEmail] = React.useState('');
+  const [isSubscribed, setIsSubscribed] = React.useState(false);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setIsSubscribed(true);
+      setTimeout(() => {
+        setIsSubscribed(false);
+        setEmail('');
+      }, 6000);
+    }
+  };
+
   return (
     <footer className="bg-primary-container text-surface-container-lowest pt-20 md:pt-[120px] pb-6 mt-auto w-full">
       <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
@@ -68,17 +81,31 @@ export default function Footer() {
               FIND THE STITCH
             </h4>
             
-            <form onSubmit={(e) => e.preventDefault()} className="flex border-b border-surface/20 py-2">
-              <input 
-                className="bg-transparent border-none outline-none flex-1 text-surface-container-lowest placeholder:text-surface-container-lowest/40 text-sm" 
-                placeholder="Your email address" 
-                type="email"
-                required
-              />
-              <button type="submit" className="font-label-caps text-xs text-surface hover:opacity-85 transition-opacity tracking-wider uppercase font-bold cursor-pointer">
-                JOIN
-              </button>
-            </form>
+            <div className="space-y-2">
+              <form onSubmit={handleSubscribe} className="flex border-b border-surface/20 focus-within:border-surface py-2 transition-all duration-300">
+                <input 
+                  className="bg-transparent border-none outline-none flex-1 text-surface-container-lowest placeholder:text-surface-container-lowest/40 text-sm focus:ring-0" 
+                  placeholder="Your email address" 
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubscribed}
+                />
+                <button type="submit" className="font-label-caps text-xs text-surface hover:opacity-85 transition-all duration-300 tracking-wider uppercase font-bold cursor-pointer flex items-center gap-1">
+                  {isSubscribed ? (
+                    <span className="material-symbols-outlined text-sm text-green-300 animate-pulse">check</span>
+                  ) : (
+                    'JOIN'
+                  )}
+                </button>
+              </form>
+              <div className={`text-[10px] text-green-300 font-medium transition-all duration-500 overflow-hidden ${
+                isSubscribed ? 'max-h-6 opacity-100 mt-1' : 'max-h-0 opacity-0'
+              }`}>
+                Thanks for subscribing to Naarzi!
+              </div>
+            </div>
 
             <div className="flex gap-6 mt-2">
               <span className="material-symbols-outlined text-surface opacity-80 cursor-pointer hover:opacity-100 transition-opacity">

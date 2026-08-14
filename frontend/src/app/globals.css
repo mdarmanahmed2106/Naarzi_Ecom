@@ -80,3 +80,74 @@ body {
 .animate-slide-in {
   animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+/* Category Hover CSS styling */
+.category-tile-image {
+  transition: transform 400ms ease;
+}
+.group:hover .category-tile-image {
+  transform: scale(1.05);
+}
+.category-tile-text {
+  transition: transform 300ms ease;
+}
+.group:hover .category-tile-text {
+  transform: translateY(-2px);
+}
+
+/* Product card crossfade & quick-add styling */
+.product-image-primary {
+  transition: opacity 300ms ease-in-out;
+}
+.product-image-secondary {
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
+}
+.group:hover .product-image-secondary {
+  opacity: 1;
+}
+.product-quick-add {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+.group:hover .product-quick-add {
+  opacity: 1;
+}
+
+/* Marquee badge keyframe animations */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  animation: marquee 8s linear infinite;
+}
+
+.instagram-marquee-track {
+  animation: marquee 35s linear infinite;
+}
+.instagram-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Reduced Motion overrides for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .instagram-marquee-track {
+    animation: none !important;
+  }
+  .category-tile-image,
+  .category-tile-text,
+  .product-image-primary,
+  .product-image-secondary,
+  .product-quick-add {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
