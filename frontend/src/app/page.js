@@ -414,7 +414,11 @@ function HomePageContent() {
                 >
                   <div className="relative aspect-[3/4] bg-surface-container rounded-lg overflow-hidden mb-4 product-crossfade-container">
                     {/* Marquee badge text loop */}
-                    <MarqueeBadge text={idx % 2 === 0 ? 'SELLING FAST' : 'STAFF PICK'} />
+                    {product.isOnSale ? (
+                      <MarqueeBadge text="SALE" />
+                    ) : (
+                      <MarqueeBadge text={idx % 2 === 0 ? 'SELLING FAST' : 'STAFF PICK'} />
+                    )}
 
                     {/* Stacked product images for crossfade */}
                     <img 
@@ -596,7 +600,16 @@ function HomePageContent() {
                           </button>
 
                           {/* Tags floating */}
-                          {product.tags && product.tags.length > 0 && (
+                          {product.isOnSale && (
+                            <span className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                              <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
+                                <span>SALE</span>
+                                <span>SALE</span>
+                                <span>SALE</span>
+                              </div>
+                            </span>
+                          )}
+                          {!product.isOnSale && product.tags && product.tags.length > 0 && (
                             <span className="absolute top-4 left-4 bg-surface/90 text-primary text-[8px] font-label-caps tracking-widest px-2.5 py-1.5 rounded shadow-sm font-bold">
                               {product.tags[0].toUpperCase()}
                             </span>

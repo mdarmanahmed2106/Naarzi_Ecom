@@ -43,6 +43,14 @@ const orderSchema = new mongoose.Schema({
     required: true,
     min: [0, 'Total amount cannot be negative']
   },
+  couponCode: {
+    type: String,
+    default: null
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
   shippingAddress: {
     street: { type: String, required: true },
     city: { type: String, required: true },

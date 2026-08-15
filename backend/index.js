@@ -31,7 +31,13 @@ app.use(helmet());
 // Enable CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: function (origin, callback) {
+      if (!origin || origin.startsWith('http://localhost:')) {
+        callback(null, true);
+      } else {
+        callback(null, process.env.CLIENT_URL || 'http://localhost:3000');
+      }
+    },
     credentials: true
   })
 );
@@ -82,6 +88,8 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/promo-banners', require('./src/routes/promoBanner'));
+app.use('/api/coupons', require('./src/routes/coupon'));
 
 // Welcome route
 app.get('/', (req, res) => {

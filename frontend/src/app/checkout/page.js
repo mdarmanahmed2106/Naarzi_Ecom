@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
-import { ordersApi, paymentApi } from '@/lib/api';
+import { ordersApi, paymentApi, couponsApi } from '@/lib/api';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -31,6 +31,33 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(null);
+
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  const finalTotal = appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal;
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput) return;
+    setValidatingCoupon(true);
+    setCouponError('');
+    try {
+      const res = await couponsApi.validate(couponInput, cartTotal);
+      if (res.success) {
+        setAppliedCoupon({
+          code: res.couponCode,
+          discountAmount: res.discountAmount
+        });
+      }
+    } catch (err) {
+      setCouponError(err.message || 'Invalid coupon');
+      setAppliedCoupon(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
 
   const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +86,7 @@ export default function CheckoutPage() {
 
       const orderData = {
         items: orderItems,
+        couponCode: appliedCoupon?.code || null,
         shippingAddress: {
           street,
           city,
@@ -272,7 +300,7 @@ export default function CheckoutPage() {
                 disabled={loading || cartItems.length === 0}
                 className="w-full py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {loading ? 'PROCESSING PAYMENT...' : `PLACE ORDER & PAY INR ${cartTotal}`}
+                {loading ? 'PROCESSING PAYMENT...' : `PLACE ORDER & PAY INR ${finalTotal}`}
               </button>
             </div>
           </form>
@@ -282,6 +310,44 @@ export default function CheckoutPage() {
             <h3 className="font-headline-sm text-lg text-on-surface">
               Order Summary
             </h3>
+
+            {cartItems.length > 0 && (
+              <div className="mb-6 space-y-2">
+                <label className="block text-[10px] font-label-caps tracking-widest text-on-surface-variant">
+                  GIFT CARD OR DISCOUNT CODE
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    disabled={appliedCoupon}
+                    placeholder="Enter code"
+                    className="flex-1 px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
+                  />
+                  {!appliedCoupon ? (
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={validatingCoupon || !couponInput}
+                      className="px-6 py-3 bg-tertiary text-white font-label-caps text-xs tracking-widest rounded-lg hover:bg-tertiary-container disabled:opacity-50 transition-colors"
+                    >
+                      {validatingCoupon ? '...' : 'APPLY'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setAppliedCoupon(null); setCouponInput(''); }}
+                      className="px-4 py-3 bg-surface border border-error text-error font-label-caps text-xs tracking-widest rounded-lg hover:bg-error-container transition-colors"
+                    >
+                      REMOVE
+                    </button>
+                  )}
+                </div>
+                {couponError && <p className="text-xs text-error mt-1">{couponError}</p>}
+                {appliedCoupon && <p className="text-xs text-green-700 mt-1">Coupon {appliedCoupon.code} applied successfully!</p>}
+              </div>
+            )}
 
             {cartItems.length === 0 ? (
               <p className="text-sm text-on-surface-variant">Your cart is empty.</p>
@@ -310,13 +376,25 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="border-t border-outline-variant/30 pt-4 flex justify-between items-center">
+                  <span className="font-label-caps text-xs text-on-surface-variant">SUBTOTAL</span>
+                  <span className="text-xs font-medium text-on-surface">INR {cartTotal}</span>
+                </div>
+
+                {appliedCoupon && (
+                  <div className="flex justify-between items-center">
+                    <span className="font-label-caps text-xs text-on-surface-variant">DISCOUNT ({appliedCoupon.code})</span>
+                    <span className="text-xs font-medium text-green-700">- INR {appliedCoupon.discountAmount}</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center">
                   <span className="font-label-caps text-xs text-on-surface-variant">SHIPPING</span>
                   <span className="text-xs text-green-700 font-bold font-label-caps bg-green-50 px-2 py-0.5 rounded border border-green-200">FREE</span>
                 </div>
 
                 <div className="border-t border-outline-variant/30 pt-4 flex justify-between items-center font-bold text-base">
                   <span className="font-label-caps text-xs text-on-surface">TOTAL</span>
-                  <span className="text-primary font-bold">INR {cartTotal}</span>
+                  <span className="text-primary font-bold">INR {finalTotal}</span>
                 </div>
               </div>
             )}

@@ -115,3 +115,18 @@ export const adminApi = {
   deleteReview: (id) => fetchApi(`/admin/reviews/${id}`, { method: 'DELETE' }),
   getCustomers: () => fetchApi('/admin/users'),
 };
+
+export const promoBannersApi = {
+  getAll: (all = false) => fetchApi(`/promo-banners${all ? '?all=true' : ''}`),
+  create: (data) => fetchApi('/promo-banners', { method: 'POST', body: data }),
+  update: (id, data) => fetchApi(`/promo-banners/${id}`, { method: 'PUT', body: data }),
+  delete: (id) => fetchApi(`/promo-banners/${id}`, { method: 'DELETE' }),
+};
+
+export const couponsApi = {
+  validate: (code, cartTotal) => fetchApi('/coupons/validate', { method: 'POST', body: { code, cartTotal } }),
+  getAll: () => fetchApi('/coupons'),
+  create: (data) => fetchApi('/coupons', { method: 'POST', body: data }),
+  update: (id, data) => fetchApi(`/coupons/${id}`, { method: 'PUT', body: data }),
+  delete: (id) => fetchApi(`/coupons/${id}`, { method: 'DELETE' }),
+};

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const Order = require('../models/Order');
+const Coupon = require('../models/Coupon');
 const { razorpayInstance, isMock } = require('../config/razorpay');
 const { releaseOrderStock } = require('./order');
 
@@ -116,6 +117,13 @@ exports.verifyPayment = async (req, res, next) => {
       order.razorpayPaymentId = razorpay_payment_id;
       await order.save();
 
+      if (order.couponCode) {
+        await Coupon.findOneAndUpdate(
+          { code: order.couponCode },
+          { $inc: { usedCount: 1 } }
+        );
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Payment verified and captured successfully',
@@ -187,6 +195,14 @@ exports.handleWebhook = async (req, res, next) => {
           order.razorpayPaymentId = payload.payment.entity.id;
         }
         await order.save();
+        
+        if (order.couponCode) {
+          await Coupon.findOneAndUpdate(
+            { code: order.couponCode },
+            { $inc: { usedCount: 1 } }
+          );
+        }
+        
         console.log(`Webhook updated Order ${order._id} to paid`);
       }
     } else if (event === 'payment.failed') {

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 export default function Footer() {
   const [email, setEmail] = React.useState('');
   const [isSubscribed, setIsSubscribed] = React.useState(false);
@@ -25,9 +26,12 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="col-span-12 lg:col-span-4 space-y-6 mb-10 lg:mb-0">
             <div className="mb-8">
-              <Link href="/">
-                <span className="font-display-lg text-2xl md:text-3xl tracking-widest text-surface font-bold">
+              <Link href="/" className="flex flex-col items-start justify-center">
+                <span className="font-display-lg text-3xl md:text-5xl tracking-widest text-surface font-bold leading-none">
                   NAARZI
+                </span>
+                <span className="font-label-caps text-[9px] md:text-[11px] tracking-[0.4em] text-[#C5A059] font-bold mt-2 uppercase">
+                  OWN THE MOMENT
                 </span>
               </Link>
             </div>

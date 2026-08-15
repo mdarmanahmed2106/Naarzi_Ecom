@@ -47,6 +47,10 @@ const productSchema = new mongoose.Schema({
       message: 'Discounted price must be less than or equal to original price'
     }
   },
+  isOnSale: {
+    type: Boolean,
+    default: false
+  },
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',

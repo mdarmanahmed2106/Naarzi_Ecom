@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
-import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi } from '@/lib/api';
+import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi } from '@/lib/api';
 
 function AdminHeader() {
   const { user, logout } = useApp();
@@ -12,8 +13,13 @@ function AdminHeader() {
     <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-margin-desktop shadow-sm">
       <div className="max-w-container-max mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/" className="font-display-lg text-xl font-bold tracking-widest text-primary hover:opacity-85 transition-opacity">
-            NAARZI
+          <Link href="/" className="flex flex-col items-start justify-center hover:opacity-85 transition-opacity">
+            <span className="font-display-lg text-xl md:text-2xl tracking-widest text-primary font-bold leading-none">
+              NAARZI
+            </span>
+            <span className="font-label-caps text-[6px] md:text-[8px] tracking-[0.4em] text-[#C5A059] font-bold mt-1 uppercase">
+              OWN THE MOMENT
+            </span>
           </Link>
           <span className="h-4 w-px bg-outline-variant/60"></span>
           <span className="text-[9px] font-label-caps text-on-surface-variant tracking-wider font-bold">ADMIN PORTAL</span>
@@ -43,8 +49,10 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [promoBanners, setPromoBanners] = useState([]);
+  const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('products'); // 'products' | 'inventory' | 'orders'
+  const [activeTab, setActiveTab] = useState('products'); // 'products' | 'inventory' | 'orders' | 'banners' | 'coupons'
   
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -59,6 +67,7 @@ export default function AdminDashboardPage() {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
   const [discountedPrice, setDiscountedPrice] = useState('');
+  const [isOnSale, setIsOnSale] = useState(false);
   const [category, setCategory] = useState('');
   const [imagesText, setImagesText] = useState('');
   const [uploadedImages, setUploadedImages] = useState([]);
@@ -81,6 +90,20 @@ export default function AdminDashboardPage() {
   const [allReviews, setAllReviews] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [ratingFilter, setRatingFilter] = useState('all');
+
+  // Banner Modal States
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+  const [bannerMessage, setBannerMessage] = useState('');
+  const [bannerLink, setBannerLink] = useState('');
+  const [bannerOrder, setBannerOrder] = useState(0);
+
+  // Coupon Modal States
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponDiscountType, setCouponDiscountType] = useState('percentage');
+  const [couponDiscountValue, setCouponDiscountValue] = useState(0);
+  const [couponMinOrder, setCouponMinOrder] = useState(0);
+  const [couponMaxUses, setCouponMaxUses] = useState(100);
   
   // Sizes stocks in Form
   const standardSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size'];
@@ -133,6 +156,16 @@ export default function AdminDashboardPage() {
       if (customerResponse.success) {
         setCustomers(customerResponse.data);
       }
+
+      const bannersResponse = await promoBannersApi.getAll(true);
+      if (bannersResponse.success) {
+        setPromoBanners(bannersResponse.data);
+      }
+
+      const couponsResponse = await couponsApi.getAll();
+      if (couponsResponse.success) {
+        setCoupons(couponsResponse.data);
+      }
     } catch (err) {
       console.error('Failed to load admin stats:', err);
     } finally {
@@ -148,6 +181,7 @@ export default function AdminDashboardPage() {
     setDescription(product.description);
     setPrice(product.price);
     setDiscountedPrice(product.discountedPrice !== undefined && product.discountedPrice !== null ? product.discountedPrice : '');
+    setIsOnSale(product.isOnSale || false);
     setCategory(product.category?._id || product.category || '');
     setImagesText(product.images.join('\n'));
     setUploadedImages(product.images ? product.images.map((url, idx) => ({ id: `existing-${idx}-${Date.now()}`, url, status: 'success' })) : []);
@@ -181,6 +215,7 @@ export default function AdminDashboardPage() {
     setDescription('');
     setPrice(0);
     setDiscountedPrice('');
+    setIsOnSale(false);
     setCategory(categories[0]?._id || '');
     setImagesText('');
     setUploadedImages([]);
@@ -358,6 +393,7 @@ export default function AdminDashboardPage() {
       description,
       price: Number(price),
       discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : undefined,
+      isOnSale,
       category,
       images: imageUrls,
       sizes: formattedSizes,
@@ -527,6 +563,26 @@ export default function AdminDashboardPage() {
     setIsCategoryModalOpen(true);
   };
 
+  const openBannerAddModal = () => {
+    setBannerMessage('');
+    setBannerLink('');
+    setBannerOrder(promoBanners.length + 1);
+    setIsBannerModalOpen(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+  };
+
+  const openCouponAddModal = () => {
+    setCouponCode('');
+    setCouponDiscountType('percentage');
+    setCouponDiscountValue(0);
+    setCouponMinOrder(0);
+    setCouponMaxUses(100);
+    setIsCouponModalOpen(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+  };
+
   const handleSubmitCategory = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -610,6 +666,92 @@ export default function AdminDashboardPage() {
       } catch (err) {
         setErrorMsg(`Failed to delete review: ${err.message}`);
       }
+    }
+  };
+
+  const handleToggleBanner = async (banner) => {
+    try {
+      const response = await promoBannersApi.update(banner._id, { isActive: !banner.isActive });
+      if (response.success) {
+        loadData();
+      }
+    } catch (err) {
+      setErrorMsg(`Failed to toggle banner: ${err.message}`);
+    }
+  };
+
+  const handleDeleteBanner = async (id) => {
+    if (window.confirm('Delete this banner?')) {
+      try {
+        await promoBannersApi.delete(id);
+        loadData();
+      } catch (err) {
+        setErrorMsg(`Failed to delete banner: ${err.message}`);
+      }
+    }
+  };
+
+  const handleToggleCoupon = async (coupon) => {
+    try {
+      const response = await couponsApi.update(coupon._id, { isActive: !coupon.isActive });
+      if (response.success) {
+        loadData();
+      }
+    } catch (err) {
+      setErrorMsg(`Failed to toggle coupon: ${err.message}`);
+    }
+  };
+
+  const handleDeleteCoupon = async (id) => {
+    if (window.confirm('Delete this coupon?')) {
+      try {
+        await couponsApi.delete(id);
+        loadData();
+      } catch (err) {
+        setErrorMsg(`Failed to delete coupon: ${err.message}`);
+      }
+    }
+  };
+
+  const handleSubmitBanner = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    try {
+      const response = await promoBannersApi.create({
+        message: bannerMessage,
+        link: bannerLink,
+        order: bannerOrder,
+        isActive: true
+      });
+      if (response.success) {
+        setSuccessMsg('Banner created successfully');
+        setIsBannerModalOpen(false);
+        loadData();
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to create banner');
+    }
+  };
+
+  const handleSubmitCoupon = async (e) => {
+    e.preventDefault();
+    setErrorMsg('');
+    try {
+      const response = await couponsApi.create({
+        code: couponCode.toUpperCase(),
+        discountType: couponDiscountType,
+        discountValue: Number(couponDiscountValue),
+        minOrderValue: Number(couponMinOrder),
+        maxUses: Number(couponMaxUses),
+        isActive: true
+      });
+      if (response.success) {
+        setSuccessMsg('Coupon created successfully');
+        setIsCouponModalOpen(false);
+        loadData();
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to create coupon');
     }
   };
 
@@ -713,7 +855,89 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col min-h-screen bg-surface text-on-surface">
       <AdminHeader />
 
-      <main className="flex-1 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full pt-10 pb-24">
+      <div className="flex flex-1 max-w-container-max mx-auto w-full">
+        {/* Sidebar Navigation */}
+        <aside className="w-64 shrink-0 border-r border-outline-variant/30 hidden md:block pt-10 pr-6 pl-margin-desktop">
+          <div className="sticky top-28">
+            <h2 className="text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-4 px-4">ADMIN MENU</h2>
+            <nav className="flex flex-col gap-1 text-sm font-label-caps font-bold">
+              <button 
+                onClick={() => { setActiveTab('products'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'products' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">grid_view</span>
+                PRODUCTS
+              </button>
+              <button 
+                onClick={() => { setActiveTab('inventory'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'inventory' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">inventory</span>
+                INVENTORY
+              </button>
+              <button 
+                onClick={() => { setActiveTab('orders'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'orders' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+                ORDERS
+              </button>
+              <button 
+                onClick={() => { setActiveTab('categories'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'categories' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">category</span>
+                CATEGORIES
+              </button>
+              <button 
+                onClick={() => { setActiveTab('banners'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'banners' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">campaign</span>
+                PROMO BANNERS
+              </button>
+              <button 
+                onClick={() => { setActiveTab('coupons'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'coupons' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">local_offer</span>
+                COUPONS
+              </button>
+              <button 
+                onClick={() => { setActiveTab('reviews'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'reviews' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">reviews</span>
+                REVIEWS
+              </button>
+              <button 
+                onClick={() => { setActiveTab('customers'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'customers' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">group</span>
+                CUSTOMERS
+              </button>
+            </nav>
+          </div>
+        </aside>
+
+        <main className="flex-1 px-6 md:pl-8 md:pr-margin-desktop w-full pt-10 pb-24 overflow-x-hidden">
         
         {/* Breadcrumb / Title */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
@@ -741,6 +965,22 @@ export default function AdminDashboardPage() {
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               ADD NEW CATEGORY
+            </button>
+          ) : activeTab === 'banners' ? (
+            <button 
+              onClick={openBannerAddModal}
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              ADD NEW BANNER
+            </button>
+          ) : activeTab === 'coupons' ? (
+            <button 
+              onClick={openCouponAddModal}
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              ADD NEW COUPON
             </button>
           ) : null}
         </div>
@@ -833,79 +1073,71 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Dashboard Tabs & Controls */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-outline-variant/30 pb-4 mb-8 gap-4">
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-label-caps">
-            <button 
-              onClick={() => { setActiveTab('products'); setSearchTerm(''); }}
-              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
-                activeTab === 'products' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              PRODUCTS DIRECTORY
-              {activeTab === 'products' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
-              )}
-            </button>
-            <button 
-              onClick={() => { setActiveTab('inventory'); setSearchTerm(''); }}
-              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
-                activeTab === 'inventory' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              INVENTORY MANAGEMENT
-              {activeTab === 'inventory' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
-              )}
-            </button>
-            <button 
-              onClick={() => { setActiveTab('orders'); setSearchTerm(''); }}
-              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
-                activeTab === 'orders' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              ORDERS MANAGEMENT
-              {activeTab === 'orders' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
-              )}
-            </button>
-            <button 
-              onClick={() => { setActiveTab('categories'); setSearchTerm(''); }}
-              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
-                activeTab === 'categories' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              CATEGORIES
-              {activeTab === 'categories' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
-              )}
-            </button>
-            <button 
-              onClick={() => { setActiveTab('reviews'); setSearchTerm(''); }}
-              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
-                activeTab === 'reviews' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              REVIEWS
-              {activeTab === 'reviews' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
-              )}
-            </button>
-            <button 
-              onClick={() => { setActiveTab('customers'); setSearchTerm(''); }}
-              className={`pb-4 relative font-bold cursor-pointer transition-colors ${
-                activeTab === 'customers' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`}
-            >
-              CUSTOMERS
-              {activeTab === 'customers' && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary animate-slide-in"></span>
-              )}
-            </button>
-          </div>
+        {/* Mobile Navigation Tabs (Hidden on Desktop) */}
+        <div className="md:hidden flex overflow-x-auto gap-4 pb-4 mb-6 border-b border-outline-variant/30 scrollbar-hide">
+          <button 
+            onClick={() => { setActiveTab('products'); setSearchTerm(''); }}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
+              activeTab === 'products' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
+            }`}
+          >
+            PRODUCTS
+          </button>
+          <button 
+            onClick={() => { setActiveTab('inventory'); setSearchTerm(''); }}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
+              activeTab === 'inventory' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
+            }`}
+          >
+            INVENTORY
+          </button>
+          <button 
+            onClick={() => { setActiveTab('orders'); setSearchTerm(''); }}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
+              activeTab === 'orders' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
+            }`}
+          >
+            ORDERS
+          </button>
+          <button 
+            onClick={() => { setActiveTab('categories'); setSearchTerm(''); }}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
+              activeTab === 'categories' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
+            }`}
+          >
+            CATEGORIES
+          </button>
+          <button 
+            onClick={() => { setActiveTab('reviews'); setSearchTerm(''); }}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
+              activeTab === 'reviews' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
+            }`}
+          >
+            REVIEWS
+          </button>
+          <button 
+            onClick={() => { setActiveTab('customers'); setSearchTerm(''); }}
+            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
+              activeTab === 'customers' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
+            }`}
+          >
+            CUSTOMERS
+          </button>
+        </div>
+
+        {/* Dashboard Controls (Search & Filters) */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <h2 className="font-display-lg text-2xl font-bold text-primary hidden md:block">
+            {activeTab === 'products' && 'Products Directory'}
+            {activeTab === 'inventory' && 'Inventory Management'}
+            {activeTab === 'orders' && 'Orders Management'}
+            {activeTab === 'categories' && 'Categories'}
+            {activeTab === 'reviews' && 'Reviews Moderation'}
+            {activeTab === 'customers' && 'Customers Directory'}
+          </h2>
 
           {/* Quick Search & Rating Filter */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto ml-auto">
             {activeTab === 'reviews' && (
               <select
                 value={ratingFilter}
@@ -1366,9 +1598,88 @@ export default function AdminDashboardPage() {
               </table>
             </div>
           </div>
+        ) : activeTab === 'banners' ? (
+          /* Banners Tab Table */
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
+                    <th className="py-4 px-6">Message</th>
+                    <th className="py-4 px-6">Link</th>
+                    <th className="py-4 px-6">Order</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/20 font-body-md">
+                  {promoBanners.map((b) => (
+                    <tr key={b._id} className="hover:bg-surface-container/10 transition-colors">
+                      <td className="py-4 px-6 font-semibold text-on-surface font-sans">{b.message}</td>
+                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">{b.link || '-'}</td>
+                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">{b.order}</td>
+                      <td className="py-4 px-6 font-mono text-xs">
+                        <button 
+                          onClick={() => handleToggleBanner(b)}
+                          className={`px-2 py-1 rounded text-[10px] font-bold ${b.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                        >
+                          {b.isActive ? 'ACTIVE' : 'INACTIVE'}
+                        </button>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button onClick={() => handleDeleteBanner(b._id)} className="px-3 text-error text-[10px] font-bold">DELETE</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : activeTab === 'coupons' ? (
+          /* Coupons Tab Table */
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
+                    <th className="py-4 px-6">Code</th>
+                    <th className="py-4 px-6">Discount</th>
+                    <th className="py-4 px-6">Uses</th>
+                    <th className="py-4 px-6">Status</th>
+                    <th className="py-4 px-6 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/20 font-body-md">
+                  {coupons.map((c) => (
+                    <tr key={c._id} className="hover:bg-surface-container/10 transition-colors">
+                      <td className="py-4 px-6 font-semibold text-on-surface font-sans">{c.code}</td>
+                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">
+                        {c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`}
+                      </td>
+                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">
+                        {c.usedCount} / {c.maxUses || '∞'}
+                      </td>
+                      <td className="py-4 px-6 font-mono text-xs">
+                        <button 
+                          onClick={() => handleToggleCoupon(c)}
+                          className={`px-2 py-1 rounded text-[10px] font-bold ${c.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
+                        >
+                          {c.isActive ? 'ACTIVE' : 'INACTIVE'}
+                        </button>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <button onClick={() => handleDeleteCoupon(c._id)} className="px-3 text-error text-[10px] font-bold">DELETE</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         ) : null}
 
       </main>
+    </div>
 
       {/* Product Add / Edit Modal */}
       {isFormModalOpen && (
@@ -1640,7 +1951,19 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Highlight Toggles */}
-              <div className="flex gap-8 border-t border-outline-variant/10 pt-4">
+              <div className="flex flex-wrap gap-8 border-t border-outline-variant/10 pt-4">
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="checkbox" 
+                    id="chk-onsale"
+                    checked={isOnSale}
+                    onChange={(e) => setIsOnSale(e.target.checked)}
+                    className="w-4 h-4 text-primary focus:ring-primary border-outline-variant/50 rounded cursor-pointer"
+                  />
+                  <label htmlFor="chk-onsale" className="text-xs font-label-caps tracking-wider text-on-surface-variant font-bold cursor-pointer">
+                    ON SALE
+                  </label>
+                </div>
                 <div className="flex items-center gap-2">
                   <input 
                     type="checkbox" 
@@ -1937,6 +2260,174 @@ export default function AdminDashboardPage() {
                 <button 
                   type="button"
                   onClick={() => setIsCategoryModalOpen(false)}
+                  className="flex-1 py-3 bg-transparent border border-outline-variant/50 text-on-surface-variant font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors font-bold cursor-pointer"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Banner Add Modal */}
+      {isBannerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+            {/* Title */}
+            <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
+              <h2 className="font-display-lg text-xl text-primary font-bold">Add New Banner</h2>
+              <button 
+                onClick={() => setIsBannerModalOpen(false)}
+                className="material-symbols-outlined text-on-surface-variant/70 hover:text-primary cursor-pointer text-xl bg-transparent border-none"
+              >
+                close
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmitBanner} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">BANNER MESSAGE *</label>
+                <input 
+                  type="text" 
+                  required
+                  value={bannerMessage}
+                  onChange={(e) => setBannerMessage(e.target.value)}
+                  placeholder="e.g. SUMMER SALE: 50% OFF"
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">LINK (OPTIONAL)</label>
+                <input 
+                  type="text" 
+                  value={bannerLink}
+                  onChange={(e) => setBannerLink(e.target.value)}
+                  placeholder="e.g. /sale"
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">ORDER (DISPLAY SEQUENCE) *</label>
+                <input 
+                  type="number" 
+                  required
+                  value={bannerOrder}
+                  onChange={(e) => setBannerOrder(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                />
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-4 border-t border-outline-variant/20 pt-6 mt-6">
+                <button 
+                  type="submit"
+                  className="flex-1 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer"
+                >
+                  CREATE
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsBannerModalOpen(false)}
+                  className="flex-1 py-3 bg-transparent border border-outline-variant/50 text-on-surface-variant font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors font-bold cursor-pointer"
+                >
+                  CANCEL
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Coupon Add Modal */}
+      {isCouponModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+            {/* Title */}
+            <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
+              <h2 className="font-display-lg text-xl text-primary font-bold">Add New Coupon</h2>
+              <button 
+                onClick={() => setIsCouponModalOpen(false)}
+                className="material-symbols-outlined text-on-surface-variant/70 hover:text-primary cursor-pointer text-xl bg-transparent border-none"
+              >
+                close
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmitCoupon} className="space-y-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">COUPON CODE *</label>
+                <input 
+                  type="text" 
+                  required
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. WELCOME10"
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors uppercase"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DISCOUNT TYPE *</label>
+                  <select 
+                    value={couponDiscountType}
+                    onChange={(e) => setCouponDiscountType(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="flat">Flat Amount (INR)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DISCOUNT VALUE *</label>
+                  <input 
+                    type="number" 
+                    required
+                    min="1"
+                    value={couponDiscountValue}
+                    onChange={(e) => setCouponDiscountValue(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">MIN ORDER VALUE</label>
+                  <input 
+                    type="number" 
+                    value={couponMinOrder}
+                    onChange={(e) => setCouponMinOrder(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">MAX USES</label>
+                  <input 
+                    type="number" 
+                    value={couponMaxUses}
+                    onChange={(e) => setCouponMaxUses(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Buttons */}
+              <div className="flex gap-4 border-t border-outline-variant/20 pt-6 mt-6">
+                <button 
+                  type="submit"
+                  className="flex-1 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer"
+                >
+                  CREATE
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsCouponModalOpen(false)}
                   className="flex-1 py-3 bg-transparent border border-outline-variant/50 text-on-surface-variant font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors font-bold cursor-pointer"
                 >
                   CANCEL

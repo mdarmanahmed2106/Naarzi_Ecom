@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Coupon = require('../models/Coupon');
 
 // Helper to release stock for a failed/cancelled order
 const releaseOrderStock = async (order) => {
@@ -71,11 +72,42 @@ exports.createOrder = async (req, res, next) => {
       await product.save();
     }
 
+    let discountAmount = 0;
+    let appliedCouponCode = null;
+
+    if (req.body.couponCode) {
+      const coupon = await Coupon.findOne({ code: req.body.couponCode.toUpperCase() });
+      if (!coupon || !coupon.isActive) {
+        return res.status(400).json({ success: false, message: 'Invalid coupon code' });
+      }
+      if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
+        return res.status(400).json({ success: false, message: 'Coupon has expired' });
+      }
+      if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
+        return res.status(400).json({ success: false, message: 'Coupon usage limit reached' });
+      }
+      if (coupon.minOrderValue && totalAmount < coupon.minOrderValue) {
+        return res.status(400).json({ success: false, message: `Cart total must be at least ${coupon.minOrderValue} to use this coupon` });
+      }
+
+      if (coupon.discountType === 'percentage') {
+        discountAmount = (totalAmount * coupon.discountValue) / 100;
+      } else {
+        discountAmount = coupon.discountValue;
+      }
+      
+      discountAmount = Math.round(Math.min(discountAmount, totalAmount));
+      totalAmount -= discountAmount;
+      appliedCouponCode = coupon.code;
+    }
+
     // 3. Create pending order in DB
     const order = await Order.create({
       user: req.user._id,
       items: orderedItems,
       totalAmount,
+      couponCode: appliedCouponCode,
+      discountAmount,
       shippingAddress,
       paymentStatus: 'pending',
       orderStatus: 'processing' // Default status

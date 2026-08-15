@@ -206,6 +206,15 @@ export default function ProductDetailPage({ params }) {
             <div className="lg:col-span-7 flex flex-col md:flex-row-reverse gap-4">
               {/* Main Active Image */}
               <div className="flex-1 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
+                {product.isOnSale && (
+                  <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                    <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
+                      <span>SALE</span>
+                      <span>SALE</span>
+                      <span>SALE</span>
+                    </div>
+                  </div>
+                )}
                 <img 
                   src={product.images[activeImage]} 
                   alt={`${product.name} active`} 
