@@ -5,10 +5,11 @@ const requireAuth = async (req, res, next) => {
   let token;
 
   // Read token from httpOnly cookie
-  if (req.cookies && req.cookies.token) {
+  if (req.cookies && req.cookies.admin_token) {
+    token = req.cookies.admin_token;
+  } else if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   }
-
   // Fallback to Bearer token in headers (useful for testing API)
   else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];

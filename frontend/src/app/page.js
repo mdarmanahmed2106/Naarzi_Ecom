@@ -272,7 +272,7 @@ function HomePageContent() {
           <motion.img 
             alt="Naarzi Resort Collection Hero" 
             className="w-full h-full object-cover object-center" 
-            src="https://lh3.googleusercontent.com/aida/AP1WRLtEjcQoKnaAVgF78U7xuTNE3Y4rdh0DPiEC4if45-dF56Op5sIPcmmTUA8wQfd6hVUg5-wiDdoRqfXXMEdqYa9zjU4zuaxRR54zuU4KRoM5e_bCF-cdVqpGcoXaf87nb35NF4qOSNczM--WDQBvES7FCnAHrhpMDFnuLmgDr82huYFlnr7m_c83fqy0rv8YVtcjtQqLakFEwyezImiVd60e7B3qdUCrqdkMa5QBH7hvCUjwVMk-9O-AqHzp"
+            src="/hero_resort_wear.jpg"
             animate={shouldReduceMotion ? { scale: 1 } : { scale: 1.05 }}
             transition={{
               duration: 8,

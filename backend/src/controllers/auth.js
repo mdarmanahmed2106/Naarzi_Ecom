@@ -62,7 +62,8 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    sendTokenResponse(user, 200, res);
+    const cookieName = req.body.source === 'admin' ? 'admin_token' : 'token';
+    sendTokenResponse(user, 200, res, cookieName);
   } catch (error) {
     next(error);
   }
@@ -73,7 +74,8 @@ exports.login = async (req, res, next) => {
 // @access  Public
 exports.logout = async (req, res, next) => {
   try {
-    res.cookie('token', 'none', {
+    const cookieName = req.body.source === 'admin' ? 'admin_token' : 'token';
+    res.cookie(cookieName, 'none', {
       expires: new Date(Date.now() + 10 * 1000),
       httpOnly: true
     });

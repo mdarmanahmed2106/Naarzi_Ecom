@@ -3,15 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import AuthModal from '@/components/AuthModal';
-import { useApp } from '@/context/AppContext';
+import { useRouter } from 'next/navigation';
 import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi } from '@/lib/api';
 
-function AdminHeader() {
-  const { user, logout } = useApp();
+function AdminHeader({ user, logout }) {
   return (
-    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-margin-desktop shadow-sm">
-      <div className="max-w-container-max mx-auto flex items-center justify-between">
+    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-10 lg:px-16 shadow-sm">
+      <div className="w-full flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex flex-col items-start justify-center hover:opacity-85 transition-opacity">
             <span className="font-display-lg text-xl md:text-2xl tracking-widest text-primary font-bold leading-none">
@@ -44,8 +42,6 @@ function AdminHeader() {
 }
 
 export default function AdminDashboardPage() {
-  const { user, authLoading, setIsAuthOpen, setAuthModalTab } = useApp();
-
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -122,12 +118,29 @@ export default function AdminDashboardPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+
   // Load products, categories, and orders on authorized mount
   useEffect(() => {
-    if (user && user.role === 'admin') {
-      loadData();
+    async function checkAuth() {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/me`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (response.ok && data.user && data.user.role === 'admin') {
+          setUser(data.user);
+          loadData();
+        } else {
+          router.push('/login');
+        }
+      } catch (err) {
+        router.push('/login');
+      }
     }
-  }, [user]);
+    checkAuth();
+  }, [router]);
 
   async function loadData() {
     setLoading(true);
@@ -801,11 +814,25 @@ export default function AdminDashboardPage() {
     c.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const logout = async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source: 'admin' }),
+        credentials: 'include'
+      });
+      router.push('/login');
+    } catch (err) {
+      console.error(err);
+      router.push('/login');
+    }
+  };
+
   // 1. Loading User Check
-  if (authLoading) {
+  if (!user || user.role !== 'admin') {
     return (
       <div className="flex flex-col min-h-screen bg-surface">
-        <AdminHeader />
         <div className="flex-1 flex items-center justify-center py-40">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
         </div>
@@ -813,52 +840,14 @@ export default function AdminDashboardPage() {
     );
   }
 
-  // 2. Access Restriction check
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className="flex flex-col min-h-screen bg-surface text-on-surface">
-        <AdminHeader />
-        <div className="flex-1 flex items-center justify-center py-32 px-6">
-          <div className="max-w-md w-full bg-white border border-outline-variant/30 rounded-2xl p-10 text-center shadow-lg transition-slow hover:shadow-[0_12px_40px_rgba(107,34,51,0.04)]">
-            <span className="material-symbols-outlined text-5xl text-primary mb-6 animate-pulse">
-              lock
-            </span>
-            <h1 className="font-display-lg text-3xl mb-4 text-primary font-bold">Access Denied</h1>
-            <p className="font-body-md text-on-surface-variant text-sm mb-10 leading-relaxed">
-              This space is reserved for Naarzi administrators. If you hold an admin account, please sign in below.
-            </p>
-            <div className="flex gap-4">
-              <button 
-                onClick={() => {
-                  setAuthModalTab('login');
-                  setIsAuthOpen(true);
-                }}
-                className="flex-1 py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer"
-              >
-                SIGN IN
-              </button>
-              <Link 
-                href="/"
-                className="flex-1 py-4 bg-transparent border border-outline-variant/60 text-on-surface-variant font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors block text-center font-bold"
-              >
-                STOREFRONT
-              </Link>
-            </div>
-          </div>
-        </div>
-        <AuthModal />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col min-h-screen bg-surface text-on-surface">
-      <AdminHeader />
+    <div className="min-h-screen bg-surface font-body-md text-on-surface flex flex-col">
+      <AdminHeader user={user} logout={logout} />
 
-      <div className="flex flex-1 max-w-container-max mx-auto w-full">
+      <div className="flex flex-1 w-full relative">
         {/* Sidebar Navigation */}
-        <aside className="w-64 shrink-0 border-r border-outline-variant/30 hidden md:block pt-10 pr-6 pl-margin-desktop">
-          <div className="sticky top-28">
+        <aside className="w-64 shrink-0 border-r border-outline-variant/30 hidden md:block pt-10 pr-6 pl-6 lg:pl-10 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto">
+          <div className="pb-10">
             <h2 className="text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-4 px-4">ADMIN MENU</h2>
             <nav className="flex flex-col gap-1 text-sm font-label-caps font-bold">
               <button 
@@ -937,7 +926,7 @@ export default function AdminDashboardPage() {
           </div>
         </aside>
 
-        <main className="flex-1 px-6 md:pl-8 md:pr-margin-desktop w-full pt-10 pb-24 overflow-x-hidden">
+        <main className="flex-1 px-6 md:pl-8 md:pr-10 lg:pr-16 w-full pt-10 pb-24 overflow-x-hidden">
         
         {/* Breadcrumb / Title */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
@@ -2438,8 +2427,6 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* Global Overlays */}
-      <AuthModal />
     </div>
   );
 }

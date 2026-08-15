@@ -6,7 +6,7 @@ const generateToken = (id) => {
   });
 };
 
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = (user, statusCode, res, cookieName = 'token') => {
   const token = generateToken(user._id);
 
   // Default to 7 days
@@ -26,7 +26,7 @@ const sendTokenResponse = (user, statusCode, res) => {
 
   res
     .status(statusCode)
-    .cookie('token', token, cookieOptions)
+    .cookie(cookieName, token, cookieOptions)
     .json({
       success: true,
       token,

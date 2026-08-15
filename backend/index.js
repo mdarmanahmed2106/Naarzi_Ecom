@@ -35,7 +35,15 @@ app.use(
       if (!origin || origin.startsWith('http://localhost:')) {
         callback(null, true);
       } else {
-        callback(null, process.env.CLIENT_URL || 'http://localhost:3000');
+        const allowedOrigins = [
+          process.env.CLIENT_URL || 'http://localhost:3000',
+          process.env.ADMIN_CLIENT_URL || 'http://localhost:3007'
+        ];
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
       }
     },
     credentials: true

@@ -7,9 +7,27 @@ const Review = require('../models/Review');
 // @access  Public
 exports.getProducts = async (req, res, next) => {
   try {
-    const { category, occasion, minPrice, maxPrice, sort, page = 1, limit = 10, search } = req.query;
+    const { category, occasion, minPrice, maxPrice, sort, page = 1, limit = 10, search, inStock, size } = req.query;
 
     const query = {};
+
+    // 0. Availability Filter
+    if (inStock === 'true') {
+      query.stock = { $gt: 0 };
+    } else if (inStock === 'false') {
+      query.stock = 0;
+    }
+
+    // 0.5 Size Filter
+    if (size) {
+      const sizesArray = Array.isArray(size) ? size : size.split(',');
+      query['sizes'] = {
+        $elemMatch: {
+          size: { $in: sizesArray },
+          stock: { $gt: 0 }
+        }
+      };
+    }
 
     // 1. Category Filter (can be category ID or slug)
     if (category) {
