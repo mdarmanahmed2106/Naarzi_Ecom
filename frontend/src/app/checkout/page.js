@@ -18,7 +18,9 @@ export default function CheckoutPage() {
     clearCart,
     user,
     setIsAuthOpen,
-    setAuthModalTab
+    setAuthModalTab,
+    appliedCoupon,
+    setAppliedCoupon
   } = useApp();
 
   const [street, setStreet] = useState('');
@@ -32,8 +34,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(null);
 
-  const [couponInput, setCouponInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponInput, setCouponInput] = useState(appliedCoupon ? appliedCoupon.code : '');
   const [couponError, setCouponError] = useState('');
   const [validatingCoupon, setValidatingCoupon] = useState(false);
 

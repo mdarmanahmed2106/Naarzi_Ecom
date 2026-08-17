@@ -13,6 +13,9 @@ dotenv.config();
 // Connect to Database
 connectDB();
 
+const { startAbandonedOrderCleanupJob } = require('./src/jobs/releaseAbandonedStock');
+startAbandonedOrderCleanupJob();
+
 // Route files
 const authRoutes = require('./src/routes/auth');
 const categoryRoutes = require('./src/routes/category');

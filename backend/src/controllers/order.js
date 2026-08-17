@@ -2,23 +2,25 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
 
-// Helper to release stock for a failed/cancelled order
 const releaseOrderStock = async (order) => {
   try {
     for (const item of order.items) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        const sizeObj = product.sizes.find((s) => s.size === item.size);
-        if (sizeObj) {
-          sizeObj.stock += item.quantity;
-          await product.save();
-        }
-      }
+      await Product.findOneAndUpdate(
+        { _id: item.product },
+        {
+          $inc: {
+            'sizes.$[elem].stock': item.quantity,
+            'stock': item.quantity
+          }
+        },
+        { arrayFilters: [{ 'elem.size': item.size }] }
+      );
     }
   } catch (error) {
     console.error(`Failed to release stock for order ${order._id}:`, error);
   }
 };
+exports.releaseOrderStock = releaseOrderStock;
 
 // @desc    Create new order (with stock verification and decrement)
 // @route   POST /api/orders
@@ -27,49 +29,71 @@ exports.createOrder = async (req, res, next) => {
   try {
     const { items, shippingAddress } = req.body;
 
-    const productsToUpdate = [];
     const orderedItems = [];
     let totalAmount = 0;
+    const succeededDecrements = [];
 
-    // 1. Validate stock and calculate total amount
+    // 1. Validate stock and atomically decrement
     for (const item of items) {
-      const product = await Product.findById(item.product);
-      if (!product) {
-        return res.status(404).json({
-          success: false,
-          message: `Product with ID ${item.product} not found`
-        });
-      }
+      const updatedProduct = await Product.findOneAndUpdate(
+        {
+          _id: item.product,
+          sizes: { $elemMatch: { size: item.size, stock: { $gte: item.quantity } } }
+        },
+        {
+          $inc: { 'sizes.$[elem].stock': -item.quantity, 'stock': -item.quantity }
+        },
+        {
+          arrayFilters: [{ 'elem.size': item.size }],
+          new: true
+        }
+      );
 
-      const sizeObj = product.sizes.find((s) => s.size === item.size);
-      if (!sizeObj || sizeObj.stock < item.quantity) {
+      if (!updatedProduct) {
+        // Rollback successful decrements
+        for (const successful of succeededDecrements) {
+          await Product.findOneAndUpdate(
+            { _id: successful.product },
+            {
+              $inc: { 'sizes.$[elem].stock': successful.quantity, 'stock': successful.quantity }
+            },
+            { arrayFilters: [{ 'elem.size': successful.size }] }
+          );
+        }
+
+        // Fetch product to give precise error
+        const product = await Product.findById(item.product);
+        if (!product) {
+          return res.status(404).json({
+            success: false,
+            message: `Product with ID ${item.product} not found`
+          });
+        }
+        const sizeObj = product.sizes.find((s) => s.size === item.size);
         return res.status(400).json({
           success: false,
           message: `Insufficient stock for product "${product.name}" in size "${item.size}". Only ${sizeObj ? sizeObj.stock : 0} items left.`
         });
       }
 
-      const price = product.discountedPrice !== undefined && product.discountedPrice !== null
-        ? product.discountedPrice
-        : product.price;
+      succeededDecrements.push({
+        product: item.product,
+        size: item.size,
+        quantity: item.quantity
+      });
+
+      const price = updatedProduct.discountedPrice !== undefined && updatedProduct.discountedPrice !== null
+        ? updatedProduct.discountedPrice
+        : updatedProduct.price;
 
       totalAmount += price * item.quantity;
 
-      // Keep reference to update stock
-      sizeObj.stock -= item.quantity;
-      productsToUpdate.push(product);
-
       orderedItems.push({
-        product: product._id,
+        product: updatedProduct._id,
         size: item.size,
         quantity: item.quantity,
         priceAtPurchase: price
       });
-    }
-
-    // 2. Decrement stock (Save all updated products)
-    for (const product of productsToUpdate) {
-      await product.save();
     }
 
     let discountAmount = 0;

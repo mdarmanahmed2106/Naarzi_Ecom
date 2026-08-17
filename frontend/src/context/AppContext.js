@@ -14,6 +14,7 @@ export function AppProvider({ children }) {
   const [authModalTab, setAuthModalTab] = useState('login'); // 'login' | 'signup'
   const [wishlistItems, setWishlistItems] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(true);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const quantityDebounceRef = useRef(null);
 
   // Load user profile on mount
@@ -295,6 +296,8 @@ export function AppProvider({ children }) {
         wishlistLoading,
         addToWishlist,
         removeFromWishlist,
+        appliedCoupon,
+        setAppliedCoupon,
       }}
     >
       {children}

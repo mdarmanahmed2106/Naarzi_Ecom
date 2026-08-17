@@ -18,6 +18,20 @@ export default function Header() {
 
   const [banners, setBanners] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState(null);
+  const [mobileApparelOpen, setMobileApparelOpen] = useState(false);
+  const closeTimerRef = React.useRef(null);
+
+  const handleMouseEnter = (menu) => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    setActiveMegaMenu(menu);
+  };
+
+  const handleMouseLeave = () => {
+    closeTimerRef.current = setTimeout(() => {
+      setActiveMegaMenu(null);
+    }, 200);
+  };
 
   useEffect(() => {
     async function fetchBanners() {
@@ -78,10 +92,68 @@ export default function Header() {
             >
               <span className="material-symbols-outlined text-2xl">menu</span>
             </button>
-            <nav className="hidden lg:flex items-center gap-6">
-              <Link href="/?category=apparel" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">
-                APPAREL
-              </Link>
+            <nav className="hidden lg:flex items-center gap-6 h-full">
+              <div 
+                className="flex items-center h-full"
+                onMouseEnter={() => handleMouseEnter('apparel')}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link href="/?category=apparel" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold h-full flex items-center">
+                  APPAREL
+                </Link>
+                
+                {activeMegaMenu === 'apparel' && (
+                  <div className="fixed left-0 top-20 w-full bg-surface shadow-xl border-t border-outline-variant/30 z-40">
+                    <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop grid grid-cols-4 gap-12 py-10">
+                      <div>
+                        <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Clothing</h4>
+                        <ul className="space-y-3 text-sm text-on-surface-variant">
+                          <li><Link href="/?category=tops" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Tops</Link></li>
+                          <li><Link href="/?category=bottoms" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Bottoms</Link></li>
+                          <li><Link href="/?category=dresses" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Dresses</Link></li>
+                          <li><Link href="/?category=outerwear" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Outerwear</Link></li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Featured</h4>
+                        <ul className="space-y-3 text-sm text-on-surface-variant">
+                          <li><Link href="/?tag=trending" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Trending</Link></li>
+                          <li><Link href="/?tag=staff-pick" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Staff Picks</Link></li>
+                          <li><Link href="/?tag=essentials" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Essentials</Link></li>
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Shop All</h4>
+                        <ul className="space-y-3 text-sm text-on-surface-variant">
+                          <li><Link href="/?tag=new arrival" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">New Arrivals</Link></li>
+                          <li><Link href="/?tag=bestsellers" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Best Sellers</Link></li>
+                          <li>
+                            <Link href="/?tag=sale" onClick={() => setActiveMegaMenu(null)} className="text-[#E55B5B] flex items-center gap-2 hover:opacity-80 transition-opacity">
+                              Sale
+                              <span className="bg-[#E55B5B] text-white text-[9px] px-2 py-0.5 rounded font-bold">15% OFF</span>
+                            </Link>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <Link href="/?category=knitwear" onClick={() => setActiveMegaMenu(null)} className="relative rounded-lg overflow-hidden group">
+                          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3pAvrBBot7wDb-k_B5z0L-qaAozsKQsK8uo9Kz4QCK4TzSF_0iQRTClaKS4lF3lT7ZArRzxdaMbzt6vLVKEW_httHrEiFkzsljgbUoeHHoqv5TVFQ1BC4XbOSW9Gwv34L1EG4RxzCdc-W8t0qBjZHCpm0w5y6u_hdAo7rOGVOPbRsBy1-A10dj_EmSax-hlJvvYpWOlHcpsDTR0U2jdoRV4NcBxwHRRsSqnnjbvHTWHXxg6vBt_-JtA" className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" alt="Knitwear" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                          <span className="absolute bottom-4 left-4 text-white font-label-caps tracking-widest text-sm font-bold">KNITWEAR</span>
+                        </Link>
+                        <Link href="/?tag=resort" onClick={() => setActiveMegaMenu(null)} className="relative rounded-lg overflow-hidden group">
+                          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw" className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" alt="Resort Looks" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                          <span className="absolute bottom-4 left-4 text-white font-label-caps tracking-widest text-sm font-bold">RESORT LOOKS</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
               <Link href="/?tag=new arrival" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">
                 NEW
               </Link>
@@ -180,9 +252,25 @@ export default function Header() {
         <div className="flex-1 overflow-y-auto py-6 px-6 flex flex-col gap-6">
           {/* Main Links */}
           <nav className="flex flex-col gap-6">
-            <Link href="/?category=apparel" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest">
-              APPAREL
-            </Link>
+            <div>
+              <div 
+                className="flex items-center justify-between cursor-pointer font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest"
+                onClick={() => setMobileApparelOpen(!mobileApparelOpen)}
+              >
+                <span>APPAREL</span>
+                <span className="material-symbols-outlined text-xl transition-transform duration-300" style={{ transform: mobileApparelOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>expand_more</span>
+              </div>
+              <div className={`overflow-hidden transition-all duration-300 ${mobileApparelOpen ? 'max-h-[500px] mt-4' : 'max-h-0'}`}>
+                <ul className="space-y-4 pl-4 text-sm text-on-surface-variant font-medium">
+                  <li><Link href="/?category=tops" onClick={() => setIsMobileMenuOpen(false)}>Tops</Link></li>
+                  <li><Link href="/?category=bottoms" onClick={() => setIsMobileMenuOpen(false)}>Bottoms</Link></li>
+                  <li><Link href="/?category=dresses" onClick={() => setIsMobileMenuOpen(false)}>Dresses</Link></li>
+                  <li><Link href="/?category=outerwear" onClick={() => setIsMobileMenuOpen(false)}>Outerwear</Link></li>
+                  <li><Link href="/?tag=trending" onClick={() => setIsMobileMenuOpen(false)}>Trending</Link></li>
+                  <li><Link href="/?category=apparel" onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-primary">Shop All Apparel</Link></li>
+                </ul>
+              </div>
+            </div>
             <Link href="/?tag=new arrival" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest">
               NEW ARRIVAL
             </Link>
