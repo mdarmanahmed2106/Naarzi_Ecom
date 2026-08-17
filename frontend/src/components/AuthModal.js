@@ -47,7 +47,7 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
       <div 
-        className="bg-surface border border-outline-variant max-w-md w-full mx-4 rounded-xl shadow-xl overflow-hidden"
+        className="bg-surface border border-outline-variant max-w-md w-full mx-4 rounded-xl shadow-xl flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Tabs */}
@@ -81,7 +81,7 @@ export default function AuthModal() {
         </div>
 
         {/* Form Body */}
-        <div className="p-6 md:p-8">
+        <div className="p-6 md:p-8 overflow-y-auto">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-headline-sm text-lg text-on-surface">
               {authModalTab === 'login' ? 'Welcome back' : 'Create an account'}

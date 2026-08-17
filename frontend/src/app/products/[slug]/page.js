@@ -81,6 +81,10 @@ export default function ProductDetailPage({ params }) {
           const loadedProduct = prodResponse.data;
           setProduct(loadedProduct);
           
+          if (loadedProduct.sizes && loadedProduct.sizes.length === 1) {
+            setSelectedSize(loadedProduct.sizes[0].size);
+          }
+
           // Load reviews
           const reviewsResponse = await reviewsApi.getByProduct(loadedProduct._id);
           if (reviewsResponse.success) {
@@ -203,41 +207,66 @@ export default function ProductDetailPage({ params }) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start mb-24">
             
             {/* Gallery Column */}
-            <div className="lg:col-span-7 flex flex-col md:flex-row-reverse gap-4">
-              {/* Main Active Image */}
-              <div className="flex-1 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
-                {product.isOnSale && (
-                  <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
-                    <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
-                      <span>SALE</span>
-                      <span>SALE</span>
-                      <span>SALE</span>
+            <div className="lg:col-span-7">
+              {/* Mobile Swipeable Gallery */}
+              <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-6 px-6 gap-4 pb-4">
+                {product.images.map((img, index) => (
+                  <div key={index} className="w-full shrink-0 snap-center aspect-[3/4] rounded-xl overflow-hidden relative bg-surface-container">
+                    {product.isOnSale && index === 0 && (
+                      <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                        <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
+                          <span>SALE</span>
+                          <span>SALE</span>
+                          <span>SALE</span>
+                        </div>
+                      </div>
+                    )}
+                    <img 
+                      src={img} 
+                      alt={`${product.name} view ${index + 1}`} 
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Gallery (Active + Thumbnails) */}
+              <div className="hidden md:flex flex-row-reverse gap-4">
+                {/* Main Active Image */}
+                <div className="flex-1 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
+                  {product.isOnSale && (
+                    <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                      <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
+                        <span>SALE</span>
+                        <span>SALE</span>
+                        <span>SALE</span>
+                      </div>
                     </div>
+                  )}
+                  <img 
+                    src={product.images[activeImage]} 
+                    alt={`${product.name} active`} 
+                    className="w-full h-full object-cover transition-all duration-500" 
+                  />
+                </div>
+                
+                {/* Gallery Thumbnails */}
+                {product.images.length > 1 && (
+                  <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide w-24 shrink-0 max-h-[800px] pr-1">
+                    {product.images.map((img, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => setActiveImage(index)}
+                        className={`w-full aspect-[3/4] shrink-0 rounded-xl overflow-hidden border transition-all cursor-pointer focus:outline-none ${
+                          activeImage === index ? 'border-primary opacity-100 ring-1 ring-primary' : 'border-transparent opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <img src={img} alt={`${product.name} thumb ${index}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
                   </div>
                 )}
-                <img 
-                  src={product.images[activeImage]} 
-                  alt={`${product.name} active`} 
-                  className="w-full h-full object-cover transition-all duration-500" 
-                />
               </div>
-              
-              {/* Gallery Thumbnails */}
-              {product.images.length > 1 && (
-                <div className="flex md:flex-col gap-4 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide w-full md:w-24 shrink-0">
-                  {product.images.map((img, index) => (
-                    <button 
-                      key={index}
-                      onClick={() => setActiveImage(index)}
-                      className={`w-20 h-24 md:w-full md:h-32 shrink-0 rounded-xl overflow-hidden border transition-all cursor-pointer focus:outline-none ${
-                        activeImage === index ? 'border-primary opacity-100 ring-1 ring-primary' : 'border-transparent opacity-60 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={img} alt={`${product.name} thumb ${index}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* Details & Action Column */}
@@ -343,23 +372,23 @@ export default function ProductDetailPage({ params }) {
               </div>
 
               {/* Actions: Qty, Add to Bag, Wishlist */}
-              <div className="flex items-center gap-4 mb-12">
+              <div className="sticky bottom-0 z-40 bg-surface p-4 -mx-6 md:mx-0 md:p-0 border-t border-outline-variant/20 md:border-none shadow-[0_-12px_24px_rgba(107,34,51,0.06)] md:shadow-none flex items-center gap-3 md:gap-4 mb-8 md:mb-12 mt-4 md:mt-0 transition-all duration-300">
                 {/* Quantity Selector */}
-                <div className="flex items-center border border-outline-variant/50 rounded-xl h-14 bg-transparent px-2">
+                <div className="flex items-center border border-outline-variant/50 rounded-xl h-14 bg-transparent px-1">
                   <button 
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     aria-label="Decrease quantity" 
-                    className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
+                    className="w-10 h-14 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[20px]">remove</span>
                   </button>
-                  <span className="w-8 text-center font-body-md text-body-md text-on-surface select-none">
+                  <span className="w-6 md:w-8 text-center font-body-md text-body-md text-on-surface select-none">
                     {quantity}
                   </span>
                   <button 
                     onClick={() => setQuantity(q => q + 1)}
                     aria-label="Increase quantity" 
-                    className="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
+                    className="w-10 h-14 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-[20px]">add</span>
                   </button>
@@ -371,7 +400,7 @@ export default function ProductDetailPage({ params }) {
                   disabled={!selectedSize || isOutOfStock}
                   className="flex-1 h-14 bg-primary text-on-primary font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer font-bold"
                 >
-                  <span className="material-symbols-outlined text-sm">shopping_bag</span>
+                  <span className="material-symbols-outlined text-sm hidden sm:block">shopping_bag</span>
                   {!selectedSize
                     ? 'SELECT A SIZE'
                     : isOutOfStock
@@ -383,7 +412,7 @@ export default function ProductDetailPage({ params }) {
                 <button 
                   onClick={handleWishlistToggle}
                   aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"} 
-                  className={`w-14 h-14 rounded-xl border flex items-center justify-center transition-colors focus:outline-none cursor-pointer ${
+                  className={`w-14 h-14 shrink-0 rounded-xl border flex items-center justify-center transition-colors focus:outline-none cursor-pointer ${
                     isWishlisted
                       ? 'border-primary text-primary bg-primary/5 hover:bg-primary/10'
                       : 'border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary'
@@ -525,7 +554,7 @@ export default function ProductDetailPage({ params }) {
                   <button
                     type="submit"
                     disabled={reviewLoading}
-                    className="px-6 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors disabled:opacity-50"
+                    className="w-full sm:w-auto px-6 py-4 sm:py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors disabled:opacity-50 font-bold"
                   >
                     {reviewLoading ? 'SUBMITTING...' : 'SUBMIT REVIEW'}
                   </button>
@@ -615,12 +644,12 @@ export default function ProductDetailPage({ params }) {
                   </button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+              <div className="flex sm:grid sm:grid-cols-3 gap-4 md:gap-gutter overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 sm:pb-0">
                 {relatedProducts.map((p) => {
                   const hasDisc = p.discountedPrice !== undefined && p.discountedPrice !== null;
                   const currPrice = hasDisc ? p.discountedPrice : p.price;
                   return (
-                    <div key={p._id} className="group">
+                    <div key={p._id} className="group min-w-[280px] sm:min-w-0 snap-center">
                       <Link href={`/products/${p.slug}`} className="block">
                         <div className="aspect-[4/5] bg-surface-container rounded-2xl overflow-hidden mb-4 shadow-sm hover:shadow-md transition-shadow relative">
                           <img 

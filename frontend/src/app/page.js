@@ -286,7 +286,7 @@ function HomePageContent() {
         
         <div className="relative z-10 w-full max-w-container-max mx-auto px-6 md:px-margin-desktop">
           <motion.div 
-            className="max-w-xl"
+            className="max-w-xl mt-32 md:mt-0"
             initial="hidden"
             animate="visible"
             variants={heroContainerVariants}
@@ -339,7 +339,7 @@ function HomePageContent() {
           className="py-20 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full"
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
+          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
           variants={scrollFadeInVariants}
         >
           <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface mb-10 text-center font-bold">
@@ -379,7 +379,7 @@ function HomePageContent() {
         className="py-16 bg-surface-container-low/40 border-t border-b border-outline-variant/20 w-full"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
+        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
         variants={scrollFadeInVariants}
       >
         <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
@@ -654,7 +654,7 @@ function HomePageContent() {
         className="py-24 bg-surface-container-low border-t border-b border-outline-variant/20 w-full"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
+        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
         variants={scrollFadeInVariants}
       >
         <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
@@ -753,7 +753,7 @@ function HomePageContent() {
         className="py-24 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
+        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
         variants={scrollFadeInVariants}
       >
         <div className="lg:col-span-5 space-y-6">
@@ -799,7 +799,7 @@ function HomePageContent() {
         className="py-16 bg-surface-container-low/30 border-t border-outline-variant/20 w-full"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.25 }}
+        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
         variants={scrollFadeInVariants}
       >
         <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">

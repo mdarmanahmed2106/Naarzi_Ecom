@@ -106,12 +106,14 @@ body {
 .group:hover .product-image-secondary {
   opacity: 1;
 }
-.product-quick-add {
-  opacity: 0;
-  transition: opacity 200ms ease-in-out;
-}
-.group:hover .product-quick-add {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .product-quick-add {
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+  }
+  .group:hover .product-quick-add {
+    opacity: 1;
+  }
 }
 
 /* Marquee badge keyframe animations */

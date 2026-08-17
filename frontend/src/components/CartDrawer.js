@@ -80,12 +80,13 @@ export default function CartDrawer() {
                         <h4 className="font-body-md text-sm text-on-surface font-medium line-clamp-1">
                           {item.product.name}
                         </h4>
-                        <span 
-                          className="material-symbols-outlined text-xs text-on-surface-variant cursor-pointer hover:text-primary"
+                        <button 
+                          className="w-11 h-11 flex items-center justify-center text-on-surface-variant cursor-pointer hover:text-primary hover:bg-surface-container rounded-full transition-colors -mr-2 -mt-2"
                           onClick={() => removeFromCart(item.product._id, item.size)}
+                          aria-label="Remove item"
                         >
-                          delete
-                        </span>
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
                       </div>
                       <p className="text-xs text-on-surface-variant mt-1 font-label-caps">
                         SIZE: {item.size}
@@ -94,19 +95,19 @@ export default function CartDrawer() {
 
                     {/* Quantity Selector & Price */}
                     <div className="flex justify-between items-center mt-2">
-                      <div className="flex items-center border border-outline/30 rounded-lg overflow-hidden h-8">
+                      <div className="flex items-center border border-outline/30 rounded-xl overflow-hidden h-11">
                         <button 
                           onClick={() => updateCartQuantity(item.product._id, item.size, item.quantity - 1)}
-                          className="px-2 text-on-surface-variant hover:bg-surface-container transition-colors h-full"
+                          className="w-11 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors h-full text-lg cursor-pointer"
                         >
                           -
                         </button>
-                        <span className="px-3 text-xs text-on-surface font-medium h-full flex items-center">
+                        <span className="w-8 flex items-center justify-center text-xs text-on-surface font-medium h-full">
                           {item.quantity}
                         </span>
                         <button 
                           onClick={() => updateCartQuantity(item.product._id, item.size, item.quantity + 1)}
-                          className="px-2 text-on-surface-variant hover:bg-surface-container transition-colors h-full"
+                          className="w-11 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors h-full text-lg cursor-pointer"
                         >
                           +
                         </button>

@@ -1,5 +1,5 @@
 const express = require('express');
-const { getReviews, deleteReview, getCustomers } = require('../controllers/admin');
+const { getReviews, deleteReview, getCustomers, getAbandonedCarts, getWishlistInsights, getWishlistCustomers } = require('../controllers/admin');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -15,5 +15,9 @@ router.route('/reviews/:id')
 
 router.route('/users')
   .get(getCustomers);
+
+router.get('/abandoned-carts', getAbandonedCarts);
+router.get('/wishlist-insights', getWishlistInsights);
+router.get('/wishlist-insights/customers', getWishlistCustomers);
 
 module.exports = router;

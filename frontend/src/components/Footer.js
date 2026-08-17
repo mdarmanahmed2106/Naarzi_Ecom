@@ -41,7 +41,7 @@ export default function Footer() {
           </div>
 
           {/* Column 2: FAQ */}
-          <div className="col-span-6 lg:col-span-2 flex flex-col gap-4">
+          <div className="col-span-12 md:col-span-6 lg:col-span-2 flex flex-col gap-4">
             <h4 className="font-label-caps text-xs text-surface font-bold tracking-widest uppercase">
               FAQ
             </h4>
@@ -62,7 +62,7 @@ export default function Footer() {
           </div>
 
           {/* Column 3: Company */}
-          <div className="col-span-6 lg:col-span-2 flex flex-col gap-4">
+          <div className="col-span-12 md:col-span-6 lg:col-span-2 flex flex-col gap-4">
             <h4 className="font-label-caps text-xs text-surface font-bold tracking-widest uppercase">
               COMPANY
             </h4>
@@ -85,10 +85,10 @@ export default function Footer() {
               FIND THE STITCH
             </h4>
             
-            <div className="space-y-2">
-              <form onSubmit={handleSubscribe} className="flex border-b border-surface/20 focus-within:border-surface py-2 transition-all duration-300">
+            <div className="space-y-4">
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:border-b border-surface/20 focus-within:border-surface py-2 transition-all duration-300">
                 <input 
-                  className="bg-transparent border-none outline-none flex-1 text-surface-container-lowest placeholder:text-surface-container-lowest/40 text-sm focus:ring-0" 
+                  className="bg-transparent border-b sm:border-none border-surface/20 pb-3 sm:pb-0 outline-none flex-1 text-surface-container-lowest placeholder:text-surface-container-lowest/40 text-sm focus:ring-0 focus:border-surface transition-colors" 
                   placeholder="Your email address" 
                   type="email"
                   required
@@ -96,7 +96,7 @@ export default function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubscribed}
                 />
-                <button type="submit" className="font-label-caps text-xs text-surface hover:opacity-85 transition-all duration-300 tracking-wider uppercase font-bold cursor-pointer flex items-center gap-1">
+                <button type="submit" className="font-label-caps text-xs text-surface hover:opacity-85 transition-all duration-300 tracking-wider uppercase font-bold cursor-pointer flex items-center justify-center sm:justify-end gap-1 w-full sm:w-auto bg-surface/10 sm:bg-transparent py-4 sm:py-0 rounded sm:rounded-none">
                   {isSubscribed ? (
                     <span className="material-symbols-outlined text-sm text-green-300 animate-pulse">check</span>
                   ) : (
@@ -127,11 +127,11 @@ export default function Footer() {
         </div>
 
         {/* Large Outlined NAARZI text */}
-        <div className="relative mb-12 flex justify-center items-center overflow-hidden h-32 md:h-64 select-none">
+        <div className="relative mb-12 hidden md:flex justify-center items-center overflow-hidden h-32 md:h-64 select-none">
           <span 
-            className="font-display-lg text-[120px] md:text-[240px] leading-none text-transparent pointer-events-none opacity-20"
+            className="font-display-lg text-[120px] md:text-[240px] leading-none text-transparent pointer-events-none opacity-50"
             style={{
-              WebkitTextStroke: '1px rgba(255,217,221,0.2)',
+              WebkitTextStroke: '1px rgba(255,217,221,0.5)',
             }}
           >
             NAARZI
@@ -139,8 +139,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom footer links & copyright */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6 border-t border-surface/10">
-          <div className="flex gap-6 text-[10px] font-label-caps opacity-60">
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-6 pt-6 border-t border-surface/10 text-center lg:text-left">
+          <div className="flex flex-wrap justify-center gap-4 lg:gap-6 text-[10px] font-label-caps opacity-60">
             <Link href="#" className="hover:opacity-100 transition-opacity text-surface">
               T&Cs
             </Link>

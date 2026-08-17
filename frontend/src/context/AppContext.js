@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authApi, wishlistApi } from '@/lib/api';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { authApi, wishlistApi, cartApi } from '@/lib/api';
 
 const AppContext = createContext(null);
 
@@ -14,6 +14,7 @@ export function AppProvider({ children }) {
   const [authModalTab, setAuthModalTab] = useState('login'); // 'login' | 'signup'
   const [wishlistItems, setWishlistItems] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(true);
+  const quantityDebounceRef = useRef(null);
 
   // Load user profile on mount
   useEffect(() => {
@@ -31,6 +32,31 @@ export function AppProvider({ children }) {
     }
     loadUser();
   }, []);
+
+  // Sync local cart to server when user logs in
+  useEffect(() => {
+    async function syncCartWithServer() {
+      if (!user) return;
+      
+      const localCart = localStorage.getItem('naarzi_cart');
+      let itemsToSync = [];
+      if (localCart) {
+        try {
+          itemsToSync = JSON.parse(localCart);
+        } catch (e) {}
+      }
+
+      try {
+        const response = await cartApi.sync(itemsToSync);
+        if (response.success && response.data) {
+          saveCart(response.data.items || []);
+        }
+      } catch (err) {
+        console.error('Failed to sync cart:', err);
+      }
+    }
+    syncCartWithServer();
+  }, [user]);
 
   // Load wishlist on user changes
   useEffect(() => {
@@ -152,7 +178,7 @@ export function AppProvider({ children }) {
   };
 
   // Cart actions
-  const addToCart = (product, size, quantity = 1) => {
+  const addToCart = async (product, size, quantity = 1) => {
     const existingIndex = cartItems.findIndex(
       (item) => item.product._id === product._id && item.size === size
     );
@@ -166,13 +192,32 @@ export function AppProvider({ children }) {
     }
     saveCart(updatedCart);
     setIsCartOpen(true); // Open cart drawer on add
+
+    // Background sync
+    if (user) {
+      try {
+        const newQuantity = existingIndex > -1 ? updatedCart[existingIndex].quantity : quantity;
+        await cartApi.add({ product: product._id, size, quantity: newQuantity });
+      } catch (err) {
+        console.error('Failed to add item to server cart:', err);
+      }
+    }
   };
 
-  const removeFromCart = (productId, size) => {
+  const removeFromCart = async (productId, size) => {
     const updatedCart = cartItems.filter(
       (item) => !(item.product._id === productId && item.size === size)
     );
     saveCart(updatedCart);
+
+    // Background sync
+    if (user) {
+      try {
+        await cartApi.remove({ product: productId, size });
+      } catch (err) {
+        console.error('Failed to remove item from server cart:', err);
+      }
+    }
   };
 
   const updateCartQuantity = (productId, size, quantity) => {
@@ -186,10 +231,31 @@ export function AppProvider({ children }) {
         : item
     );
     saveCart(updatedCart);
+
+    // Debounced Background sync
+    if (user) {
+      if (quantityDebounceRef.current) {
+        clearTimeout(quantityDebounceRef.current);
+      }
+      quantityDebounceRef.current = setTimeout(async () => {
+        try {
+          await cartApi.add({ product: productId, size, quantity });
+        } catch (err) {
+          console.error('Failed to update cart quantity on server:', err);
+        }
+      }, 500);
+    }
   };
 
-  const clearCart = () => {
+  const clearCart = async () => {
     saveCart([]);
+    if (user) {
+      try {
+        await cartApi.clear();
+      } catch (err) {
+        console.error('Failed to clear server cart:', err);
+      }
+    }
   };
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);

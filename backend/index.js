@@ -98,6 +98,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/promo-banners', require('./src/routes/promoBanner'));
 app.use('/api/coupons', require('./src/routes/coupon'));
+app.use('/api/cart', require('./src/routes/cart'));
 
 // Welcome route
 app.get('/', (req, res) => {

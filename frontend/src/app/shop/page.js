@@ -15,6 +15,7 @@ function ShopContent() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
@@ -110,11 +111,24 @@ function ShopContent() {
   };
 
   return (
-    <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop py-12 md:py-16">
-      <div className="flex flex-col lg:flex-row gap-12">
+    <div className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop py-8 md:py-16">
+      
+      {/* Mobile Filter Toggle */}
+      <div className="lg:hidden flex items-center justify-between mb-6 pb-4 border-b border-outline-variant/30">
+        <h1 className="font-display-lg text-2xl font-bold text-on-surface">Shop</h1>
+        <button 
+          onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+          className="flex items-center gap-2 font-label-caps text-xs tracking-widest font-bold border border-outline-variant/50 px-4 py-2 rounded-lg"
+        >
+          <span className="material-symbols-outlined text-sm">tune</span>
+          FILTERS
+        </button>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
         
         {/* SIDEBAR FILTERS */}
-        <aside className="w-full lg:w-[280px] shrink-0">
+        <aside className={`w-full lg:w-[280px] shrink-0 ${isMobileFilterOpen ? 'block' : 'hidden lg:block'}`}>
           <div className="sticky top-28 flex flex-col gap-8">
             
             {/* Availability Filter */}
@@ -137,9 +151,9 @@ function ShopContent() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden flex flex-col gap-3"
                   >
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${inStockOnly ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
-                        {inStockOnly && <span className="material-symbols-outlined text-[12px] text-white">check</span>}
+                    <label className="flex items-center gap-3 cursor-pointer group py-2">
+                      <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${inStockOnly ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
+                        {inStockOnly && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
                       </div>
                       <input 
                         type="checkbox" 
@@ -150,9 +164,9 @@ function ShopContent() {
                       <span className="text-sm font-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">In stock</span>
                     </label>
 
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${outOfStockOnly ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
-                        {outOfStockOnly && <span className="material-symbols-outlined text-[12px] text-white">check</span>}
+                    <label className="flex items-center gap-3 cursor-pointer group py-2">
+                      <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${outOfStockOnly ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
+                        {outOfStockOnly && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
                       </div>
                       <input 
                         type="checkbox" 
@@ -188,9 +202,9 @@ function ShopContent() {
                     className="overflow-hidden flex flex-col gap-3"
                   >
                     {sizeOptions.map(size => (
-                      <label key={size} className="flex items-center gap-3 cursor-pointer group">
-                        <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${selectedSizes.includes(size) ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
-                          {selectedSizes.includes(size) && <span className="material-symbols-outlined text-[12px] text-white">check</span>}
+                      <label key={size} className="flex items-center gap-3 cursor-pointer group py-2">
+                        <div className={`w-5 h-5 border flex items-center justify-center transition-colors ${selectedSizes.includes(size) ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
+                          {selectedSizes.includes(size) && <span className="material-symbols-outlined text-[14px] text-white">check</span>}
                         </div>
                         <input 
                           type="checkbox" 
@@ -226,9 +240,9 @@ function ShopContent() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden flex flex-col gap-3"
                   >
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${selectedCategory === '' ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
-                        {selectedCategory === '' && <span className="material-symbols-outlined text-[12px] text-white">check</span>}
+                    <label className="flex items-center gap-3 cursor-pointer group py-2">
+                      <div className={`w-5 h-5 border rounded-full flex items-center justify-center transition-colors ${selectedCategory === '' ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
+                        {selectedCategory === '' && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
                       </div>
                       <input 
                         type="radio" 
@@ -240,9 +254,9 @@ function ShopContent() {
                     </label>
 
                     {categories.map(cat => (
-                      <label key={cat._id} className="flex items-center gap-3 cursor-pointer group">
-                        <div className={`w-4 h-4 border flex items-center justify-center transition-colors ${selectedCategory === cat.slug ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
-                          {selectedCategory === cat.slug && <span className="material-symbols-outlined text-[12px] text-white">check</span>}
+                      <label key={cat._id} className="flex items-center gap-3 cursor-pointer group py-2">
+                        <div className={`w-5 h-5 border rounded-full flex items-center justify-center transition-colors ${selectedCategory === cat.slug ? 'bg-primary border-primary' : 'border-outline-variant group-hover:border-primary'}`}>
+                          {selectedCategory === cat.slug && <div className="w-2.5 h-2.5 bg-white rounded-full"></div>}
                         </div>
                         <input 
                           type="radio" 
@@ -291,13 +305,13 @@ function ShopContent() {
 
           {/* Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-pulse">
               {[1,2,3,4,5,6].map(i => (
                 <div key={i} className="aspect-[3/4] bg-surface-container rounded-sm"></div>
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 xl:gap-8">
               {products.map(product => {
                 const isSoldOut = product.stock <= 0;
                 const activeSizes = product.sizes?.filter(s => s.stock > 0).length || 0;

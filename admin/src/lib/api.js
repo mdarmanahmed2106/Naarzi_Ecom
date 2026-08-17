@@ -114,6 +114,9 @@ export const adminApi = {
   getReviews: () => fetchApi('/admin/reviews'),
   deleteReview: (id) => fetchApi(`/admin/reviews/${id}`, { method: 'DELETE' }),
   getCustomers: () => fetchApi('/admin/users'),
+  getAbandonedCarts: (olderThanHours = 2, sortBy = 'date') => fetchApi(`/admin/abandoned-carts?olderThanHours=${olderThanHours}&sortBy=${sortBy}`),
+  getWishlistInsights: () => fetchApi('/admin/wishlist-insights'),
+  getWishlistCustomers: () => fetchApi('/admin/wishlist-insights/customers'),
 };
 
 export const promoBannersApi = {

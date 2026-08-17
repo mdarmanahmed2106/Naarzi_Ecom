@@ -216,6 +216,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
+                  autoComplete="street-address"
                   placeholder="Flat No, Apartment, Street name"
                   value={street}
                   onChange={(e) => setStreet(e.target.value)}
@@ -230,6 +231,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
+                  autoComplete="address-level2"
                   placeholder="Mumbai"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -244,6 +246,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
+                  autoComplete="address-level1"
                   placeholder="Maharashtra"
                   value={state}
                   onChange={(e) => setState(e.target.value)}
@@ -257,6 +260,9 @@ export default function CheckoutPage() {
                 </label>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  autoComplete="postal-code"
                   required
                   placeholder="400001"
                   value={postalCode}
@@ -272,6 +278,7 @@ export default function CheckoutPage() {
                 <input
                   type="text"
                   required
+                  autoComplete="country-name"
                   placeholder="India"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
@@ -286,6 +293,7 @@ export default function CheckoutPage() {
                 <input
                   type="tel"
                   required
+                  autoComplete="tel"
                   placeholder="+91 9876543210"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -316,7 +324,7 @@ export default function CheckoutPage() {
                 <label className="block text-[10px] font-label-caps tracking-widest text-on-surface-variant">
                   GIFT CARD OR DISCOUNT CODE
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <input
                     type="text"
                     value={couponInput}
@@ -330,7 +338,7 @@ export default function CheckoutPage() {
                       type="button"
                       onClick={handleApplyCoupon}
                       disabled={validatingCoupon || !couponInput}
-                      className="px-6 py-3 bg-tertiary text-white font-label-caps text-xs tracking-widest rounded-lg hover:bg-tertiary-container disabled:opacity-50 transition-colors"
+                      className="w-full sm:w-auto px-6 py-4 sm:py-3 bg-tertiary text-white font-label-caps text-xs tracking-widest rounded-lg hover:bg-tertiary-container disabled:opacity-50 transition-colors font-bold"
                     >
                       {validatingCoupon ? '...' : 'APPLY'}
                     </button>
@@ -338,7 +346,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => { setAppliedCoupon(null); setCouponInput(''); }}
-                      className="px-4 py-3 bg-surface border border-error text-error font-label-caps text-xs tracking-widest rounded-lg hover:bg-error-container transition-colors"
+                      className="w-full sm:w-auto px-4 py-4 sm:py-3 bg-surface border border-error text-error font-label-caps text-xs tracking-widest rounded-lg hover:bg-error-container transition-colors font-bold"
                     >
                       REMOVE
                     </button>

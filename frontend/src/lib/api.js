@@ -114,6 +114,9 @@ export const adminApi = {
   getReviews: () => fetchApi('/admin/reviews'),
   deleteReview: (id) => fetchApi(`/admin/reviews/${id}`, { method: 'DELETE' }),
   getCustomers: () => fetchApi('/admin/users'),
+  getAbandonedCarts: (olderThanHours = 2, sortBy = 'date') => fetchApi(`/admin/abandoned-carts?olderThanHours=${olderThanHours}&sortBy=${sortBy}`),
+  getWishlistInsights: () => fetchApi('/admin/wishlist-insights'),
+  getWishlistCustomers: () => fetchApi('/admin/wishlist-insights/customers'),
 };
 
 export const promoBannersApi = {
@@ -129,4 +132,12 @@ export const couponsApi = {
   create: (data) => fetchApi('/coupons', { method: 'POST', body: data }),
   update: (id, data) => fetchApi(`/coupons/${id}`, { method: 'PUT', body: data }),
   delete: (id) => fetchApi(`/coupons/${id}`, { method: 'DELETE' }),
+};
+
+export const cartApi = {
+  get: () => fetchApi('/cart'),
+  add: (data) => fetchApi('/cart', { method: 'POST', body: data }),
+  remove: (data) => fetchApi('/cart/item', { method: 'DELETE', body: data }), // product and size in body
+  clear: () => fetchApi('/cart', { method: 'DELETE' }),
+  sync: (items) => fetchApi('/cart/sync', { method: 'POST', body: { items } }),
 };
