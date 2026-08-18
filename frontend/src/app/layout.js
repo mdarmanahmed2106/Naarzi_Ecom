@@ -1,4 +1,4 @@
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
 import "./globals.css";
 
@@ -7,9 +7,9 @@ const playfairDisplay = Playfair_Display({
   variable: "--font-playfair-display",
 });
 
-const dmSans = DM_Sans({
+const sourceSans3 = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-source-sans-3",
 });
 
 export const metadata = {
@@ -17,11 +17,13 @@ export const metadata = {
   description: "Consciously crafted pieces for the modern woman, blending coastal ease with timeless sophistication.",
 };
 
+import QuickBuyDrawer from "@/components/QuickBuyDrawer";
+
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${playfairDisplay.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${playfairDisplay.variable} ${sourceSans3.variable} h-full antialiased`}
     >
       <head>
         <link
@@ -30,7 +32,10 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="min-h-full flex flex-col bg-surface font-body-md text-on-surface">
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          {children}
+          <QuickBuyDrawer />
+        </AppProvider>
       </body>
     </html>
   );

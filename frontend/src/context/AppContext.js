@@ -15,6 +15,8 @@ export function AppProvider({ children }) {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(true);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false);
+  const [quickBuyProduct, setQuickBuyProduct] = useState(null);
   const quantityDebounceRef = useRef(null);
 
   // Load user profile on mount
@@ -298,6 +300,10 @@ export function AppProvider({ children }) {
         removeFromWishlist,
         appliedCoupon,
         setAppliedCoupon,
+        isQuickBuyOpen,
+        setIsQuickBuyOpen,
+        quickBuyProduct,
+        setQuickBuyProduct,
       }}
     >
       {children}

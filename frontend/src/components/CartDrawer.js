@@ -15,6 +15,8 @@ export default function CartDrawer() {
     cartTotal,
     appliedCoupon,
     setAppliedCoupon,
+    setQuickBuyProduct,
+    setIsQuickBuyOpen,
   } = useApp();
 
   const [isDiscountsOpen, setIsDiscountsOpen] = React.useState(false);
@@ -49,6 +51,17 @@ export default function CartDrawer() {
     setPromoCode('');
     setCouponError('');
   };
+
+  React.useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isCartOpen]);
 
   if (!isCartOpen) return null;
 
@@ -186,7 +199,19 @@ export default function CartDrawer() {
                     <h4 className="font-bold text-on-surface text-sm">Tasha Top</h4>
                     <span className="text-on-surface text-[13px] font-medium">$90.00</span>
                   </div>
-                  <button className="w-full py-2.5 bg-white border border-on-surface text-on-surface text-xs font-bold tracking-[0.15em] hover:bg-on-surface hover:text-white transition-colors mt-2 rounded">
+                  <button 
+                    onClick={() => {
+                      setQuickBuyProduct({
+                        _id: 'mock-1',
+                        name: 'Tasha Top',
+                        price: 90.0,
+                        images: ['https://lh3.googleusercontent.com/aida-public/AB6AXuB3pAvrBBot7wDb-k_B5z0L-qaAozsKQsK8uo9Kz4QCK4TzSF_0iQRTClaKS4lF3lT7ZArRzxdaMbzt6vLVKEW_httHrEiFkzsljgbUoeHHoqv5TVFQ1BC4XbOSW9Gwv34L1EG4RxzCdc-W8t0qBjZHCpm0w5y6u_hdAo7rOGVOPbRsBy1-A10dj_EmSax-hlJvvYpWOlHcpsDTR0U2jdoRV4NcBxwHRRsSqnnjbvHTWHXxg6vBt_-JtA'],
+                        sizes: [{ size: 'XS', stock: 5 }, { size: 'S', stock: 10 }, { size: 'M', stock: 0 }, { size: 'L', stock: 2 }]
+                      });
+                      setIsQuickBuyOpen(true);
+                    }}
+                    className="w-full py-2.5 bg-white border border-on-surface text-on-surface text-xs font-bold tracking-[0.15em] hover:bg-on-surface hover:text-white transition-colors mt-2 rounded"
+                  >
                     QUICK BUY
                   </button>
                 </div>

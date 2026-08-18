@@ -43,10 +43,10 @@
   --font-display-lg: var(--font-playfair-display), serif;
   --font-headline-md: var(--font-playfair-display), serif;
   --font-headline-sm: var(--font-playfair-display), serif;
-  --font-body-lg: var(--font-dm-sans), sans-serif;
-  --font-body-md: var(--font-dm-sans), sans-serif;
-  --font-label-caps: var(--font-dm-sans), sans-serif;
-  --font-label-sm: var(--font-dm-sans), sans-serif;
+  --font-body-lg: var(--font-source-sans-3), sans-serif;
+  --font-body-md: var(--font-source-sans-3), sans-serif;
+  --font-label-caps: var(--font-source-sans-3), sans-serif;
+  --font-label-sm: var(--font-source-sans-3), sans-serif;
 }
 
 body {

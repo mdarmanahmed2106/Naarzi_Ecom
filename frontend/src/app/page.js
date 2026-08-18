@@ -27,7 +27,7 @@ function MarqueeBadge({ text }) {
 function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addToCart, setIsCartOpen } = useApp();
+  const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen } = useApp();
   const shouldReduceMotion = useReducedMotion();
   
   const [products, setProducts] = useState([]);
@@ -374,100 +374,6 @@ function HomePageContent() {
           </div>
         </motion.section>
 
-      {/* Trending Horizontal Drag Carousel */}
-      <motion.section 
-        className="py-16 bg-surface-container-low/40 border-t border-b border-outline-variant/20 w-full"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-        variants={scrollFadeInVariants}
-      >
-        <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">TRENDING NOW</span>
-              <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">The Editorial Edit</h2>
-            </div>
-            
-            <div className="hidden md:flex gap-2">
-              <span className="text-[10px] text-on-surface-variant font-label-caps mr-2 self-center select-none font-bold">DRAG TO EXPLORE</span>
-            </div>
-          </div>
-
-          <div 
-            ref={carouselRef}
-            onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseLeave}
-            onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
-            className={`flex gap-6 overflow-x-auto scrollbar-hide py-4 select-none cursor-grab active:cursor-grabbing snap-x snap-mandatory scroll-smooth`}
-            style={{ scrollSnapType: 'x mandatory' }}
-          >
-            {products.slice(0, 6).map((product, idx) => {
-              const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
-              const displayPrice = hasDiscount ? product.discountedPrice : product.price;
-
-              return (
-                <div 
-                  key={product._id} 
-                  className="group min-w-[280px] md:min-w-[320px] max-w-[320px] snap-start bg-white rounded-xl overflow-hidden border border-outline-variant/20 p-3 shadow-sm hover:shadow-[0_8px_30px_rgba(107,34,51,0.04)] transition-all duration-300 pointer-events-auto"
-                >
-                  <div className="relative aspect-[3/4] bg-surface-container rounded-lg overflow-hidden mb-4 product-crossfade-container">
-                    {/* Marquee badge text loop */}
-                    {product.isOnSale ? (
-                      <MarqueeBadge text="SALE" />
-                    ) : (
-                      <MarqueeBadge text={idx % 2 === 0 ? 'SELLING FAST' : 'STAFF PICK'} />
-                    )}
-
-                    {/* Stacked product images for crossfade */}
-                    <img 
-                      src={product.images[0]} 
-                      alt={product.name} 
-                      className="w-full h-full object-cover product-image-primary"
-                    />
-                    <img 
-                      src={product.images[1] || product.images[0]} 
-                      alt={`${product.name} alternate`} 
-                      className="absolute inset-0 w-full h-full object-cover product-image-secondary"
-                    />
-
-                    {/* Quick-add bag icon */}
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addToCart(product, product.sizes[0]?.size || 'M', 1);
-                        setIsCartOpen(true);
-                      }}
-                      className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30"
-                      title="Quick Add to Bag"
-                    >
-                      <span className="material-symbols-outlined text-lg font-bold">shopping_bag</span>
-                    </button>
-                  </div>
-
-                  <Link href={`/products/${product.slug}`} className="block px-1">
-                    <h3 className="font-headline-sm text-base text-on-surface group-hover:text-primary transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-                    <div className="flex gap-2 items-center mt-1">
-                      {hasDiscount ? (
-                        <>
-                          <span className="font-body-md text-sm text-primary font-medium">INR {displayPrice}</span>
-                          <span className="font-body-md text-xs text-on-surface-variant line-through opacity-70">INR {product.price}</span>
-                        </>
-                      ) : (
-                        <span className="font-body-md text-sm text-on-surface-variant">INR {product.price}</span>
-                      )}
-                    </div>
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </motion.section>
 
       {/* Main Product Feed & Filtering */}
       <section className="py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
@@ -590,8 +496,8 @@ function HomePageContent() {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              addToCart(product, product.sizes[0]?.size || 'M', 1);
-                              setIsCartOpen(true);
+                              setQuickBuyProduct(product);
+                              setIsQuickBuyOpen(true);
                             }}
                             className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30"
                             title="Quick Add to Bag"
