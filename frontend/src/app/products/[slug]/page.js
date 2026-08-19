@@ -20,14 +20,29 @@ export default function ProductDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
   const [activeImage, setActiveImage] = useState(0);
-
   // Layout & Interactive States matching mockups
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState('IVORY');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [currentColorVariant, setCurrentColorVariant] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [shippingOpen, setShippingOpen] = useState(false);
   const [returnsOpen, setReturnsOpen] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+
+  useEffect(() => {
+    if (product && product.colors && product.colors.length > 0 && !selectedColor) {
+      setSelectedColor(product.colors[0].name);
+    }
+  }, [product, selectedColor]);
+
+  useEffect(() => {
+    if (product && product.colors) {
+      const variant = product.colors.find(c => c.name === selectedColor);
+      setCurrentColorVariant(variant || null);
+      setActiveImage(0); // reset image index on color change
+      setSelectedSize(''); // reset size
+    }
+  }, [selectedColor, product]);
 
   // Review Form state
   const [rating, setRating] = useState(5);
@@ -81,8 +96,13 @@ export default function ProductDetailPage({ params }) {
           const loadedProduct = prodResponse.data;
           setProduct(loadedProduct);
           
-          if (loadedProduct.sizes && loadedProduct.sizes.length === 1) {
-            setSelectedSize(loadedProduct.sizes[0].size);
+          if (loadedProduct.colors && loadedProduct.colors.length > 0) {
+            const firstColor = loadedProduct.colors[0];
+            setSelectedColor(firstColor.name);
+            setCurrentColorVariant(firstColor);
+            if (firstColor.sizes && firstColor.sizes.length === 1) {
+              setSelectedSize(firstColor.sizes[0].size);
+            }
           }
 
           // Load reviews
@@ -177,7 +197,7 @@ export default function ProductDetailPage({ params }) {
   const originalPrice = product.price;
 
   // Check stock of selected size
-  const selectedSizeObj = product.sizes.find(s => s.size === selectedSize);
+  const selectedSizeObj = currentColorVariant?.sizes?.find(s => s.size === selectedSize);
   const isOutOfStock = selectedSizeObj ? selectedSizeObj.stock <= 0 : false;
 
   return (
@@ -210,7 +230,7 @@ export default function ProductDetailPage({ params }) {
             <div className="lg:col-span-7">
               {/* Mobile Swipeable Gallery */}
               <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-6 px-6 gap-4 pb-4">
-                {product.images.map((img, index) => (
+                {currentColorVariant?.images?.map((img, index) => (
                   <div key={index} className="w-full shrink-0 snap-center aspect-[3/4] rounded-xl overflow-hidden relative bg-surface-container">
                     {product.isOnSale && index === 0 && (
                       <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
@@ -244,16 +264,16 @@ export default function ProductDetailPage({ params }) {
                     </div>
                   )}
                   <img 
-                    src={product.images[activeImage]} 
+                    src={currentColorVariant?.images?.[activeImage]} 
                     alt={`${product.name} active`} 
                     className="w-full h-full object-cover transition-all duration-500" 
                   />
                 </div>
                 
                 {/* Gallery Thumbnails */}
-                {product.images.length > 1 && (
+                {currentColorVariant?.images?.length > 1 && (
                   <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide w-24 shrink-0 max-h-[800px] pr-1">
-                    {product.images.map((img, index) => (
+                    {currentColorVariant?.images?.map((img, index) => (
                       <button 
                         key={index}
                         onClick={() => setActiveImage(index)}
@@ -309,34 +329,20 @@ export default function ProductDetailPage({ params }) {
                     COLOR: <span className="opacity-80">{selectedColor}</span>
                   </span>
                 </div>
-                <div className="flex gap-4">
-                  <button 
-                    onClick={() => setSelectedColor('IVORY')}
-                    aria-label="Select Ivory" 
-                    className="w-10 h-10 rounded-full bg-[#f3ede2] border border-outline/20 hover:border-outline focus:outline-none shadow-sm relative cursor-pointer"
-                  >
-                    {selectedColor === 'IVORY' && (
-                      <span className="absolute -inset-1 rounded-full border border-primary transition-all scale-110"></span>
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => setSelectedColor('SAGE')}
-                    aria-label="Select Sage" 
-                    className="w-10 h-10 rounded-full bg-[#8A9A86] border border-outline/20 hover:border-outline focus:outline-none shadow-sm relative cursor-pointer"
-                  >
-                    {selectedColor === 'SAGE' && (
-                      <span className="absolute -inset-1 rounded-full border border-primary transition-all scale-110"></span>
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => setSelectedColor('WINE')}
-                    aria-label="Select Wine" 
-                    className="w-10 h-10 rounded-full bg-[#6b2233] border border-outline/20 hover:border-outline focus:outline-none shadow-sm relative cursor-pointer"
-                  >
-                    {selectedColor === 'WINE' && (
-                      <span className="absolute -inset-1 rounded-full border border-primary transition-all scale-110"></span>
-                    )}
-                  </button>
+                <div className="flex gap-4 flex-wrap">
+                  {product.colors.map((c) => (
+                    <button 
+                      key={c.name}
+                      onClick={() => setSelectedColor(c.name)}
+                      aria-label={`Select ${c.name}`} 
+                      className="w-10 h-10 rounded-full border border-outline/20 hover:border-outline focus:outline-none shadow-sm relative cursor-pointer"
+                      style={{ backgroundColor: c.hexCode || '#000000' }}
+                    >
+                      {selectedColor === c.name && (
+                        <span className="absolute -inset-1 rounded-full border border-primary transition-all scale-110"></span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -349,7 +355,7 @@ export default function ProductDetailPage({ params }) {
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {product.sizes.map((s) => {
+                  {currentColorVariant?.sizes?.map((s) => {
                     const outOfStock = s.stock <= 0;
                     const isSelected = selectedSize === s.size;
                     return (

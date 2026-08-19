@@ -14,6 +14,39 @@ const sizeSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const colorVariantSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, 'Color name is required'],
+    trim: true
+  },
+  hexCode: {
+    type: String,
+    trim: true,
+    default: '#000000'
+  },
+  images: {
+    type: [String],
+    required: [true, 'At least one product image is required for each color'],
+    validate: {
+      validator: function (val) {
+        return val.length > 0;
+      },
+      message: 'At least one image URL must be provided for the color variant'
+    }
+  },
+  sizes: {
+    type: [sizeSchema],
+    required: [true, 'Product sizes are required for each color'],
+    validate: {
+      validator: function (val) {
+        return val.length > 0;
+      },
+      message: 'At least one size stock must be specified for the color variant'
+    }
+  }
+});
+
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -60,24 +93,14 @@ const productSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
-  images: {
-    type: [String],
-    required: [true, 'At least one product image is required'],
+  colors: {
+    type: [colorVariantSchema],
+    required: [true, 'At least one color variant is required'],
     validate: {
       validator: function (val) {
         return val.length > 0;
       },
-      message: 'At least one image URL must be provided'
-    }
-  },
-  sizes: {
-    type: [sizeSchema],
-    required: [true, 'Product sizes are required'],
-    validate: {
-      validator: function (val) {
-        return val.length > 0;
-      },
-      message: 'At least one size stock must be specified'
+      message: 'At least one color variant must be provided'
     }
   },
   stock: {
@@ -117,9 +140,11 @@ productSchema.pre('save', function () {
       .replace(/^-+|-+$/g, '');
   }
 
-  // Update total stock based on sizes
-  if (this.isModified('sizes')) {
-    this.stock = this.sizes.reduce((total, s) => total + s.stock, 0);
+  // Update total stock based on sizes in colors
+  if (this.isModified('colors')) {
+    this.stock = this.colors.reduce((totalStock, colorVariant) => {
+      return totalStock + colorVariant.sizes.reduce((sum, size) => sum + size.stock, 0);
+    }, 0);
   }
 });
 

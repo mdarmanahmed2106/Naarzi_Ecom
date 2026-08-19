@@ -21,7 +21,7 @@ exports.getProducts = async (req, res, next) => {
     // 0.5 Size Filter
     if (size) {
       const sizesArray = Array.isArray(size) ? size : size.split(',');
-      query['sizes'] = {
+      query['colors.sizes'] = {
         $elemMatch: {
           size: { $in: sizesArray },
           stock: { $gt: 0 }
@@ -235,6 +235,8 @@ exports.getNewArrivals = async (req, res, next) => {
 // @access  Private/Admin
 exports.createProduct = async (req, res, next) => {
   try {
+    console.log('Incoming product payload:', JSON.stringify(req.body, null, 2));
+    
     // Check if category exists
     const categoryExists = await Category.findById(req.body.category);
     if (!categoryExists) {

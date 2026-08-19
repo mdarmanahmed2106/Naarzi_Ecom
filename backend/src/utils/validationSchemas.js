@@ -40,6 +40,12 @@ const sizeStockSchema = z.object({
   size: z.enum(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size']),
   stock: z.number().int().min(0, 'Stock cannot be negative')
 });
+const colorVariantSchemaInput = z.object({
+  name: z.string().min(1, 'Color name is required'),
+  hexCode: z.string().optional(),
+  images: z.array(z.string().url('Images must be valid URLs')).min(1, 'At least one image is required'),
+  sizes: z.array(sizeStockSchema).min(1, 'At least one size stock must be specified')
+});
 
 const createProductSchema = z.object({
   body: z.object({
@@ -49,8 +55,7 @@ const createProductSchema = z.object({
     discountedPrice: z.number().min(0, 'Discounted price cannot be negative').optional(),
     category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID'),
     occasion: z.array(z.string()).default([]),
-    images: z.array(z.string().url('Images must be valid URLs')).min(1, 'At least one image is required'),
-    sizes: z.array(sizeStockSchema).min(1, 'At least one size stock must be specified'),
+    colors: z.array(colorVariantSchemaInput).min(1, 'At least one color variant must be provided'),
     tags: z.array(z.string()).default([]),
     isFeatured: z.boolean().default(false),
     isBestSeller: z.boolean().default(false)
@@ -65,8 +70,7 @@ const updateProductSchema = z.object({
     discountedPrice: z.number().min(0, 'Discounted price cannot be negative').optional(),
     category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID').optional(),
     occasion: z.array(z.string()).optional(),
-    images: z.array(z.string().url('Images must be valid URLs')).min(1, 'At least one image is required').optional(),
-    sizes: z.array(sizeStockSchema).min(1, 'At least one size stock must be specified').optional(),
+    colors: z.array(colorVariantSchemaInput).min(1, 'At least one color variant must be provided').optional(),
     tags: z.array(z.string()).optional(),
     isFeatured: z.boolean().optional(),
     isBestSeller: z.boolean().optional()

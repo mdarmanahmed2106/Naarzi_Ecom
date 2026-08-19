@@ -147,7 +147,7 @@ export default function CartDrawer() {
                         </div>
                       </div>
                       <p className="text-[13px] text-on-surface-variant mt-1.5">
-                        Size: {item.size}
+                        Size: {item.size}{item.color ? ' | Color: ' + item.color : ''}
                       </p>
                       <p className="text-[13px] text-on-surface-variant mt-0.5">
                         Color: {item.color || 'Default'}

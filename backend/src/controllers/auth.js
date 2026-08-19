@@ -1,5 +1,43 @@
 const User = require('../models/User');
+const { auth: firebaseAuth } = require('../config/firebaseAdmin');
 const { sendTokenResponse } = require('../utils/helpers');
+
+// @desc    Phone Auth (Firebase OTP)
+// @route   POST /api/auth/phone
+// @access  Public
+exports.phoneAuth = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Firebase ID token is required' });
+    }
+
+    const decodedToken = await firebaseAuth.verifyIdToken(idToken);
+    const phoneNumber = decodedToken.phone_number;
+
+    if (!phoneNumber) {
+      return res.status(400).json({ success: false, message: 'No phone number found in token' });
+    }
+
+    let user = await User.findOne({ phone: phoneNumber });
+
+    if (!user) {
+      user = await User.create({
+        phone: phoneNumber,
+        name: 'New Customer',
+        role: 'customer',
+      });
+    }
+
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    if (error.code === 'auth/id-token-expired' || error.code === 'auth/argument-error') {
+      return res.status(401).json({ success: false, message: 'Invalid or expired verification. Please try again.' });
+    }
+    next(error);
+  }
+};
 
 // @desc    Register user
 // @route   POST /api/auth/signup

@@ -63,16 +63,25 @@ export default function AdminDashboardPage() {
   const [currentProductId, setCurrentProductId] = useState(null);
   
   // Product Form Field States
+  const standardSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size'];
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
   const [discountedPrice, setDiscountedPrice] = useState('');
   const [isOnSale, setIsOnSale] = useState(false);
   const [category, setCategory] = useState('');
-  const [imagesText, setImagesText] = useState('');
-  const [uploadedImages, setUploadedImages] = useState([]);
-  const [dragActive, setDragActive] = useState(false);
-  const [pasteUrl, setPasteUrl] = useState('');
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [colors, setColors] = useState([
+    {
+      id: Date.now().toString(),
+      name: 'Standard',
+      hexCode: '#000000',
+      uploadedImages: [],
+      dragActive: false,
+      pasteUrl: '',
+      sizesStock: standardSizesList.reduce((acc, size) => ({ ...acc, [size]: { enabled: false, stock: 0 } }), {})
+    }
+  ]);
   
   // Category Form Field States
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -106,10 +115,7 @@ export default function AdminDashboardPage() {
   const [couponMaxUses, setCouponMaxUses] = useState(100);
   
   // Sizes stocks in Form
-  const standardSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size'];
-  const [sizesStock, setSizesStock] = useState(
-    standardSizesList.reduce((acc, size) => ({ ...acc, [size]: { enabled: false, stock: 0 } }), {})
-  );
+  // (Moved up)
 
   // Inline Stock Editing State for Inventory Tab
   const [editingStockId, setEditingStockId] = useState(null); // ID of product currently editing stock levels inline
@@ -217,25 +223,48 @@ export default function AdminDashboardPage() {
     setDiscountedPrice(product.discountedPrice !== undefined && product.discountedPrice !== null ? product.discountedPrice : '');
     setIsOnSale(product.isOnSale || false);
     setCategory(product.category?._id || product.category || '');
-    setImagesText(product.images.join('\n'));
-    setUploadedImages(product.images ? product.images.map((url, idx) => ({ id: `existing-${idx}-${Date.now()}`, url, status: 'success' })) : []);
+    
+    if (product.colors && product.colors.length > 0) {
+      setColors(product.colors.map((c, i) => {
+        const sz = standardSizesList.reduce((acc, size) => ({ ...acc, [size]: { enabled: false, stock: 0 } }), {});
+        c.sizes.forEach(s => {
+          if (standardSizesList.includes(s.size)) {
+            sz[s.size] = { enabled: true, stock: s.stock };
+          }
+        });
+        return {
+          id: `edit-${i}-${Date.now()}`,
+          name: c.name || 'Standard',
+          hexCode: c.hexCode || '#000000',
+          uploadedImages: c.images ? c.images.map((url, idx) => ({ id: `img-${idx}-${Date.now()}`, url, status: 'success' })) : [],
+          dragActive: false,
+          pasteUrl: '',
+          sizesStock: sz
+        };
+      }));
+    } else {
+      // Fallback for old products
+      const sz = standardSizesList.reduce((acc, size) => ({ ...acc, [size]: { enabled: false, stock: 0 } }), {});
+      if (product.sizes) {
+        product.sizes.forEach(s => {
+          if (standardSizesList.includes(s.size)) sz[s.size] = { enabled: true, stock: s.stock };
+        });
+      }
+      setColors([{
+        id: Date.now().toString(),
+        name: 'Standard',
+        hexCode: '#000000',
+        uploadedImages: product.images ? product.images.map((url, idx) => ({ id: `img-${idx}-${Date.now()}`, url, status: 'success' })) : [],
+        dragActive: false,
+        pasteUrl: '',
+        sizesStock: sz
+      }]);
+    }
+
     setOccasionsText(product.occasion ? product.occasion.join(', ') : '');
     setTagsText(product.tags ? product.tags.join(', ') : '');
     setIsFeatured(product.isFeatured || false);
     setIsBestSeller(product.isBestSeller || false);
-
-    // Populate sizes stock
-    const updatedSizes = standardSizesList.reduce((acc, size) => ({
-      ...acc,
-      [size]: { enabled: false, stock: 0 }
-    }), {});
-
-    product.sizes.forEach((s) => {
-      if (standardSizesList.includes(s.size)) {
-        updatedSizes[s.size] = { enabled: true, stock: s.stock };
-      }
-    });
-    setSizesStock(updatedSizes);
     
     setErrorMsg('');
     setSuccessMsg('');
@@ -269,107 +298,97 @@ export default function AdminDashboardPage() {
     setIsFormModalOpen(true);
   };
 
-  const handleFileUpload = async (files) => {
+  // Color Handlers
+  const handleColorChange = (index, field, value) => {
+    const updated = [...colors];
+    updated[index][field] = value;
+    setColors(updated);
+  };
+  
+  const handleAddColor = () => {
+    setColors([...colors, {
+      id: Date.now().toString(),
+      name: 'New Color',
+      hexCode: '#000000',
+      uploadedImages: [],
+      dragActive: false,
+      pasteUrl: '',
+      sizesStock: standardSizesList.reduce((acc, size) => ({ ...acc, [size]: { enabled: false, stock: 0 } }), {})
+    }]);
+  };
+  
+  const handleRemoveColor = (index) => {
+    if (colors.length <= 1) {
+      setErrorMsg("You must have at least one color variant.");
+      return;
+    }
+    const updated = [...colors];
+    updated.splice(index, 1);
+    setColors(updated);
+  };
+
+  const handleFileUpload = async (colorIndex, files) => {
     const filesArray = Array.from(files);
     const newItems = filesArray.map(file => {
-      const id = `upload-${Date.now()}-${Math.random()}`;
-      return {
-        id,
-        file,
-        name: file.name,
-        status: 'uploading'
-      };
+      return { id: `upload-${Date.now()}-${Math.random()}`, file, name: file.name, status: 'uploading' };
     });
     
-    setUploadedImages(prev => [...prev, ...newItems]);
+    const updated = [...colors];
+    updated[colorIndex].uploadedImages = [...updated[colorIndex].uploadedImages, ...newItems];
+    setColors(updated);
 
     newItems.forEach(async (item) => {
       const formData = new FormData();
       formData.append('image', item.file);
-
       try {
         const response = await uploadApi.uploadImage(formData);
-        if (response.success && response.url) {
-          setUploadedImages(prev => prev.map(img => 
-            img.id === item.id 
-              ? { ...img, url: response.url, status: 'success' }
-              : img
-          ));
-        } else {
-          throw new Error(response.message || 'Upload failed');
-        }
+        setColors(prev => {
+          const arr = [...prev];
+          arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => 
+            img.id === item.id ? (response.success && response.url ? { ...img, url: response.url, status: 'success' } : { ...img, status: 'failed', error: 'Upload failed' }) : img
+          );
+          return arr;
+        });
       } catch (err) {
-        console.error('File Upload Failed:', err);
-        setUploadedImages(prev => prev.map(img => 
-          img.id === item.id 
-            ? { ...img, status: 'failed', error: err.message || 'Upload failed' }
-            : img
-        ));
+        setColors(prev => {
+          const arr = [...prev];
+          arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => img.id === item.id ? { ...img, status: 'failed', error: 'Upload failed' } : img);
+          return arr;
+        });
       }
     });
   };
 
-  const handleRetryUpload = async (item) => {
-    setUploadedImages(prev => prev.map(img => 
-      img.id === item.id 
-        ? { ...img, status: 'uploading', error: null }
-        : img
-    ));
-
-    const formData = new FormData();
-    formData.append('image', item.file);
-
-    try {
-      const response = await uploadApi.uploadImage(formData);
-      if (response.success && response.url) {
-        setUploadedImages(prev => prev.map(img => 
-          img.id === item.id 
-            ? { ...img, url: response.url, status: 'success' }
-            : img
-        ));
-      } else {
-        throw new Error(response.message || 'Upload failed');
-      }
-    } catch (err) {
-      console.error('File Retry Upload Failed:', err);
-      setUploadedImages(prev => prev.map(img => 
-        img.id === item.id 
-          ? { ...img, status: 'failed', error: err.message || 'Upload failed' }
-          : img
-      ));
-    }
+  const handleRemoveImage = (colorIndex, id) => {
+    const updated = [...colors];
+    updated[colorIndex].uploadedImages = updated[colorIndex].uploadedImages.filter(img => img.id !== id);
+    setColors(updated);
   };
 
-  const handleRemoveImage = (id) => {
-    setUploadedImages(prev => prev.filter(img => img.id !== id));
-  };
-
-  const handleDrag = (e) => {
+  const handleDrag = (colorIndex, e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
+    const updated = [...colors];
+    if (e.type === "dragenter" || e.type === "dragover") updated[colorIndex].dragActive = true;
+    else if (e.type === "dragleave") updated[colorIndex].dragActive = false;
+    setColors(updated);
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (colorIndex, e) => {
     e.preventDefault();
     e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files);
-    }
+    const updated = [...colors];
+    updated[colorIndex].dragActive = false;
+    setColors(updated);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFileUpload(colorIndex, e.dataTransfer.files);
   };
 
-  const handleAddPasteUrl = () => {
-    if (pasteUrl.trim()) {
-      setUploadedImages(prev => [
-        ...prev,
-        { id: `paste-${Date.now()}-${Math.random()}`, url: pasteUrl.trim(), status: 'success' }
-      ]);
-      setPasteUrl('');
+  const handleAddPasteUrl = (colorIndex) => {
+    const updated = [...colors];
+    if (updated[colorIndex].pasteUrl.trim()) {
+      updated[colorIndex].uploadedImages.push({ id: `paste-${Date.now()}-${Math.random()}`, url: updated[colorIndex].pasteUrl.trim(), status: 'success' });
+      updated[colorIndex].pasteUrl = '';
+      setColors(updated);
     }
   };
 
@@ -401,25 +420,33 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    const imageUrls = uploadedImages
-      .filter(img => img.status === 'success')
-      .map(img => img.url);
-    if (imageUrls.length === 0) {
-      setErrorMsg('At least one valid image is required (upload or paste a URL)');
-      return;
-    }
-
-    // Format sizes
-    const formattedSizes = Object.entries(sizesStock)
-      .filter(([_, sizeObj]) => sizeObj.enabled)
-      .map(([sizeName, sizeObj]) => ({
-        size: sizeName,
-        stock: parseInt(sizeObj.stock) || 0
-      }));
-
-    if (formattedSizes.length === 0) {
-      setErrorMsg('At least one size must be selected with stock');
-      return;
+    const formattedColors = [];
+    for (const c of colors) {
+      if (!c.name.trim()) {
+        setErrorMsg('All color variants must have a name');
+        return;
+      }
+      const imageUrls = c.uploadedImages.filter(img => img.status === 'success').map(img => img.url);
+      if (imageUrls.length === 0) {
+        setErrorMsg(`At least one image is required for color variant "${c.name}"`);
+        return;
+      }
+      const formattedSizes = Object.entries(c.sizesStock)
+        .filter(([_, sizeObj]) => sizeObj.enabled)
+        .map(([sizeName, sizeObj]) => ({
+          size: sizeName,
+          stock: parseInt(sizeObj.stock) || 0
+        }));
+      if (formattedSizes.length === 0) {
+        setErrorMsg(`At least one size must be selected with stock for color variant "${c.name}"`);
+        return;
+      }
+      formattedColors.push({
+        name: c.name.trim(),
+        hexCode: c.hexCode,
+        images: imageUrls,
+        sizes: formattedSizes
+      });
     }
 
     const payload = {
@@ -429,8 +456,7 @@ export default function AdminDashboardPage() {
       discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : undefined,
       isOnSale,
       category,
-      images: imageUrls,
-      sizes: formattedSizes,
+      colors: formattedColors,
       occasion: occasionsText ? occasionsText.split(',').map(s => s.trim()).filter(s => s !== '') : [],
       tags: tagsText ? tagsText.split(',').map(s => s.trim()).filter(s => s !== '') : [],
       isFeatured,
@@ -1881,16 +1907,40 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="space-y-1">
                   <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">CATEGORY *</label>
-                  <select 
-                    required
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
-                  >
-                    {categories.map((c) => (
-                      <option key={c._id} value={c._id}>{c.name}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <div 
+                      onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                      className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors cursor-pointer flex justify-between items-center"
+                    >
+                      <span className={category ? 'text-on-surface' : 'text-on-surface-variant/70 text-sm'}>
+                        {category ? categories.find(c => c._id === category)?.name : 'Select Category'}
+                      </span>
+                      <span className="material-symbols-outlined text-xl text-on-surface-variant">expand_more</span>
+                    </div>
+                    
+                    {isCategoryDropdownOpen && (
+                      <>
+                        <div 
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsCategoryDropdownOpen(false)}
+                        ></div>
+                        <div className="absolute z-50 w-full mt-2 bg-surface border border-outline-variant/40 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] max-h-60 overflow-y-auto">
+                          {categories.map((c) => (
+                            <div 
+                              key={c._id}
+                              onClick={() => {
+                                setCategory(c._id);
+                                setIsCategoryDropdownOpen(false);
+                              }}
+                              className="px-4 py-3 hover:bg-surface-container-low cursor-pointer text-sm text-on-surface transition-colors"
+                            >
+                              {c.name}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1933,155 +1983,88 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Product Images Upload / Management */}
-              <div className="space-y-3">
-                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">PRODUCT IMAGES *</label>
-                
-                {/* Drag and Drop Zone */}
-                <div 
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
-                    dragActive ? 'border-primary bg-primary/5' : 'border-outline-variant/60 bg-surface hover:bg-surface-container/20'
-                  }`}
-                  onClick={() => document.getElementById('file-upload-input').click()}
-                >
-                  <input 
-                    id="file-upload-input" 
-                    type="file" 
-                    accept="image/*" 
-                    multiple 
-                    className="hidden" 
-                    onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
-                  />
-                  <span className="material-symbols-outlined text-4xl text-on-surface-variant/50 mb-2">cloud_upload</span>
-                  <p className="text-xs font-semibold text-on-surface">Drag & drop your product images here, or click to browse</p>
-                  <p className="text-[10px] text-on-surface-variant mt-1">Supports PNG, JPG, JPEG (max 5MB per file)</p>
-                </div>
-
-                {/* Thumbnails Grid Preview */}
-                {uploadedImages.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
-                    {uploadedImages.map((img) => (
-                      <div key={img.id} className="relative aspect-[3/4] bg-surface-container rounded-xl overflow-hidden border border-outline-variant/30 flex items-center justify-center p-1 group">
-                        {img.status === 'success' && (
-                          <>
-                            <img src={img.url} className="w-full h-full object-cover rounded-lg" alt="Preview" />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveImage(img.id);
-                              }}
-                              className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
-                              title="Remove"
-                            >
-                              <span className="material-symbols-outlined text-xs">close</span>
-                            </button>
-                          </>
-                        )}
-
-                        {img.status === 'uploading' && (
-                          <div className="flex flex-col items-center justify-center p-2 text-center space-y-2">
-                            <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary"></div>
-                            <span className="text-[9px] font-label-caps text-on-surface-variant tracking-wider block font-bold">UPLOADING...</span>
-                          </div>
-                        )}
-
-                        {img.status === 'failed' && (
-                          <div className="flex flex-col items-center justify-center p-2 text-center space-y-2 bg-error-container/20 w-full h-full rounded-lg">
-                            <span className="material-symbols-outlined text-xl text-error">warning</span>
-                            <span className="text-[9px] text-error font-semibold leading-tight line-clamp-2">{img.error || 'Failed'}</span>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRetryUpload(img);
-                              }}
-                              className="px-2 py-1 bg-primary text-white text-[9px] font-label-caps tracking-wider rounded hover:bg-primary-container font-bold cursor-pointer"
-                            >
-                              RETRY
-                            </button>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveImage(img.id);
-                              }}
-                              className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-black/40 text-white flex items-center justify-center hover:bg-primary cursor-pointer"
-                            >
-                              <span className="material-symbols-outlined text-[10px]">close</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Direct Paste Fallback Option */}
-                <div className="flex gap-2 items-center pt-2">
-                  <input 
-                    type="text" 
-                    placeholder="Or paste direct image URL here..." 
-                    value={pasteUrl}
-                    onChange={(e) => setPasteUrl(e.target.value)}
-                    className="flex-1 px-4 py-2 bg-surface border border-outline-variant/40 rounded-xl text-xs focus:border-primary focus:outline-none transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAddPasteUrl}
-                    className="px-4 py-2 bg-primary text-white text-[10px] font-label-caps tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer shrink-0"
-                  >
-                    ADD URL
+              {/* Color Variants Management */}
+              <div className="space-y-6 mt-8">
+                <div className="flex justify-between items-center pb-2 border-b border-outline-variant/30">
+                  <h3 className="font-display-lg text-lg text-primary font-bold">Color Variants *</h3>
+                  <button type="button" onClick={handleAddColor} className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold rounded-lg flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[16px]">add</span> ADD COLOR
                   </button>
                 </div>
-              </div>
 
-              {/* Size and Stock configuration */}
-              <div className="space-y-2">
-                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">SIZES & INVENTORY LEVELS *</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border border-outline-variant/20 p-4 rounded-xl bg-surface-container/20">
-                  {standardSizesList.map((size) => {
-                    const isEnabled = sizesStock[size]?.enabled;
-                    const stockVal = sizesStock[size]?.stock;
-                    
-                    return (
-                      <div key={size} className="flex items-center gap-2">
-                        <input 
-                          type="checkbox" 
-                          id={`size-chk-${size}`}
-                          checked={isEnabled}
-                          onChange={(e) => setSizesStock({
-                            ...sizesStock,
-                            [size]: { ...sizesStock[size], enabled: e.target.checked }
-                          })}
-                          className="w-4 h-4 text-primary focus:ring-primary border-outline-variant/50 rounded cursor-pointer"
-                        />
-                        <label 
-                          htmlFor={`size-chk-${size}`}
-                          className="text-xs font-semibold text-on-surface w-14 cursor-pointer"
-                        >
-                          {size}
-                        </label>
-                        {isEnabled && (
-                          <input 
-                            type="number" 
-                            min="0"
-                            value={stockVal}
-                            onChange={(e) => setSizesStock({
-                              ...sizesStock,
-                              [size]: { ...sizesStock[size], stock: Math.max(0, parseInt(e.target.value) || 0) }
-                            })}
-                            className="w-16 px-1.5 py-1 border border-outline-variant/40 rounded-lg text-xs bg-white text-center"
-                          />
-                        )}
+                {colors.map((color, colorIdx) => (
+                  <div key={color.id} className="p-4 border border-outline-variant/30 rounded-xl bg-surface-container/10 space-y-5">
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-4 items-center flex-1">
+                        <div className="flex-1 space-y-1">
+                          <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">COLOR NAME</label>
+                          <input type="text" value={color.name} onChange={(e) => handleColorChange(colorIdx, 'name', e.target.value)} className="w-full px-3 py-2 bg-surface border border-outline-variant/40 rounded-lg text-sm focus:border-primary focus:outline-none transition-colors" placeholder="e.g. Midnight Blue" required />
+                        </div>
+                        <div className="w-20 space-y-1">
+                          <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">HEX</label>
+                          <input type="color" value={color.hexCode} onChange={(e) => handleColorChange(colorIdx, 'hexCode', e.target.value)} className="w-full h-[38px] bg-surface border border-outline-variant/40 rounded-lg cursor-pointer" />
+                        </div>
                       </div>
-                    );
-                  })}
-                </div>
+                      <button type="button" onClick={() => handleRemoveColor(colorIdx)} className="ml-4 p-2 text-error hover:bg-error/10 rounded-lg transition-colors mt-5">
+                        <span className="material-symbols-outlined">delete</span>
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">IMAGES FOR {color.name.toUpperCase()} *</label>
+                      <div onDragEnter={(e) => handleDrag(colorIdx, e)} onDragOver={(e) => handleDrag(colorIdx, e)} onDragLeave={(e) => handleDrag(colorIdx, e)} onDrop={(e) => handleDrop(colorIdx, e)} className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${color.dragActive ? 'border-primary bg-primary/5' : 'border-outline-variant/60 bg-surface hover:bg-surface-container/20'}`} onClick={() => document.getElementById(`file-upload-${colorIdx}`).click()}>
+                        <input id={`file-upload-${colorIdx}`} type="file" accept="image/*" multiple className="hidden" onChange={(e) => e.target.files && handleFileUpload(colorIdx, e.target.files)} />
+                        <span className="material-symbols-outlined text-2xl text-on-surface-variant/50 mb-1">cloud_upload</span>
+                        <p className="text-xs text-on-surface">Click or drag images</p>
+                      </div>
+                      {color.uploadedImages.length > 0 && (
+                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-2">
+                          {color.uploadedImages.map((img) => (
+                            <div key={img.id} className="relative aspect-[3/4] bg-surface-container rounded-lg overflow-hidden border border-outline-variant/30 group">
+                              {img.status === 'success' && (
+                                <>
+                                  <img src={img.url} className="w-full h-full object-cover" alt="Preview" />
+                                  <button type="button" onClick={(e) => { e.stopPropagation(); handleRemoveImage(colorIdx, img.id); }} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"><span className="material-symbols-outlined text-[10px]">close</span></button>
+                                </>
+                              )}
+                              {img.status === 'uploading' && <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-primary"></div></div>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="flex gap-2 items-center">
+                        <input type="text" placeholder="Or paste image URL..." value={color.pasteUrl} onChange={(e) => handleColorChange(colorIdx, 'pasteUrl', e.target.value)} className="flex-1 px-3 py-1.5 bg-surface border border-outline-variant/40 rounded-lg text-xs" />
+                        <button type="button" onClick={() => handleAddPasteUrl(colorIdx)} className="px-3 py-1.5 bg-primary text-white text-[10px] rounded-lg">ADD URL</button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2">
+                      <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">SIZES & INVENTORY FOR {color.name.toUpperCase()} *</label>
+                      <div className="grid grid-cols-2 gap-2 border border-outline-variant/20 p-3 rounded-lg bg-surface">
+                        {standardSizesList.map((size) => {
+                          const isEnabled = color.sizesStock[size]?.enabled;
+                          return (
+                            <div key={size} className="flex items-center gap-2">
+                              <input type="checkbox" checked={isEnabled} onChange={(e) => {
+                                const st = { ...color.sizesStock };
+                                st[size].enabled = e.target.checked;
+                                handleColorChange(colorIdx, 'sizesStock', st);
+                              }} className="w-3.5 h-3.5 text-primary" />
+                              <span className="text-xs font-semibold w-12">{size}</span>
+                              {isEnabled && (
+                                <input type="number" min="0" value={color.sizesStock[size].stock} onChange={(e) => {
+                                  const st = { ...color.sizesStock };
+                                  st[size].stock = parseInt(e.target.value) || 0;
+                                  handleColorChange(colorIdx, 'sizesStock', st);
+                                }} className="w-16 px-2 py-1 text-xs bg-surface border rounded" />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {/* Occasions & Tags */}

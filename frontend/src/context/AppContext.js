@@ -181,9 +181,9 @@ export function AppProvider({ children }) {
   };
 
   // Cart actions
-  const addToCart = async (product, size, quantity = 1) => {
+  const addToCart = async (product, size, quantity = 1, color = '') => {
     const existingIndex = cartItems.findIndex(
-      (item) => item.product._id === product._id && item.size === size
+      (item) => item.product._id === product._id && item.size === size && item.color === color
     );
 
     let updatedCart;
@@ -191,7 +191,7 @@ export function AppProvider({ children }) {
       updatedCart = [...cartItems];
       updatedCart[existingIndex].quantity += quantity;
     } else {
-      updatedCart = [...cartItems, { product, size, quantity }];
+      updatedCart = [...cartItems, { product, size, quantity, color }];
     }
     saveCart(updatedCart);
     setIsCartOpen(true); // Open cart drawer on add
@@ -200,16 +200,16 @@ export function AppProvider({ children }) {
     if (user) {
       try {
         const newQuantity = existingIndex > -1 ? updatedCart[existingIndex].quantity : quantity;
-        await cartApi.add({ product: product._id, size, quantity: newQuantity });
+        await cartApi.add({ product: product._id, size, quantity: newQuantity, color });
       } catch (err) {
         console.error('Failed to add item to server cart:', err);
       }
     }
   };
 
-  const removeFromCart = async (productId, size) => {
+  const removeFromCart = async (productId, size, color = '') => {
     const updatedCart = cartItems.filter(
-      (item) => !(item.product._id === productId && item.size === size)
+      (item) => !(item.product._id === productId && item.size === size && item.color === color)
     );
     saveCart(updatedCart);
 
@@ -277,6 +277,7 @@ export function AppProvider({ children }) {
     <AppContext.Provider
       value={{
         user,
+        setUser,
         authLoading,
         login,
         signup,

@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/a
  */
 async function fetchApi(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   // Set credentials to 'include' to ensure HTTP cookies are sent and stored
   const headers = { ...options.headers };
   const isFormData = options.body && options.body instanceof FormData;
@@ -44,6 +44,7 @@ async function fetchApi(endpoint, options = {}) {
 export const authApi = {
   signup: (userData) => fetchApi('/auth/signup', { method: 'POST', body: userData }),
   login: (credentials) => fetchApi('/auth/login', { method: 'POST', body: credentials }),
+  phoneAuth: (idToken) => fetchApi('/auth/phone', { method: 'POST', body: { idToken } }),
   logout: () => fetchApi('/auth/logout', { method: 'POST' }),
   getMe: () => fetchApi('/auth/me'),
 };

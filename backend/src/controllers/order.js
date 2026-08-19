@@ -9,12 +9,15 @@ const releaseOrderStock = async (order) => {
         { _id: item.product },
         {
           $inc: {
-            'sizes.$[elem].stock': item.quantity,
-            'stock': item.quantity
+            'colors.$[colorElem].sizes.$[sizeElem].stock': item.quantity
           }
         },
-        { arrayFilters: [{ 'elem.size': item.size }] }
+        { arrayFilters: [{ 'colorElem.name': item.color }, { 'sizeElem.size': item.size }] }
       );
+      // We also update the root product stock by triggering save or manual inc
+      // Note: Since we are using findOneAndUpdate, the pre('save') hook won't fire for root stock.
+      // So we inc the root stock directly:
+      await Product.updateOne({ _id: item.product }, { $inc: { stock: item.quantity } });
     }
   } catch (error) {
     console.error(`Failed to release stock for order ${order._id}:`, error);
@@ -38,13 +41,18 @@ exports.createOrder = async (req, res, next) => {
       const updatedProduct = await Product.findOneAndUpdate(
         {
           _id: item.product,
-          sizes: { $elemMatch: { size: item.size, stock: { $gte: item.quantity } } }
+          colors: { 
+            $elemMatch: { 
+              name: item.color, 
+              sizes: { $elemMatch: { size: item.size, stock: { $gte: item.quantity } } } 
+            } 
+          }
         },
         {
-          $inc: { 'sizes.$[elem].stock': -item.quantity, 'stock': -item.quantity }
+          $inc: { 'colors.$[colorElem].sizes.$[sizeElem].stock': -item.quantity, 'stock': -item.quantity }
         },
         {
-          arrayFilters: [{ 'elem.size': item.size }],
+          arrayFilters: [{ 'colorElem.name': item.color }, { 'sizeElem.size': item.size }],
           new: true
         }
       );
@@ -55,9 +63,9 @@ exports.createOrder = async (req, res, next) => {
           await Product.findOneAndUpdate(
             { _id: successful.product },
             {
-              $inc: { 'sizes.$[elem].stock': successful.quantity, 'stock': successful.quantity }
+              $inc: { 'colors.$[colorElem].sizes.$[sizeElem].stock': successful.quantity, 'stock': successful.quantity }
             },
-            { arrayFilters: [{ 'elem.size': successful.size }] }
+            { arrayFilters: [{ 'colorElem.name': successful.color }, { 'sizeElem.size': successful.size }] }
           );
         }
 
@@ -69,15 +77,17 @@ exports.createOrder = async (req, res, next) => {
             message: `Product with ID ${item.product} not found`
           });
         }
-        const sizeObj = product.sizes.find((s) => s.size === item.size);
+        const colorObj = product.colors.find((c) => c.name === item.color);
+        const sizeObj = colorObj ? colorObj.sizes.find((s) => s.size === item.size) : null;
         return res.status(400).json({
           success: false,
-          message: `Insufficient stock for product "${product.name}" in size "${item.size}". Only ${sizeObj ? sizeObj.stock : 0} items left.`
+          message: `Insufficient stock for product "${product.name}" in color "${item.color}" and size "${item.size}". Only ${sizeObj ? sizeObj.stock : 0} items left.`
         });
       }
 
       succeededDecrements.push({
         product: item.product,
+        color: item.color,
         size: item.size,
         quantity: item.quantity
       });
@@ -90,6 +100,7 @@ exports.createOrder = async (req, res, next) => {
 
       orderedItems.push({
         product: updatedProduct._id,
+        color: item.color,
         size: item.size,
         quantity: item.quantity,
         priceAtPurchase: price
