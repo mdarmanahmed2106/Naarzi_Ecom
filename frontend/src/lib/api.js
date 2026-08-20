@@ -47,6 +47,9 @@ export const authApi = {
   phoneAuth: (idToken) => fetchApi('/auth/phone', { method: 'POST', body: { idToken } }),
   logout: () => fetchApi('/auth/logout', { method: 'POST' }),
   getMe: () => fetchApi('/auth/me'),
+  updateProfile: (profileData) => fetchApi('/auth/me', { method: 'PUT', body: profileData }),
+  addAddress: (addressData) => fetchApi('/auth/me/addresses', { method: 'POST', body: addressData }),
+  deleteAddress: (id) => fetchApi(`/auth/me/addresses/${id}`, { method: 'DELETE' }),
 };
 
 // Categories API
@@ -104,6 +107,7 @@ export const ordersApi = {
   getDetails: (id) => fetchApi(`/orders/${id}`),
   getAll: () => fetchApi('/orders'),
   updateStatus: (id, status) => fetchApi(`/orders/${id}/status`, { method: 'PUT', body: { orderStatus: status } }),
+  cancelOrder: (orderId) => fetchApi(`/orders/${orderId}/cancel`, { method: 'POST' }),
 };
 
 export const paymentApi = {

@@ -27,7 +27,7 @@ function MarqueeBadge({ text }) {
 function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen } = useApp();
+  const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen, wishlistItems = [], addToWishlist, removeFromWishlist } = useApp();
   const shouldReduceMotion = useReducedMotion();
   
   const [products, setProducts] = useState([]);
@@ -472,6 +472,7 @@ function HomePageContent() {
                 const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
                 const price = hasDiscount ? product.discountedPrice : product.price;
                 const originalPrice = product.price;
+                const isWishlisted = wishlistItems.some(item => item._id === product._id);
 
                 return (
                   <div key={product._id} className="group cursor-pointer">
@@ -504,10 +505,32 @@ function HomePageContent() {
                           >
                             <span className="material-symbols-outlined text-lg font-bold">shopping_bag</span>
                           </button>
+                          
+                          {/* Wishlist Icon */}
+                          <button
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (isWishlisted) {
+                                await removeFromWishlist(product._id);
+                              } else {
+                                await addToWishlist(product._id);
+                              }
+                            }}
+                            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer"
+                            title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                          >
+                            <span 
+                              className={`material-symbols-outlined text-[18px] ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant'}`}
+                              style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+                            >
+                              favorite
+                            </span>
+                          </button>
 
                           {/* Tags floating */}
                           {product.isOnSale && (
-                            <span className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                            <span className="absolute top-4 left-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
                               <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
                                 <span>SALE</span>
                                 <span>SALE</span>
@@ -516,7 +539,7 @@ function HomePageContent() {
                             </span>
                           )}
                           {!product.isOnSale && product.tags && product.tags.length > 0 && (
-                            <span className="absolute top-4 left-4 bg-surface/90 text-primary text-[8px] font-label-caps tracking-widest px-2.5 py-1.5 rounded shadow-sm font-bold">
+                            <span className="absolute top-4 left-4 bg-surface/90 text-primary text-[8px] font-label-caps tracking-widest px-2.5 py-1.5 rounded shadow-sm font-bold z-10">
                               {product.tags[0].toUpperCase()}
                             </span>
                           )}

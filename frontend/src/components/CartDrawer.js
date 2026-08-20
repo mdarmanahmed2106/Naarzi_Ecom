@@ -158,7 +158,7 @@ export default function CartDrawer() {
                     <div className="flex justify-between items-end mt-4">
                       <div className="flex items-center border border-outline-variant/60 bg-white">
                         <button 
-                          onClick={() => updateCartQuantity(item.product._id, item.size, item.quantity - 1)}
+                          onClick={() => updateCartQuantity(item.product._id, item.size, item.color, item.quantity - 1)}
                           className="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors font-light"
                         >
                           -
@@ -167,14 +167,14 @@ export default function CartDrawer() {
                           {item.quantity}
                         </span>
                         <button 
-                          onClick={() => updateCartQuantity(item.product._id, item.size, item.quantity + 1)}
+                          onClick={() => updateCartQuantity(item.product._id, item.size, item.color, item.quantity + 1)}
                           className="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors font-light"
                         >
                           +
                         </button>
                       </div>
                       <button 
-                        onClick={() => removeFromCart(item.product._id, item.size)}
+                        onClick={() => removeFromCart(item.product._id, item.size, item.color)}
                         className="text-[13px] text-on-surface-variant underline decoration-1 underline-offset-[3px] hover:text-on-surface transition-colors"
                       >
                         Remove

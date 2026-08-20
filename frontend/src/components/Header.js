@@ -157,9 +157,7 @@ export default function Header() {
               <Link href="/?tag=new arrival" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">
                 NEW
               </Link>
-              <Link href="/lookbook" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">
-                LOOKBOOK
-              </Link>
+
               <Link href="/?tag=sale" className="font-label-caps text-[11px] text-[#E55B5B] hover:opacity-80 transition-opacity font-bold flex items-center gap-2">
                 SALE <span className="bg-[#E55B5B] text-white px-2 py-0.5 rounded text-[9px] font-bold">15% OFF</span>
               </Link>
@@ -182,7 +180,7 @@ export default function Header() {
           <div className="flex-1 flex items-center justify-end gap-3 md:gap-5">
             <nav className="hidden xl:flex items-center gap-6 mr-4">
               <Link href="/about" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">ABOUT US</Link>
-              <Link href="/blog" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">BLOG</Link>
+
               <Link href="/faq" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">FAQ</Link>
               <Link href="/contact" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">CONTACT</Link>
             </nav>
@@ -199,9 +197,9 @@ export default function Header() {
 
             {/* User Icon */}
             {user ? (
-              <div className="hidden md:flex items-center gap-2 cursor-pointer" onClick={logout} title="Logout">
+              <Link href="/account" className="hidden md:flex items-center gap-2 cursor-pointer" title="My Account">
                 <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-[22px]">person</span>
-              </div>
+              </Link>
             ) : (
               <div className="hidden md:flex items-center cursor-pointer" onClick={() => { setAuthModalTab('login'); setIsAuthOpen(true); }}>
                 <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-[22px]">person</span>
@@ -274,9 +272,7 @@ export default function Header() {
             <Link href="/?tag=new arrival" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest">
               NEW ARRIVAL
             </Link>
-            <Link href="/lookbook" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest">
-              LOOKBOOK
-            </Link>
+
             <Link href="/?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-[#E55B5B] font-bold flex items-center gap-2 tracking-widest">
               SALE <span className="bg-[#E55B5B] text-white px-2 py-0.5 rounded text-[9px] font-bold">15% OFF</span>
             </Link>
@@ -287,7 +283,7 @@ export default function Header() {
           {/* Secondary Links */}
           <nav className="flex flex-col gap-4">
             <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">ABOUT US</Link>
-            <Link href="/blog" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">BLOG</Link>
+
             <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">FAQ</Link>
             <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">CONTACT</Link>
           </nav>
@@ -303,10 +299,16 @@ export default function Header() {
             <span className="font-label-caps text-xs font-bold">MY WISHLIST</span>
           </Link>
           {user ? (
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); logout(); }}>
-              <span className="material-symbols-outlined text-on-surface-variant text-[22px]">logout</span>
-              <span className="font-label-caps text-xs font-bold">LOGOUT</span>
-            </div>
+            <>
+              <Link href="/account" className="flex items-center gap-3 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
+                <span className="material-symbols-outlined text-on-surface-variant text-[22px]">person</span>
+                <span className="font-label-caps text-xs font-bold">MY ACCOUNT</span>
+              </Link>
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); logout(); }}>
+                <span className="material-symbols-outlined text-on-surface-variant text-[22px]">logout</span>
+                <span className="font-label-caps text-xs font-bold">LOGOUT</span>
+              </div>
+            </>
           ) : (
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setAuthModalTab('login'); setIsAuthOpen(true); }}>
               <span className="material-symbols-outlined text-on-surface-variant text-[22px]">person</span>

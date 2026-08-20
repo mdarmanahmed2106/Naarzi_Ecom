@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
+const Notification = require('../models/Notification');
 
 const releaseOrderStock = async (order) => {
   try {
@@ -38,35 +39,77 @@ exports.createOrder = async (req, res, next) => {
 
     // 1. Validate stock and atomically decrement
     for (const item of items) {
-      const updatedProduct = await Product.findOneAndUpdate(
-        {
-          _id: item.product,
-          colors: { 
-            $elemMatch: { 
-              name: item.color, 
-              sizes: { $elemMatch: { size: item.size, stock: { $gte: item.quantity } } } 
-            } 
+      // Find the product first to handle legacy carts with missing color
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product with ID ${item.product} not found`
+        });
+      }
+      
+      const isLegacyProduct = !product.colors || product.colors.length === 0;
+
+      let updatedProduct;
+      let targetColor = item.color;
+
+      if (isLegacyProduct) {
+        updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: item.product,
+            sizes: { $elemMatch: { size: item.size, stock: { $gte: item.quantity } } }
+          },
+          {
+            $inc: { 'sizes.$[sizeElem].stock': -item.quantity, 'stock': -item.quantity }
+          },
+          {
+            arrayFilters: [{ 'sizeElem.size': item.size }],
+            new: true
           }
-        },
-        {
-          $inc: { 'colors.$[colorElem].sizes.$[sizeElem].stock': -item.quantity, 'stock': -item.quantity }
-        },
-        {
-          arrayFilters: [{ 'colorElem.name': item.color }, { 'sizeElem.size': item.size }],
-          new: true
+        );
+      } else {
+        if (!targetColor) {
+          targetColor = product.colors[0].name;
         }
-      );
+
+        updatedProduct = await Product.findOneAndUpdate(
+          {
+            _id: item.product,
+            colors: { 
+              $elemMatch: { 
+                name: targetColor, 
+                sizes: { $elemMatch: { size: item.size, stock: { $gte: item.quantity } } } 
+              } 
+            }
+          },
+          {
+            $inc: { 'colors.$[colorElem].sizes.$[sizeElem].stock': -item.quantity, 'stock': -item.quantity }
+          },
+          {
+            arrayFilters: [{ 'colorElem.name': targetColor }, { 'sizeElem.size': item.size }],
+            new: true
+          }
+        );
+      }
 
       if (!updatedProduct) {
         // Rollback successful decrements
         for (const successful of succeededDecrements) {
-          await Product.findOneAndUpdate(
-            { _id: successful.product },
-            {
-              $inc: { 'colors.$[colorElem].sizes.$[sizeElem].stock': successful.quantity, 'stock': successful.quantity }
-            },
-            { arrayFilters: [{ 'colorElem.name': successful.color }, { 'sizeElem.size': successful.size }] }
-          );
+          if (successful.isLegacy) {
+            await Product.findOneAndUpdate(
+              { _id: successful.product },
+              { $inc: { 'sizes.$[sizeElem].stock': successful.quantity, 'stock': successful.quantity } },
+              { arrayFilters: [{ 'sizeElem.size': successful.size }] }
+            );
+          } else {
+            await Product.findOneAndUpdate(
+              { _id: successful.product },
+              {
+                $inc: { 'colors.$[colorElem].sizes.$[sizeElem].stock': successful.quantity, 'stock': successful.quantity }
+              },
+              { arrayFilters: [{ 'colorElem.name': successful.color }, { 'sizeElem.size': successful.size }] }
+            );
+          }
         }
 
         // Fetch product to give precise error
@@ -77,19 +120,28 @@ exports.createOrder = async (req, res, next) => {
             message: `Product with ID ${item.product} not found`
           });
         }
-        const colorObj = product.colors.find((c) => c.name === item.color);
-        const sizeObj = colorObj ? colorObj.sizes.find((s) => s.size === item.size) : null;
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock for product "${product.name}" in color "${item.color}" and size "${item.size}". Only ${sizeObj ? sizeObj.stock : 0} items left.`
-        });
+        if (isLegacyProduct) {
+          const sizeObj = product.sizes ? product.sizes.find((s) => s.size === item.size) : null;
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for product "${product.name}" in size "${item.size}". Only ${sizeObj ? sizeObj.stock : 0} items left.`
+          });
+        } else {
+          const colorObj = product.colors.find((c) => c.name === targetColor);
+          const sizeObj = colorObj ? colorObj.sizes.find((s) => s.size === item.size) : null;
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for product "${product.name}" in color "${targetColor}" and size "${item.size}". Only ${sizeObj ? sizeObj.stock : 0} items left.`
+          });
+        }
       }
 
       succeededDecrements.push({
         product: item.product,
-        color: item.color,
+        color: targetColor,
         size: item.size,
-        quantity: item.quantity
+        quantity: item.quantity,
+        isLegacy: isLegacyProduct
       });
 
       const price = updatedProduct.discountedPrice !== undefined && updatedProduct.discountedPrice !== null
@@ -100,7 +152,7 @@ exports.createOrder = async (req, res, next) => {
 
       orderedItems.push({
         product: updatedProduct._id,
-        color: item.color,
+        color: targetColor || 'Default',
         size: item.size,
         quantity: item.quantity,
         priceAtPurchase: price
@@ -146,6 +198,15 @@ exports.createOrder = async (req, res, next) => {
       shippingAddress,
       paymentStatus: 'pending',
       orderStatus: 'processing' // Default status
+    });
+
+    // Create Notification
+    await Notification.create({
+      title: 'New Order Received',
+      message: `Order #${order._id.toString().substring(0, 8)} placed for INR ${totalAmount}.`,
+      type: 'NEW_ORDER',
+      referenceId: order._id,
+      referenceModel: 'Order'
     });
 
     res.status(201).json({
@@ -265,3 +326,73 @@ exports.updateOrderStatus = async (req, res, next) => {
 
 // Export helper for use in payment controller
 exports.releaseOrderStock = releaseOrderStock;
+
+// @desc    Cancel order (Customer facing)
+// @route   POST /api/orders/:id/cancel
+// @access  Private
+exports.cancelOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    // Ownership check — a customer can only cancel their own order, never someone else's by guessing an ID
+    if (order.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'You are not authorized to cancel this order' });
+    }
+
+    // Status window check — only cancellable while still processing, not once shipped/delivered
+    if (order.orderStatus !== 'processing') {
+      return res.status(400).json({
+        success: false,
+        message: `This order can no longer be cancelled (current status: ${order.orderStatus}).`
+      });
+    }
+
+    if (order.orderStatus === 'cancelled') {
+      return res.status(400).json({ success: false, message: 'This order is already cancelled.' });
+    }
+
+    // Release stock using the existing atomic release logic
+    await releaseOrderStock(order);
+
+    const wasAlreadyPaid = order.paymentStatus === 'paid';
+    
+    order.orderStatus = 'cancelled';
+    if (wasAlreadyPaid) {
+      order.refundStatus = 'pending';
+    }
+    await order.save();
+
+    // Create Notifications
+    await Notification.create({
+      title: 'Order Cancelled',
+      message: `Order #${order._id.toString().substring(0, 8)} was cancelled by the customer.`,
+      type: 'ORDER_CANCELLED',
+      referenceId: order._id,
+      referenceModel: 'Order'
+    });
+
+    if (wasAlreadyPaid) {
+      await Notification.create({
+        title: 'Refund Requested',
+        message: `Order #${order._id.toString().substring(0, 8)} requires a refund of INR ${order.totalAmount}.`,
+        type: 'REFUND_REQUESTED',
+        referenceId: order._id,
+        referenceModel: 'Order'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: wasAlreadyPaid
+        ? 'Order cancelled. Your refund is being processed and will be initiated shortly.'
+        : 'Order cancelled successfully.',
+      order
+    });
+  } catch (error) {
+    next(error);
+  }
+};

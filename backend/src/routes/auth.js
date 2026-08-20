@@ -1,5 +1,5 @@
 const express = require('express');
-const { signup, login, logout, me, phoneAuth } = require('../controllers/auth');
+const { signup, login, logout, me, phoneAuth, addAddress, deleteAddress, updateProfile } = require('../controllers/auth');
 const { requireAuth } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const { signupSchema, loginSchema } = require('../utils/validationSchemas');
@@ -12,5 +12,8 @@ router.post('/login', authLimiter, validate(loginSchema), login);
 router.post('/phone', authLimiter, phoneAuth);
 router.post('/logout', logout);
 router.get('/me', requireAuth, me);
+router.put('/me', requireAuth, updateProfile);
+router.post('/me/addresses', requireAuth, addAddress);
+router.delete('/me/addresses/:id', requireAuth, deleteAddress);
 
 module.exports = router;

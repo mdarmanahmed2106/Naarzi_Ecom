@@ -37,6 +37,24 @@ export default function CheckoutPage() {
   const [couponInput, setCouponInput] = useState(appliedCoupon ? appliedCoupon.code : '');
   const [couponError, setCouponError] = useState('');
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+  
+  const [selectedAddressId, setSelectedAddressId] = useState('');
+
+  // Auto-fill address and phone if user is logged in
+  React.useEffect(() => {
+    if (user) {
+      if (user.phone) setPhone(user.phone);
+      if (user.addresses?.length > 0) {
+        const defaultAddr = user.addresses.find(a => a.isDefault) || user.addresses[0];
+        setStreet(defaultAddr.street || '');
+        setCity(defaultAddr.city || '');
+        setState(defaultAddr.state || '');
+        setPostalCode(defaultAddr.postalCode || '');
+        setCountry(defaultAddr.country || 'India');
+        setSelectedAddressId(defaultAddr._id);
+      }
+    }
+  }, [user]);
 
   const finalTotal = appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal;
 
@@ -82,6 +100,7 @@ export default function CheckoutPage() {
       const orderItems = cartItems.map((item) => ({
         product: item.product._id,
         size: item.size,
+        color: item.color || (item.product.colors && item.product.colors.length > 0 ? item.product.colors[0].name : undefined),
         quantity: item.quantity,
       }));
 
@@ -168,7 +187,7 @@ export default function CheckoutPage() {
 
           <div className="flex gap-4 w-full">
             <Link 
-              href="/orders" 
+              href="/account" 
               className="flex-1 py-4 bg-transparent border border-outline text-on-surface font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors text-center"
             >
               VIEW MY ORDERS
@@ -208,6 +227,45 @@ export default function CheckoutPage() {
             <h3 className="font-headline-sm text-lg text-on-surface mb-4">
               Shipping Address
             </h3>
+
+            {user?.addresses?.length > 0 && (
+              <div className="mb-4">
+                <label className="block text-[10px] font-label-caps tracking-widest text-on-surface-variant mb-2">
+                  USE A SAVED ADDRESS
+                </label>
+                <select
+                  className="w-full px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
+                  value={selectedAddressId}
+                  onChange={(e) => {
+                    const addrId = e.target.value;
+                    setSelectedAddressId(addrId);
+                    if (!addrId) {
+                      setStreet('');
+                      setCity('');
+                      setState('');
+                      setPostalCode('');
+                      setCountry('India');
+                      return;
+                    }
+                    const addr = user.addresses.find(a => a._id === addrId);
+                    if (addr) {
+                      setStreet(addr.street);
+                      setCity(addr.city);
+                      setState(addr.state);
+                      setPostalCode(addr.postalCode);
+                      setCountry(addr.country);
+                    }
+                  }}
+                >
+                  <option value="">-- Enter a new address --</option>
+                  {user.addresses.map(addr => (
+                    <option key={addr._id} value={addr._id}>
+                      {addr.street}, {addr.city}, {addr.state} {addr.postalCode} {addr.isDefault ? '(Default)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">

@@ -402,7 +402,7 @@ export default function ProductDetailPage({ params }) {
 
                 {/* Add to Bag CTA */}
                 <button
-                  onClick={() => selectedSize && !isOutOfStock && addToCart(product, selectedSize, quantity)}
+                  onClick={() => selectedSize && !isOutOfStock && addToCart(product, selectedSize, quantity, selectedColor)}
                   disabled={!selectedSize || isOutOfStock}
                   className="flex-1 h-14 bg-primary text-on-primary font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer font-bold"
                 >

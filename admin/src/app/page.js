@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi } from '@/lib/api';
+import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi } from '@/lib/api';
 
-function AdminHeader({ user, logout }) {
+function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, markAllAsRead, setActiveTab }) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-10 lg:px-16 shadow-sm">
       <div className="w-full flex items-center justify-between">
@@ -24,17 +25,67 @@ function AdminHeader({ user, logout }) {
         </div>
         
         <div className="flex items-center gap-6 text-[10px] font-label-caps font-bold">
-          <Link href="/" className="text-on-surface hover:text-primary transition-colors tracking-widest">
-            STOREFRONT
-          </Link>
-          {user && (
-            <button 
-              onClick={logout}
-              className="text-on-surface hover:text-error transition-colors tracking-widest cursor-pointer bg-transparent border-none font-bold"
-            >
-              LOG OUT
-            </button>
-          )}
+          {user ? (
+            <div className="relative flex items-center gap-6">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="relative text-on-surface hover:text-primary transition-colors cursor-pointer bg-transparent border-none flex items-center justify-center"
+              >
+                <span className="material-symbols-outlined text-[18px]">notifications</span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-error text-[8px] items-center justify-center text-white font-bold">{unreadCount}</span>
+                  </span>
+                )}
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-surface border border-outline-variant/30 shadow-lg rounded-xl z-50 flex flex-col p-2">
+                  <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/20 mb-2">
+                    <span className="font-label-caps text-xs tracking-wider text-on-surface font-bold">NOTIFICATIONS</span>
+                    {unreadCount > 0 && (
+                      <button onClick={markAllAsRead} className="text-[9px] text-primary hover:underline">
+                        MARK ALL READ
+                      </button>
+                    )}
+                  </div>
+                  {notifications.length === 0 ? (
+                    <div className="p-4 text-center text-xs text-on-surface-variant italic">No new notifications</div>
+                  ) : (
+                    notifications.map(notif => (
+                      <div 
+                        key={notif._id} 
+                        className={`p-3 rounded-lg mb-1 cursor-pointer transition-colors ${notif.isRead ? 'bg-surface hover:bg-surface-container' : 'bg-primary/5 hover:bg-primary/10'}`}
+                        onClick={() => {
+                          if (!notif.isRead) markAsRead(notif._id);
+                          if (notif.referenceModel === 'Order') {
+                            setActiveTab('orders');
+                            setIsDropdownOpen(false);
+                          }
+                        }}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <span className={`font-bold text-xs ${notif.isRead ? 'text-on-surface' : 'text-primary'}`}>{notif.title}</span>
+                          <span className="text-[9px] text-on-surface-variant">{new Date(notif.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-[11px] text-on-surface leading-tight">{notif.message}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              {/* Dropdown UI ends above */}
+              {/* Dropdown UI ends above */}
+              
+              <button 
+                onClick={logout}
+                className="text-on-surface hover:text-error transition-colors tracking-widest cursor-pointer bg-transparent border-none font-bold text-[10px] font-label-caps"
+              >
+                LOG OUT
+              </button>
+            </div>
+          ) : null}
         </div>
       </div>
     </header>
@@ -131,6 +182,42 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
 
+  // Notifications State
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await notificationsApi.getAll();
+      if (res.success) {
+        setNotifications(res.data);
+        setUnreadCount(res.unreadCount);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const markAsRead = async (id) => {
+    try {
+      await notificationsApi.markAsRead(id);
+      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await notificationsApi.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Load products, categories, and orders on authorized mount
   useEffect(() => {
     async function checkAuth() {
@@ -198,8 +285,10 @@ export default function AdminDashboardPage() {
 
       const wcResponse = await adminApi.getWishlistCustomers();
       if (wcResponse.success) setWishlistCustomers(wcResponse.data);
+
+      await fetchNotifications();
     } catch (err) {
-      console.error('Failed to load admin stats:', err);
+      console.error("Error loading admin data", err);
     } finally {
       setLoading(false);
     }
@@ -818,8 +907,15 @@ export default function AdminDashboardPage() {
   // Stats summaries
   const totalProducts = products.length;
   const lowStockAlertCount = products.reduce((count, p) => {
-    const lowSizes = p.sizes.filter(s => s.stock <= 3);
-    return count + lowSizes.length;
+    let lowCount = 0;
+    if (p.colors && p.colors.length > 0) {
+      p.colors.forEach(c => {
+        lowCount += c.sizes.filter(s => s.stock <= 3).length;
+      });
+    } else if (p.sizes) {
+      lowCount += p.sizes.filter(s => s.stock <= 3).length;
+    }
+    return count + lowCount;
   }, 0);
   const totalOrdersCount = orders.length;
   const pendingOrdersCount = orders.filter(o => o.orderStatus === 'processing').length;
@@ -889,7 +985,15 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-surface font-body-md text-on-surface flex flex-col">
-      <AdminHeader user={user} logout={logout} />
+      <AdminHeader 
+        user={user} 
+        logout={logout} 
+        notifications={notifications} 
+        unreadCount={unreadCount} 
+        markAsRead={markAsRead} 
+        markAllAsRead={markAllAsRead} 
+        setActiveTab={setActiveTab} 
+      />
 
       <div className="flex flex-1 w-full relative">
         {/* Sidebar Navigation */}
@@ -1266,7 +1370,9 @@ export default function AdminDashboardPage() {
                           <div>
                             <span className="font-semibold text-on-surface block leading-tight">{p.name}</span>
                             <span className="text-[10px] text-on-surface-variant block mt-1 uppercase tracking-wider font-label-caps">
-                              {p.sizes.length} SIZES CONFIGURED
+                              {p.colors && p.colors.length > 0 
+                                ? `${p.colors.reduce((total, c) => total + c.sizes.length, 0)} SIZES CONFIGURED`
+                                : `${p.sizes ? p.sizes.length : 0} SIZES CONFIGURED`}
                             </span>
                           </div>
                         </td>
@@ -1344,24 +1450,29 @@ export default function AdminDashboardPage() {
                         </td>
                         
                         {standardSizesList.map((size) => {
-                          const sizeObj = p.sizes.find(s => s.size === size);
-                          const isConfigured = !!sizeObj;
-                          const currentStock = sizeObj ? sizeObj.stock : 0;
+                          let currentStock = 0;
+                          let isConfigured = false;
+                          
+                          if (p.colors && p.colors.length > 0) {
+                            p.colors.forEach(c => {
+                              const sizeObj = c.sizes.find(s => s.size === size);
+                              if (sizeObj) {
+                                isConfigured = true;
+                                currentStock += sizeObj.stock;
+                              }
+                            });
+                          } else if (p.sizes) {
+                            // Legacy support
+                            const sizeObj = p.sizes.find(s => s.size === size);
+                            if (sizeObj) {
+                              isConfigured = true;
+                              currentStock += sizeObj.stock;
+                            }
+                          }
                           
                           return (
                             <td key={size} className="py-4 px-3 text-center">
-                              {isEditing ? (
-                                <input 
-                                  type="number" 
-                                  min="0"
-                                  value={tempStocks[size] ?? 0}
-                                  onChange={(e) => setTempStocks({
-                                    ...tempStocks,
-                                    [size]: Math.max(0, parseInt(e.target.value) || 0)
-                                  })}
-                                  className="w-14 text-center px-1.5 py-1 border border-outline/35 rounded-lg text-xs bg-surface"
-                                />
-                              ) : isConfigured ? (
+                              {isConfigured ? (
                                 <span className={`inline-block font-semibold px-2 py-0.5 rounded text-xs ${
                                   currentStock <= 0 
                                     ? 'bg-red-50 text-red-700 border border-red-100 line-through'
@@ -1379,29 +1490,12 @@ export default function AdminDashboardPage() {
                         })}
 
                         <td className="py-4 px-6 text-right">
-                          {isEditing ? (
-                            <div className="flex justify-end gap-2">
-                              <button 
-                                onClick={() => saveInlineStock(p)}
-                                className="px-3 py-1.5 bg-primary text-white text-[10px] font-label-caps tracking-widest rounded-lg hover:bg-primary-container transition-colors cursor-pointer font-bold"
-                              >
-                                SAVE
-                              </button>
-                              <button 
-                                onClick={() => setEditingStockId(null)}
-                                className="px-3 py-1.5 bg-transparent border border-outline-variant/50 text-on-surface-variant text-[10px] font-label-caps tracking-widest rounded-lg hover:bg-surface-container transition-colors cursor-pointer font-bold"
-                              >
-                                CANCEL
-                              </button>
-                            </div>
-                          ) : (
-                            <button 
-                              onClick={() => startInlineEdit(p)}
-                              className="px-3.5 py-1.5 bg-transparent border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary text-[10px] font-label-caps tracking-widest rounded-lg transition-colors cursor-pointer font-bold"
-                            >
-                              EDIT STOCK
-                            </button>
-                          )}
+                          <button 
+                            onClick={() => openEditModal(p)}
+                            className="text-[10px] font-label-caps tracking-widest text-primary hover:text-primary-container transition-colors cursor-pointer font-bold"
+                          >
+                            EDIT STOCK
+                          </button>
                         </td>
                       </tr>
                     );
@@ -1444,7 +1538,7 @@ export default function AdminDashboardPage() {
                       <td className="py-4 px-6 font-semibold text-on-surface">
                         INR {o.totalAmount}
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 flex flex-col items-start gap-1">
                         <span className={`inline-block text-[9px] font-label-caps px-2 py-1 rounded border tracking-wider font-bold uppercase ${
                           o.paymentStatus === 'paid'
                             ? 'bg-green-50 text-green-700 border-green-200'
@@ -1454,6 +1548,11 @@ export default function AdminDashboardPage() {
                         }`}>
                           {o.paymentStatus}
                         </span>
+                        {o.refundStatus === 'pending' && (
+                          <span className="inline-block text-[9px] font-label-caps px-2 py-1 rounded border tracking-wider font-bold uppercase bg-yellow-50 text-yellow-700 border-yellow-200">
+                            Refund Pending
+                          </span>
+                        )}
                       </td>
                       <td className="py-4 px-6">
                         <select 

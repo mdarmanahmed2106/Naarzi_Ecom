@@ -13,9 +13,8 @@ const sourceSans3 = Source_Sans_3({
 });
 
 export const metadata = {
-  title: "Naarzi | Quiet Luxury Resort Wear",
-  description: "Consciously crafted pieces for the modern woman, blending coastal ease with timeless sophistication.",
-};
+  title: "Naarzi | Own The Moment",
+  };
 
 import QuickBuyDrawer from "@/components/QuickBuyDrawer";
 

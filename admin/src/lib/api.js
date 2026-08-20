@@ -126,6 +126,13 @@ export const promoBannersApi = {
   delete: (id) => fetchApi(`/promo-banners/${id}`, { method: 'DELETE' }),
 };
 
+// Notifications API
+export const notificationsApi = {
+  getAll: () => fetchApi('/notifications'),
+  markAsRead: (id) => fetchApi(`/notifications/${id}/read`, { method: 'PUT' }),
+  markAllAsRead: () => fetchApi('/notifications/read-all', { method: 'PUT' }),
+};
+
 export const couponsApi = {
   validate: (code, cartTotal) => fetchApi('/coupons/validate', { method: 'POST', body: { code, cartTotal } }),
   getAll: () => fetchApi('/coupons'),

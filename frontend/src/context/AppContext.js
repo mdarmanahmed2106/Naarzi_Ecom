@@ -216,20 +216,20 @@ export function AppProvider({ children }) {
     // Background sync
     if (user) {
       try {
-        await cartApi.remove({ product: productId, size });
+        await cartApi.remove({ product: productId, size, color });
       } catch (err) {
         console.error('Failed to remove item from server cart:', err);
       }
     }
   };
 
-  const updateCartQuantity = (productId, size, quantity) => {
+  const updateCartQuantity = (productId, size, color, quantity) => {
     if (quantity <= 0) {
-      removeFromCart(productId, size);
+      removeFromCart(productId, size, color);
       return;
     }
     const updatedCart = cartItems.map((item) =>
-      item.product._id === productId && item.size === size
+      item.product._id === productId && item.size === size && item.color === color
         ? { ...item, quantity }
         : item
     );
@@ -242,7 +242,7 @@ export function AppProvider({ children }) {
       }
       quantityDebounceRef.current = setTimeout(async () => {
         try {
-          await cartApi.add({ product: productId, size, quantity });
+          await cartApi.add({ product: productId, size, color, quantity });
         } catch (err) {
           console.error('Failed to update cart quantity on server:', err);
         }

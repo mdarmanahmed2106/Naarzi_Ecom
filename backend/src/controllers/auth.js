@@ -141,3 +141,72 @@ exports.me = async (req, res, next) => {
     next(error);
   }
 };
+// @desc    Add a shipping address
+// @route   POST /api/auth/me/addresses
+// @access  Private
+exports.addAddress = async (req, res, next) => {
+  try {
+    const user = req.user;
+    
+    // If this is the first address, make it default
+    if (user.addresses.length === 0) {
+      req.body.isDefault = true;
+    } else if (req.body.isDefault) {
+      // If setting this as default, unset others
+      user.addresses.forEach(addr => {
+        addr.isDefault = false;
+      });
+    }
+
+    user.addresses.push(req.body);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete a shipping address
+// @route   DELETE /api/auth/me/addresses/:id
+// @access  Private
+exports.deleteAddress = async (req, res, next) => {
+  try {
+    const user = req.user;
+    
+    user.addresses = user.addresses.filter(addr => addr._id.toString() !== req.params.id);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/me
+// @access  Private
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const user = req.user;
+    
+    // Only allow updating name and email
+    if (req.body.name !== undefined) user.name = req.body.name;
+    if (req.body.email !== undefined) user.email = req.body.email;
+    
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};

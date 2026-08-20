@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { productsApi, categoriesApi } from '@/lib/api';
+import { useApp } from '@/context/AppContext';
 
 function ShopContent() {
   const router = useRouter();
@@ -16,6 +17,8 @@ function ShopContent() {
   const [loading, setLoading] = useState(true);
   const [totalProducts, setTotalProducts] = useState(0);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  const { wishlistItems = [], addToWishlist, removeFromWishlist } = useApp();
 
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
@@ -320,9 +323,11 @@ function ShopContent() {
                 if (product.isOnSale && product.discountedPrice) {
                   discountPercent = Math.round(((product.price - product.discountedPrice) / product.price) * 100);
                 }
+                
+                const isWishlisted = wishlistItems.some(item => item._id === product._id);
 
                 return (
-                  <Link href={`/products/${product.slug}`} key={product._id} className="group flex flex-col">
+                  <Link href={`/products/${product.slug}`} key={product._id} className="group flex flex-col relative">
                     <div className="relative aspect-[3/4] mb-4 bg-surface-container overflow-hidden rounded-sm">
                       <Image
                         src={product.images[0]}
@@ -353,6 +358,28 @@ function ShopContent() {
                         ) : (
                           <div></div>
                         )}
+                        
+                        {/* Wishlist Icon */}
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (isWishlisted) {
+                              await removeFromWishlist(product._id);
+                            } else {
+                              await addToWishlist(product._id);
+                            }
+                          }}
+                          className="pointer-events-auto w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 cursor-pointer"
+                          title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                        >
+                          <span 
+                            className={`material-symbols-outlined text-[18px] ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant'}`}
+                            style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+                          >
+                            favorite
+                          </span>
+                        </button>
                       </div>
                     </div>
 

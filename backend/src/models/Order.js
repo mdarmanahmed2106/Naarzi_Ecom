@@ -73,6 +73,11 @@ const orderSchema = new mongoose.Schema({
     enum: ['processing', 'shipped', 'delivered', 'cancelled'],
     default: 'processing'
   },
+  refundStatus: {
+    type: String,
+    enum: ['not_applicable', 'pending', 'completed'],
+    default: 'not_applicable'
+  },
   razorpayOrderId: {
     type: String,
     sparse: true

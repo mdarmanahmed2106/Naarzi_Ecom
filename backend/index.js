@@ -25,6 +25,7 @@ const paymentRoutes = require('./src/routes/payment');
 const wishlistRoutes = require('./src/routes/wishlist');
 const uploadRoutes = require('./src/routes/upload');
 const adminRoutes = require('./src/routes/admin');
+const notificationRoutes = require('./src/routes/notification');
 
 const app = express();
 
@@ -99,6 +100,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
 app.use('/api/promo-banners', require('./src/routes/promoBanner'));
 app.use('/api/coupons', require('./src/routes/coupon'));
 app.use('/api/cart', require('./src/routes/cart'));

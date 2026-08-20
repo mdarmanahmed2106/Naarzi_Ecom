@@ -4,7 +4,8 @@ const {
   getMyOrders,
   getOrder,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  cancelOrder
 } = require('../controllers/order');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -25,5 +26,7 @@ router.route('/:id')
   .get(getOrder);
 
 router.put('/:id/status', requireAdmin, validate(updateOrderStatusSchema), updateOrderStatus);
+
+router.post('/:id/cancel', cancelOrder);
 
 module.exports = router;
