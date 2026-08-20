@@ -284,10 +284,8 @@ exports.updateProduct = async (req, res, next) => {
       }
     }
 
-    // Update fields manually to trigger save validation / pre hooks
-    Object.keys(req.body).forEach((key) => {
-      product[key] = req.body[key];
-    });
+    // Update fields using .set() to ensure Mongoose tracks changes to subdocuments correctly
+    product.set(req.body);
 
     await product.save();
 

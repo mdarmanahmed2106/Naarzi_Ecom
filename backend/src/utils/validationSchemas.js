@@ -7,7 +7,6 @@ const signupSchema = z.object({
     email: z.string().email('Please provide a valid email'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
     phone: z.string().optional(),
-    role: z.enum(['customer', 'admin']).optional(), // Usually customer, can be set for testing
   })
 });
 

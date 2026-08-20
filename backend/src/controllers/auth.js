@@ -44,7 +44,7 @@ exports.phoneAuth = async (req, res, next) => {
 // @access  Public
 exports.signup = async (req, res, next) => {
   try {
-    const { name, email, password, phone, role } = req.body;
+    const { name, email, password, phone } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -57,14 +57,12 @@ exports.signup = async (req, res, next) => {
     }
 
     // Create user
-    // Note: in production, we'd restrict role creation to 'customer' unless authorized.
-    // For local development and testing convenience, we allow role specification.
+    // role is never taken from client input - always defaults to 'customer'
     const user = await User.create({
       name,
       email,
       password,
-      phone,
-      role: role || 'customer'
+      phone
     });
 
     sendTokenResponse(user, 201, res);
@@ -100,7 +98,8 @@ exports.login = async (req, res, next) => {
       });
     }
 
-    const cookieName = req.body.source === 'admin' ? 'admin_token' : 'token';
+    // Cookie name is derived from the user's REAL role, never from client-supplied input
+    const cookieName = user.role === 'admin' ? 'admin_token' : 'token';
     sendTokenResponse(user, 200, res, cookieName);
   } catch (error) {
     next(error);

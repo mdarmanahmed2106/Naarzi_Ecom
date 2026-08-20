@@ -112,6 +112,11 @@ export default function AdminDashboardPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' | 'edit'
   const [currentProductId, setCurrentProductId] = useState(null);
+
+  // Dedicated Stock Edit Modal State
+  const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+  const [stockEditProduct, setStockEditProduct] = useState(null);
+  const [stockEditColors, setStockEditColors] = useState([]);
   
   // Product Form Field States
   const standardSizesList = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size'];
@@ -301,6 +306,39 @@ export default function AdminDashboardPage() {
       });
     }
   }, [abandonedThreshold, user]);
+
+  // Stock Edit Modal Handlers
+  const openStockEditModal = (product) => {
+    setStockEditProduct(product);
+    if (product.colors && product.colors.length > 0) {
+      setStockEditColors(JSON.parse(JSON.stringify(product.colors))); // deep copy
+    } else {
+      setStockEditColors([]);
+    }
+    setIsStockModalOpen(true);
+  };
+
+  const closeStockEditModal = () => {
+    setIsStockModalOpen(false);
+    setStockEditProduct(null);
+    setStockEditColors([]);
+  };
+
+  const handleSaveStock = async () => {
+    if (!stockEditProduct) return;
+    try {
+      const response = await productsApi.update(stockEditProduct._id, { colors: stockEditColors });
+      if (response.success) {
+        closeStockEditModal();
+        fetchProducts(); // refresh products list
+      } else {
+        alert('Failed to update stock: ' + (response.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error saving stock:', error);
+      alert('Failed to update stock');
+    }
+  };
 
   // Pre-fill form fields for Editing Product
   const openEditModal = (product) => {
@@ -1491,7 +1529,7 @@ export default function AdminDashboardPage() {
 
                         <td className="py-4 px-6 text-right">
                           <button 
-                            onClick={() => openEditModal(p)}
+                            onClick={() => openStockEditModal(p)}
                             className="text-[10px] font-label-caps tracking-widest text-primary hover:text-primary-container transition-colors cursor-pointer font-bold"
                           >
                             EDIT STOCK
@@ -1963,6 +2001,67 @@ export default function AdminDashboardPage() {
 
       </main>
     </div>
+
+      {/* Stock Edit Modal */}
+      {isStockModalOpen && stockEditProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-surface rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative">
+            <div className="flex justify-between items-center p-6 border-b border-outline-variant/30 sticky top-0 bg-surface z-10">
+              <h2 className="font-display-lg text-2xl font-bold text-on-surface">Edit Stock: {stockEditProduct.name}</h2>
+              <button onClick={closeStockEditModal} className="text-on-surface-variant hover:text-error transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-surface-container/20">
+              {stockEditColors.length > 0 ? stockEditColors.map((color, cIdx) => (
+                <div key={cIdx} className="bg-white p-5 rounded-xl border border-outline-variant/30 shadow-sm">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-5 h-5 rounded-full border shadow-inner" style={{ backgroundColor: color.hexCode }}></div>
+                    <h3 className="font-bold text-on-surface text-base">{color.name}</h3>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {color.sizes.map((sz, sIdx) => (
+                      <div key={sIdx} className="flex flex-col gap-1.5">
+                        <label className="text-[10px] font-label-caps text-on-surface-variant font-bold tracking-widest">{sz.size}</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={sz.stock}
+                          onChange={(e) => {
+                            const newColors = [...stockEditColors];
+                            newColors[cIdx].sizes[sIdx].stock = parseInt(e.target.value) || 0;
+                            setStockEditColors(newColors);
+                          }}
+                          className="w-full px-3 py-2 bg-surface border border-outline-variant/40 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center p-8 text-on-surface-variant">No color variants found for this product. Please use the full product edit modal to configure colors and sizes first.</div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-outline-variant/30 sticky bottom-0 bg-surface flex justify-end gap-3 z-10 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+              <button
+                type="button"
+                onClick={closeStockEditModal}
+                className="px-6 py-2.5 rounded-full border border-outline-variant/50 text-sm font-label-caps tracking-widest font-bold text-on-surface hover:bg-surface-container transition-colors"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={handleSaveStock}
+                className="px-6 py-2.5 rounded-full bg-primary text-white text-sm font-label-caps tracking-widest font-bold hover:bg-primary/90 transition-colors shadow-md"
+              >
+                SAVE STOCK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Product Add / Edit Modal */}
       {isFormModalOpen && (
