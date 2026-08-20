@@ -330,7 +330,7 @@ export default function AdminDashboardPage() {
       const response = await productsApi.update(stockEditProduct._id, { colors: stockEditColors });
       if (response.success) {
         closeStockEditModal();
-        fetchProducts(); // refresh products list
+        loadData(); // refresh products list
       } else {
         alert('Failed to update stock: ' + (response.message || 'Unknown error'));
       }
