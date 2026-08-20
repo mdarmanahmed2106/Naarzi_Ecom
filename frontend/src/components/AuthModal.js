@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useApp } from '@/context/AppContext';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -60,12 +61,15 @@ export default function AuthModal() {
         className="bg-surface rounded-2xl overflow-hidden flex w-full max-w-3xl shadow-2xl mx-4"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left panel — dark branded */}
-        <div className="hidden md:flex flex-col justify-center items-center w-1/2 bg-primary text-white p-12 text-center">
-          {/* Logo can go here, using text fallback since we don't have logo-white.svg guaranteed */}
-          <h1 className="font-display-lg text-4xl tracking-widest mb-8">NAARZI</h1>
-          <h2 className="text-2xl font-serif mb-2">Welcome!</h2>
-          <p className="text-white/80">Sign in to discover pieces made for you.</p>
+        {/* Left panel - image banner */}
+        <div className="hidden md:flex flex-col justify-center items-center w-1/2 relative overflow-hidden bg-primary">
+          <Image 
+            src="/login_banner.png" 
+            alt="Naarzi Login" 
+            fill
+            className="object-cover"
+            priority
+          />
         </div>
 
         {/* Right panel — form, step-dependent content */}
