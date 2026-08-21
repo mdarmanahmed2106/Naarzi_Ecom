@@ -118,7 +118,7 @@ exports.syncCart = async (req, res, next) => {
         const productId = typeof localItem.product === 'object' ? localItem.product._id : localItem.product;
         
         const existingItemIndex = cart.items.findIndex(
-          item => item.product.toString() === productId && item.size === localItem.size
+          item => item.product.toString() === productId && item.size === localItem.size && item.color === localItem.color
         );
 
         if (existingItemIndex > -1) {
@@ -128,6 +128,7 @@ exports.syncCart = async (req, res, next) => {
           cart.items.push({ 
             product: productId, 
             size: localItem.size, 
+            color: localItem.color,
             quantity: localItem.quantity 
           });
         }
