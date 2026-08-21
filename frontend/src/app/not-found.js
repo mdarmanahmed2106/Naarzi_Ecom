@@ -8,8 +8,8 @@ import animationData from '../../public/animations/404-not-found.json';
 export default function NotFound() {
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center bg-[var(--color-surface)]">
-      <div className="w-48 md:w-64">
-        <Lottie animationData={animationData} loop autoplay />
+      <div className="w-48 h-48 md:w-64 md:h-64 relative">
+        <Lottie animationData={animationData} loop autoplay style={{ width: '100%', height: '100%' }} />
       </div>
 
       <h1 className="text-2xl md:text-3xl font-serif text-[var(--color-on-surface)] mt-4 mb-2">
