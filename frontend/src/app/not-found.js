@@ -1,6 +1,7 @@
 'use client';
 
-import { Lottie } from 'lottie-react';
+import dynamic from 'next/dynamic';
+const Lottie = dynamic(() => import('lottie-react').then((mod) => mod.Lottie || mod.default || mod), { ssr: false });
 import Link from 'next/link';
 import animationData from '../../public/animations/404-not-found.json';
 
