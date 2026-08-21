@@ -1,15 +1,23 @@
 'use client';
 
-import dynamic from 'next/dynamic';
-const Lottie = dynamic(() => import('lottie-react').then((mod) => mod.Lottie || mod.default || mod), { ssr: false });
+import { Lottie } from 'lottie-react';
 import Link from 'next/link';
 import animationData from '../../public/animations/404-not-found.json';
+import { useState, useEffect } from 'react';
 
 export default function NotFound() {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 text-center bg-[var(--color-surface)]">
       <div className="w-48 h-48 md:w-64 md:h-64 relative">
-        <Lottie animationData={animationData} loop autoplay style={{ width: '100%', height: '100%' }} />
+        {mounted && (
+          <Lottie animationData={animationData} loop autoplay style={{ width: '100%', height: '100%' }} />
+        )}
       </div>
 
       <h1 className="text-2xl md:text-3xl font-serif text-[var(--color-on-surface)] mt-4 mb-2">
