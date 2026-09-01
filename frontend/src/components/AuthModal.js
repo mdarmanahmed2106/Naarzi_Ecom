@@ -286,9 +286,9 @@ function OtpStep({ phone, sendOtp, verifyOtp, onBack }) {
 }
 
 function ProfileCompletionStep({ onComplete, onSkip }) {
-  const { setUser } = useApp();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const { user, setUser } = useApp();
+  const [name, setName] = useState(user?.name && user.name !== 'New Customer' ? user.name : '');
+  const [email, setEmail] = useState(user?.email || '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 

@@ -272,7 +272,7 @@ function HomePageContent() {
           <motion.img 
             alt="Naarzi Resort Collection Hero" 
             className="w-full h-full object-cover object-center" 
-            src="/hero_resort_wear.jpg"
+            src="/hero_image.png"
             animate={shouldReduceMotion ? { scale: 1 } : { scale: 1.05 }}
             transition={{
               duration: 8,

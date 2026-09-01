@@ -159,7 +159,9 @@ exports.completeProfile = async (req, res, next) => {
       user.email = email;
     }
 
-    user.profileComplete = Boolean(user.name && user.name !== 'New Customer' && user.email);
+    // profileComplete now reflects "do we at least have a real name" —
+    // email is tracked separately via hasEmail, not folded into this flag
+    user.profileComplete = Boolean(user.name && user.name !== 'New Customer');
     await user.save();
 
     res.status(200).json({ success: true, user });

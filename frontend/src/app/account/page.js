@@ -216,7 +216,7 @@ export default function AccountDashboardPage() {
             {/* Content Area */}
             <div className="flex-1 p-6 md:p-10">
               
-              {user && user.profileComplete === false && !bannerDismissed && (
+              {user && !user.email && !bannerDismissed && (
                 <div className="bg-secondary-container/40 border border-secondary/20 rounded-xl px-5 py-4 mb-8 flex items-center justify-between">
                   <p className="text-sm text-on-surface">Add your email to get order updates and receipts.</p>
                   <div className="flex items-center gap-4">

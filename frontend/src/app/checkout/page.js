@@ -8,7 +8,7 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
-import { ordersApi, paymentApi, couponsApi } from '@/lib/api';
+import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -62,6 +62,9 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
+  const needsName = !user?.name || user?.name === 'New Customer';
+  const needsEmail = !user?.email;
+
   const finalTotal = appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal;
 
   const handleApplyCoupon = async () => {
@@ -98,15 +101,19 @@ export default function CheckoutPage() {
       return;
     }
 
-    if (!user.profileComplete) {
-      if (!checkoutName.trim() || !checkoutEmail.trim()) {
-        setError('Please provide your name and email to continue.');
+    if (needsName || needsEmail) {
+      if ((needsName && !checkoutName.trim()) || (needsEmail && !checkoutEmail.trim())) {
+        setError(`Please provide your ${needsName ? 'name' : ''}${needsName && needsEmail ? ' and ' : ''}${needsEmail && !needsName ? 'email' : ''}${needsEmail && needsName ? 'email' : ''} to continue.`);
         return;
       }
       setLoading(true);
       setError('');
       try {
-        const res = await authApi.completeProfile({ name: checkoutName.trim(), email: checkoutEmail.trim() });
+        const payload = {};
+        if (needsName) payload.name = checkoutName.trim();
+        if (needsEmail) payload.email = checkoutEmail.trim();
+        
+        const res = await authApi.completeProfile(payload);
         if (res.success) {
           setUser(res.user); // updates context
         }
@@ -234,41 +241,45 @@ export default function CheckoutPage() {
     <div className="flex flex-col min-h-screen bg-surface">
       <Header />
 
-      <main className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full pt-8 pb-20">
-        <h1 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-8">
-          Checkout
-        </h1>
+      <main className="w-full flex-1 flex flex-col lg:flex-row">
+        {/* Left side - Shipping Form */}
+        <div className="w-full lg:w-[55%] xl:w-[60%] lg:border-r border-outline-variant/30 px-6 py-8 lg:py-12 lg:px-12 xl:px-20 bg-surface">
+          <div className="max-w-xl mx-auto lg:ml-auto lg:mr-0 xl:mr-10">
+            <h1 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-8">
+              Checkout
+            </h1>
 
-        {error && (
-          <div className="mb-6 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 max-w-4xl">
-            {error}
-          </div>
-        )}
+            {error && (
+              <div className="mb-6 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 w-full">
+                {error}
+              </div>
+            )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* Shipping Form Column */}
-          <form onSubmit={handleCheckoutSubmit} className="lg:col-span-7 space-y-6">
-            {!user?.profileComplete && (
+            <form onSubmit={handleCheckoutSubmit} className="space-y-6">
+            {(needsName || needsEmail) && (
               <div className="bg-secondary-container/40 border border-secondary/20 rounded-xl p-5 mb-8">
                 <p className="text-sm font-medium mb-4 text-on-surface">We need a couple more details to complete your order:</p>
                 <div className="space-y-4">
-                  <input
-                    type="text"
-                    value={checkoutName}
-                    onChange={(e) => setCheckoutName(e.target.value)}
-                    placeholder="Full Name"
-                    required
-                    className="w-full px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
-                  />
-                  <input
-                    type="email"
-                    value={checkoutEmail}
-                    onChange={(e) => setCheckoutEmail(e.target.value)}
-                    placeholder="Email Address"
-                    required
-                    className="w-full px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
-                  />
+                  {needsName && (
+                    <input
+                      type="text"
+                      value={checkoutName}
+                      onChange={(e) => setCheckoutName(e.target.value)}
+                      placeholder="Full Name"
+                      required
+                      className="w-full px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
+                    />
+                  )}
+                  {needsEmail && (
+                    <input
+                      type="email"
+                      value={checkoutEmail}
+                      onChange={(e) => setCheckoutEmail(e.target.value)}
+                      placeholder="Email Address"
+                      required
+                      className="w-full px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
+                    />
+                  )}
                 </div>
               </div>
             )}
@@ -410,19 +421,26 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="pt-6">
-              <button
-                type="submit"
-                disabled={loading || cartItems.length === 0}
-                className="w-full py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                {loading ? 'PROCESSING PAYMENT...' : `PLACE ORDER & PAY INR ${finalTotal}`}
-              </button>
-            </div>
-          </form>
+              <div className="pt-8 flex items-center justify-between border-t border-outline-variant/30 mt-6">
+                <Link href="/shop" className="text-sm text-primary hover:underline flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+                  Return to shop
+                </Link>
+                <button
+                  type="submit"
+                  disabled={loading || cartItems.length === 0}
+                  className="px-8 py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {loading ? 'PROCESSING...' : `PAY INR ${finalTotal}`}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
 
-          {/* Cart Summary Column */}
-          <div className="lg:col-span-5 bg-surface-container/50 border border-outline-variant/30 rounded-xl p-6 md:p-8 space-y-6">
+        {/* Right side - Order Summary */}
+        <div className="w-full lg:w-[45%] xl:w-[40%] bg-[#fafafa] px-6 py-8 lg:py-12 lg:px-12 xl:px-20 border-t lg:border-t-0 border-outline-variant/30 relative">
+          <div className="max-w-xl mx-auto lg:mr-auto lg:ml-0 xl:ml-10 lg:sticky lg:top-8">
             <h3 className="font-headline-sm text-lg text-on-surface">
               Order Summary
             </h3>
@@ -514,8 +532,20 @@ export default function CheckoutPage() {
                 </div>
               </div>
             )}
-          </div>
+            
+            {/* Trust Badges */}
+            <div className="mt-8 pt-6 border-t border-outline-variant/30 flex items-center gap-4 text-on-surface-variant justify-center lg:justify-start">
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <span className="material-symbols-outlined text-[16px]">lock</span>
+                Secure checkout
+              </div>
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <span className="material-symbols-outlined text-[16px]">verified</span>
+                Quality guaranteed
+              </div>
+            </div>
 
+          </div>
         </div>
       </main>
 

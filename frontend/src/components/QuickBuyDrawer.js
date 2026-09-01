@@ -21,8 +21,9 @@ export default function QuickBuyDrawer() {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       // Auto-select size if only one exists
-      if (quickBuyProduct && quickBuyProduct.sizes && quickBuyProduct.sizes.length === 1) {
-        setSelectedSize(quickBuyProduct.sizes[0].size);
+      const currentSizes = quickBuyProduct?.colors?.[0]?.sizes || quickBuyProduct?.sizes || [];
+      if (currentSizes.length === 1) {
+        setSelectedSize(currentSizes[0].size);
       } else {
         setSelectedSize('');
       }
@@ -55,8 +56,9 @@ export default function QuickBuyDrawer() {
     ? product.discountedPrice
     : product.price;
 
+  const currentSizes = product.colors?.[0]?.sizes || product.sizes || [];
   // Check if item is entirely out of stock
-  const isOutOfStock = !product.sizes?.some(s => s.stock > 0);
+  const isOutOfStock = currentSizes.length === 0 || !currentSizes.some(s => s.stock > 0);
 
   return (
     <div 
@@ -129,7 +131,7 @@ export default function QuickBuyDrawer() {
                 </button>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {product.sizes?.map((s) => {
+                {currentSizes.map((s) => {
                   const isSelected = selectedSize === s.size;
                   const isSoldOut = s.stock === 0;
                   return (

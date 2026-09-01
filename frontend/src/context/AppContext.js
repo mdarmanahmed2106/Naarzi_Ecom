@@ -149,6 +149,8 @@ export function AppProvider({ children }) {
     try {
       await authApi.logout();
       setUser(null);
+      saveCart([]); // clear local cart state AND localStorage
+      hasSyncedRef.current = false; // reset sync-guard so a genuinely new login on this device syncs cleanly
     } catch (error) {
       console.error('Logout failed:', error.message);
     }
