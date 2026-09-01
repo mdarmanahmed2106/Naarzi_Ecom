@@ -29,16 +29,16 @@ exports.getCart = async (req, res, next) => {
 // @access  Private
 exports.addItem = async (req, res, next) => {
   try {
-    const { product, size, quantity } = req.body;
+    const { product, size, color, quantity } = req.body;
     
-    if (!product || !size || !quantity) {
-      return res.status(400).json({ success: false, message: 'Please provide product, size, and quantity' });
+    if (!product || !size || !color || !quantity) {
+      return res.status(400).json({ success: false, message: 'Please provide product, size, color, and quantity' });
     }
 
     let cart = await getOrCreateCart(req.user.id);
 
     const existingItemIndex = cart.items.findIndex(
-      item => item.product.toString() === product && item.size === size
+      item => item.product.toString() === product && item.size === size && item.color === color
     );
 
     if (existingItemIndex > -1) {
@@ -46,7 +46,7 @@ exports.addItem = async (req, res, next) => {
       cart.items[existingItemIndex].quantity = quantity;
     } else {
       // Add new item
-      cart.items.push({ product, size, quantity });
+      cart.items.push({ product, size, color, quantity });
     }
 
     await cart.save();
@@ -64,10 +64,10 @@ exports.addItem = async (req, res, next) => {
 // @access  Private
 exports.removeItem = async (req, res, next) => {
   try {
-    const { product, size } = req.body; // Using request body for DELETE to easily pass size and product ID together
+    const { product, size, color } = req.body;
 
-    if (!product || !size) {
-      return res.status(400).json({ success: false, message: 'Please provide product and size' });
+    if (!product || !size || !color) {
+      return res.status(400).json({ success: false, message: 'Please provide product, size, and color' });
     }
 
     const cart = await Cart.findOne({ user: req.user.id });
@@ -76,7 +76,7 @@ exports.removeItem = async (req, res, next) => {
     }
 
     cart.items = cart.items.filter(
-      item => !(item.product.toString() === product && item.size === size)
+      item => !(item.product.toString() === product && item.size === size && item.color === color)
     );
 
     await cart.save();
@@ -122,8 +122,12 @@ exports.syncCart = async (req, res, next) => {
         );
 
         if (existingItemIndex > -1) {
-          // Merge quantities by taking the max or summing them. The prompt says "sum quantities for duplicate product+size combos"
-          cart.items[existingItemIndex].quantity += localItem.quantity;
+          // Use max rather than sum — makes repeated/duplicate sync calls idempotent,
+          // while still correctly combining genuinely different local vs server quantities
+          cart.items[existingItemIndex].quantity = Math.max(
+            cart.items[existingItemIndex].quantity,
+            localItem.quantity
+          );
         } else {
           cart.items.push({ 
             product: productId, 

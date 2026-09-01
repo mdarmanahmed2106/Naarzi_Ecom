@@ -18,6 +18,7 @@ export function AppProvider({ children }) {
   const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false);
   const [quickBuyProduct, setQuickBuyProduct] = useState(null);
   const quantityDebounceRef = useRef(null);
+  const hasSyncedRef = useRef(false);
 
   // Load user profile on mount
   useEffect(() => {
@@ -39,7 +40,8 @@ export function AppProvider({ children }) {
   // Sync local cart to server when user logs in
   useEffect(() => {
     async function syncCartWithServer() {
-      if (!user) return;
+      if (!user || hasSyncedRef.current) return;
+      hasSyncedRef.current = true; // mark synced for this session, before the async call, to prevent a race if this effect fires twice quickly
       
       const localCart = localStorage.getItem('naarzi_cart');
       let itemsToSync = [];
@@ -59,6 +61,14 @@ export function AppProvider({ children }) {
       }
     }
     syncCartWithServer();
+  }, [user]);
+
+  // Reset the sync flag on logout, so a genuine NEW login (possibly a different user
+  // on a shared device) triggers a fresh sync rather than being permanently blocked
+  useEffect(() => {
+    if (!user) {
+      hasSyncedRef.current = false;
+    }
   }, [user]);
 
   // Load wishlist on user changes
