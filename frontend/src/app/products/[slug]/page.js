@@ -661,7 +661,7 @@ export default function ProductDetailPage({ params }) {
                           <img 
                             alt={p.name} 
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103" 
-                            src={p.images[0]} 
+                            src={p.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500'}
                           />
                         </div>
                         <div className="flex justify-between items-start mb-1">

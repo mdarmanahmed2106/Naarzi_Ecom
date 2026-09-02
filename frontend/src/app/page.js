@@ -234,7 +234,7 @@ function HomePageContent() {
       name: 'New',
       desc: 'Shop the latest resort collections',
       image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBLQNhD0BgxsXxd7P7czm7dqEpzbBox51lXdbu4amdoYSbdVfglnEoehmzAvyrwzwJ28VH91ZBwbNZVRvWtoLqTsMt51kQ9C0ytoc-CuGba8jWEAgaOSfB6ZApu0Yt9c8WJYykjpwLJg2Ovjv8ccwaSgHFTWY72RxKbHIEAwuHwQGqjM4uzEavkH5A6eWlFvZwIEtJ91FQOx89ZvcgbiLy5GrVAnABXmPPhMtLPDM4eZp5LiW3mEmubKA',
-      action: () => handleTagFilter('new arrival')
+      action: () => router.push('/shop?tag=new arrival')
     },
     {
       id: 'apparel',
@@ -242,7 +242,7 @@ function HomePageContent() {
       name: 'Apparel',
       desc: 'Bundle up in linen & silk style',
       image: apparelCat.image || 'https://lh3.googleusercontent.com/aida/AP1WRLuwbVtOXdrb3zdk3EkZNAYsYDMcjI2Uvg1gu0lmnIiVbCsJ1bPWsmB5lKQBX6yGZcratFfqfDaMiNBw4a3Oi_oBUGkzFJr7bXZIfG1d5Q324u_YsRt5ROKVe7C6amQF15jezlafwLwmfOftrQSejvgG3VxXAxoxwA8LhKSasDUvrk28pLa6Wp2bRRRJmAVGDmtgiccat1cYRCf8MSzUZvnEOYhctK22eXsBy3jDH1EYJeBwMmx3jM4bN7a1',
-      action: () => handleCategoryFilter('apparel')
+      action: () => router.push('/shop?category=apparel')
     },
     {
       id: 'accessories',
@@ -250,7 +250,7 @@ function HomePageContent() {
       name: 'Accessories',
       desc: 'A look for every occasion',
       image: accessoriesCat.image || 'https://lh3.googleusercontent.com/aida/AP1WRLue8q7KBq8NRPdoVsB-Ss2K9mtkUh2W48y_oRra9g-28X3rBJUX9nYZVBgrNuftBmURFLGAxoWBDiHBtGKU_CQe5se06BdixWuKGd49AFd57SmE0ErJOYEyA8muHMaz4R7jZvrTaAMQhjBwli7O67zfycy9LcCqE8yzdB27X504m5RqJ8CuY3Zv-9RjPEwqkzHYKpAQamYiD9C4OoMwgfm2fOV1RD2goAyNz0dK-hZTHu8RApy-eagWqTbH',
-      action: () => handleCategoryFilter('accessories')
+      action: () => router.push('/shop?category=accessories')
     },
     {
       id: 'bestselling',
@@ -258,7 +258,7 @@ function HomePageContent() {
       name: 'Bestselling',
       desc: 'Your favorites, selling fast!',
       image: shoesCat.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw',
-      action: () => handleTagFilter('trending')
+      action: () => router.push('/shop?tag=trending')
     }
   ];
 

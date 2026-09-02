@@ -190,9 +190,8 @@ export default function Header() {
                           <li><Link href="/shop?tag=new-arrival" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">New Arrivals</Link></li>
                           <li><Link href="/shop?tag=bestsellers" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Best Sellers</Link></li>
                           <li>
-                            <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className="text-[#E55B5B] flex items-center gap-2 hover:opacity-80 transition-opacity">
+                            <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className="font-bold text-white bg-[#E55B5B] px-2 py-0.5 rounded w-fit hover:opacity-80 transition-opacity inline-block">
                               Sale
-                              <span className="bg-[#E55B5B] text-white text-[9px] px-2 py-0.5 rounded font-bold">15% OFF</span>
                             </Link>
                           </li>
                         </ul>
@@ -218,8 +217,8 @@ export default function Header() {
                 NEW
               </Link>
 
-              <Link href="/shop?tag=sale" className="font-label-caps text-[11px] text-[#E55B5B] hover:opacity-80 transition-opacity font-bold flex items-center gap-2">
-                SALE <span className="bg-[#E55B5B] text-white px-2 py-0.5 rounded text-[9px] font-bold">15% OFF</span>
+              <Link href="/shop?tag=sale" className="font-label-caps text-[11px] bg-[#E55B5B] text-white px-2 py-0.5 rounded hover:opacity-80 transition-opacity font-bold flex items-center justify-center">
+                SALE
               </Link>
             </nav>
           </div>
@@ -333,8 +332,8 @@ export default function Header() {
               NEW ARRIVAL
             </Link>
 
-            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-[#E55B5B] font-bold flex items-center gap-2 tracking-widest">
-              SALE <span className="bg-[#E55B5B] text-white px-2 py-0.5 rounded text-[9px] font-bold">15% OFF</span>
+            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm bg-[#E55B5B] text-white px-3 py-1 rounded w-fit font-bold tracking-widest hover:opacity-80 transition-opacity">
+              SALE
             </Link>
           </nav>
           
