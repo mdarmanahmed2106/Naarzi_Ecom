@@ -50,32 +50,41 @@ function HomePageContent() {
   const [activeEditIdx, setActiveEditIdx] = useState(0);
   const editsData = [
     {
-      id: 'linen-suits',
-      name: 'Linen Suits',
-      title: 'Tailored Resort Casual Suits',
-      desc: 'Crafted from organic, high-breathability linen. Designed to transition smoothly from daytime leisure to sunset ocean breezes.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuANXaWhzv-hWbVmkss7ImSrgKoDSoIr5CtV6o3rNsQyVb6TIpIJGxu342c2qbH7nDa1XAO6JbcrponuHaVimVIfWNzB6vR2WZzteVdbaqb31zHAE_AYSFkFGfoHUHZzioarS6_7721hyfNTh_b_JmebUtCTfxzKc5HAHwdZukVOS4Qt4dpf8A4w3-WriUh6df5qty2osKlqzXFNoANNN9lzx5s9OsKdZOBDH1r9iKUADNmbnSV5OmxvqA'
+      id: 'coord-sets',
+      name: 'Co-Ord Sets',
+      eyebrow: 'SIGNATURE PIECE · ₹5,999',
+      title: 'Two-Tone Statement Sets',
+      desc: 'Designed with playful contrast notch collars, relaxed modern tailoring, and breathable all-day comfort. Featuring our signature Pink & Yellow and White & Pinky colourblocks.',
+      img: '/hero_image.png',
+      ctaText: 'SHOP CO-ORD SETS',
+      link: '/shop?tag=new-arrival'
     },
     {
-      id: 'silk-slips',
-      name: 'Silk Slips',
-      title: 'Flowing Silk & Satin Slips',
-      desc: 'Liquid-like drape that contours naturally. A study in quiet luxury, featuring low-back detailing and adjustable custom straps.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB3pAvrBBot7wDb-k_B5z0L-qaAozsKQsK8uo9Kz4QCK4TzSF_0iQRTClaKS4lF3lT7ZArRzxdaMbzt6vLVKEW_httHrEiFkzsljgbUoeHHoqv5TVFQ1BC4XbOSW9Gwv34L1EG4RxzCdc-W8t0qBjZHCpm0w5y6u_hdAo7rOGVOPbRsBy1-A10dj_EmSax-hlJvvYpWOlHcpsDTR0U2jdoRV4NcBxwHRRsSqnnjbvHTWHXxg6vBt_-JtA'
+      id: 'kurti-sets',
+      name: 'Short Kurti Sets',
+      eyebrow: '9 CURATED DESIGNS · ₹4,999',
+      title: 'Artistic Everyday Silhouettes',
+      desc: 'A contemporary reimagining of effortless Indian designer ready-to-wear. Fluid cuts meet thoughtful artisanal accents for versatile dressing from creative studio mornings to evening gatherings.',
+      img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
+      ctaText: 'SHOP KURTI SETS',
+      link: '/shop?category=apparel'
     },
     {
-      id: 'ribbed-tanks',
-      name: 'Ribbed Tanks',
-      title: 'Fine Organic Plated Ribs',
-      desc: 'An essential foundation for warm minimal layering. Knitted from premium long-staple cotton for architectural texture.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw'
+      id: 'colour-first',
+      name: 'Colour First',
+      eyebrow: 'LAUNCH CAPSULE · EXPRESSION',
+      title: 'Wear Your Colour. Feel the Vibe.',
+      desc: 'Intentional palettes crafted to elevate your mood. Turning simple fabrics into vibrant stories with colour-led design that celebrates self-expression. Not fashion. Expression.',
+      img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
+      ctaText: 'EXPLORE FULL CAPSULE',
+      link: '/shop'
     }
   ];
 
   // Instagram ticker images
   const instaImages = [
-    'https://lh3.googleusercontent.com/aida/AP1WRLuwbVtOXdrb3zdk3EkZNAYsYDMcjI2Uvg1gu0lmnIiVbCsJ1bPWsmB5lKQBX6yGZcratFfqfDaMiNBw4a3Oi_oBUGkzFJr7bXZIfG1d5Q324u_YsRt5ROKVe7C6amQF15jezlafwLwmfOftrQSejvgG3VxXAxoxwA8LhKSasDUvrk28pLa6Wp2bRRRJmAVGDmtgiccat1cYRCf8MSzUZvnEOYhctK22eXsBy3jDH1EYJeBwMmx3jM4bN7a1',
-    'https://lh3.googleusercontent.com/aida/AP1WRLue8q7KBq8NRPdoVsB-Ss2K9mtkUh2W48y_oRra9g-28X3rBJUX9nYZVBgrNuftBmURFLGAxoWBDiHBtGKU_CQe5se06BdixWuKGd49AFd57SmE0ErJOYEyA8muHMaz4R7jZvrTaAMQhjBwli7O67zfycy9LcCqE8yzdB27X504m5RqJ8CuY3Zv-9RjPEwqkzHYKpAQamYiD9C4OoMwgfm2fOV1RD2goAyNz0dK-hZTHu8RApy-eagWqTbH',
+    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuBLQNhD0BgxsXxd7P7czm7dqEpzbBox51lXdbu4amdoYSbdVfglnEoehmzAvyrwzwJ28VH91ZBwbNZVRvWtoLqTsMt51kQ9C0ytoc-CuGba8jWEAgaOSfB6ZApu0Yt9c8WJYykjpwLJg2Ovjv8ccwaSgHFTWY72RxKbHIEAwuHwQGqjM4uzEavkH5A6eWlFvZwIEtJ91FQOx89ZvcgbiLy5GrVAnABXmPPhMtLPDM4eZp5LiW3mEmubKA',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuB3pAvrBBot7wDb-k_B5z0L-qaAozsKQsK8uo9Kz4QCK4TzSF_0iQRTClaKS4lF3lT7ZArRzxdaMbzt6vLVKEW_httHrEiFkzsljgbUoeHHoqv5TVFQ1BC4XbOSW9Gwv34L1EG4RxzCdc-W8t0qBjZHCpm0w5y6u_hdAo7rOGVOPbRsBy1-A10dj_EmSax-hlJvvYpWOlHcpsDTR0U2jdoRV4NcBxwHRRsSqnnjbvHTWHXxg6vBt_-JtA',
     'https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw'
@@ -241,7 +250,7 @@ function HomePageContent() {
       eyebrow: 'LAYERS TO LOVE',
       name: 'Apparel',
       desc: 'Bundle up in linen & silk style',
-      image: apparelCat.image || 'https://lh3.googleusercontent.com/aida/AP1WRLuwbVtOXdrb3zdk3EkZNAYsYDMcjI2Uvg1gu0lmnIiVbCsJ1bPWsmB5lKQBX6yGZcratFfqfDaMiNBw4a3Oi_oBUGkzFJr7bXZIfG1d5Q324u_YsRt5ROKVe7C6amQF15jezlafwLwmfOftrQSejvgG3VxXAxoxwA8LhKSasDUvrk28pLa6Wp2bRRRJmAVGDmtgiccat1cYRCf8MSzUZvnEOYhctK22eXsBy3jDH1EYJeBwMmx3jM4bN7a1',
+      image: apparelCat.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
       action: () => router.push('/shop?category=apparel')
     },
     {
@@ -249,7 +258,7 @@ function HomePageContent() {
       eyebrow: 'SLEEK STYLES',
       name: 'Accessories',
       desc: 'A look for every occasion',
-      image: accessoriesCat.image || 'https://lh3.googleusercontent.com/aida/AP1WRLue8q7KBq8NRPdoVsB-Ss2K9mtkUh2W48y_oRra9g-28X3rBJUX9nYZVBgrNuftBmURFLGAxoWBDiHBtGKU_CQe5se06BdixWuKGd49AFd57SmE0ErJOYEyA8muHMaz4R7jZvrTaAMQhjBwli7O67zfycy9LcCqE8yzdB27X504m5RqJ8CuY3Zv-9RjPEwqkzHYKpAQamYiD9C4OoMwgfm2fOV1RD2goAyNz0dK-hZTHu8RApy-eagWqTbH',
+      image: accessoriesCat.image || 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?q=80&w=1000&auto=format&fit=crop',
       action: () => router.push('/shop?category=accessories')
     },
     {
@@ -269,17 +278,10 @@ function HomePageContent() {
       {/* Hero Banner with Page Load Animations */}
       <section className="sticky top-0 w-full h-screen h-[100dvh] flex items-center overflow-hidden z-0">
         <div className="absolute inset-0 z-0">
-          <motion.img 
+          <img 
             alt="Naarzi Resort Collection Hero" 
             className="w-full h-full object-cover object-center" 
             src="/hero_image.png"
-            animate={shouldReduceMotion ? { scale: 1 } : { scale: 1.05 }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              repeatType: 'reverse',
-              ease: 'easeInOut'
-            }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/30 to-transparent"></div>
         </div>
@@ -295,19 +297,19 @@ function HomePageContent() {
               variants={heroChildVariants}
               className="font-label-caps text-label-caps text-primary tracking-widest block mb-4"
             >
-              RESORT 2026
+              LAUNCH CAPSULE
             </motion.span>
             <motion.h1 
               variants={heroChildVariants}
               className="font-display-lg text-4xl md:text-6xl text-on-surface mb-6 leading-tight font-bold"
             >
-              Elevate your everyday
+              Expression,<br />Not Just Fashion
             </motion.h1>
             <motion.p 
               variants={heroChildVariants}
               className="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md"
             >
-              Consciously crafted pieces for the modern woman, blending coastal ease with timeless sophistication.
+              Wear Your Colour.<br />Feel the Vibe.
             </motion.p>
             <motion.div 
               variants={heroChildVariants}
@@ -578,7 +580,7 @@ function HomePageContent() {
         </div>
       </section>
 
-      {/* "The Edits" Tab Switching Lookbook Section */}
+      {/* "The Launch Capsule" Tab Switching Section */}
       <motion.section 
         className="py-24 bg-surface-container-low border-t border-b border-outline-variant/20 w-full"
         initial="hidden"
@@ -588,20 +590,20 @@ function HomePageContent() {
       >
         <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
           <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">EDITORIAL CAPTION</span>
-            <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold mb-4">The Edits</h2>
+            <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">LAUNCH CAPSULE</span>
+            <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold mb-4">Design That Speaks</h2>
             <p className="font-body-md text-on-surface-variant text-sm">
-              Focusing on slow luxury. A curated series of looks optimized for Mediterranean summers and sun-drenched settings.
+              Contemporary, colour-led ready-to-wear crafted for spontaneous days and inspired moments. Effortless silhouettes that celebrate personal expression.
             </p>
           </div>
 
           {/* Tab buttons */}
-          <div className="flex justify-center gap-8 border-b border-outline-variant/30 pb-4 mb-12">
+          <div className="flex justify-center gap-6 md:gap-10 border-b border-outline-variant/30 pb-4 mb-12 overflow-x-auto scrollbar-hide">
             {editsData.map((edit, idx) => (
               <button
                 key={edit.id}
                 onClick={() => setActiveEditIdx(idx)}
-                className="relative pb-2 font-label-caps text-xs tracking-wider cursor-pointer font-bold"
+                className="relative pb-2 font-label-caps text-xs tracking-wider cursor-pointer font-bold whitespace-nowrap"
               >
                 <span className={`transition-colors duration-200 ${
                   activeEditIdx === idx ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
@@ -627,9 +629,11 @@ function HomePageContent() {
           {/* Tab Content Crossfade layout */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[450px]">
             <div className="lg:col-span-5 space-y-6">
-              <span className="font-label-caps text-[9px] text-primary tracking-widest block font-bold">LOOK DETAIL</span>
+              <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
+                {editsData[activeEditIdx]?.eyebrow || 'LAUNCH CAPSULE'}
+              </span>
               
-              <div className="relative min-h-[140px]">
+              <div className="relative min-h-[150px]">
                 {editsData.map((edit, idx) => (
                   <div 
                     key={edit.id}
@@ -649,10 +653,10 @@ function HomePageContent() {
 
               <div className="pt-6">
                 <Link 
-                  href="/?category=apparel"
-                  className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b border-primary pb-2 hover:opacity-85 transition-opacity font-bold"
+                  href={editsData[activeEditIdx]?.link || '/shop'}
+                  className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-85 transition-opacity font-bold"
                 >
-                  EXPLORE COLLECTION
+                  {editsData[activeEditIdx]?.ctaText || 'EXPLORE COLLECTION'}
                   <span className="material-symbols-outlined text-sm">arrow_forward</span>
                 </Link>
               </div>
@@ -671,13 +675,18 @@ function HomePageContent() {
                     }`}
                   />
                 ))}
+                <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 z-20">
+                  <span className="font-label-caps text-[9px] tracking-widest text-white uppercase font-bold">
+                    NOT FASHION. EXPRESSION.
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </motion.section>
 
-      {/* Editorial lookbook section with Scroll Triggered Fade-in */}
+      {/* The Naarzi Story & Founder Manifesto Section */}
       <motion.section 
         className="py-24 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
         initial="hidden"
@@ -685,40 +694,85 @@ function HomePageContent() {
         viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
         variants={scrollFadeInVariants}
       >
-        <div className="lg:col-span-5 space-y-6">
-          <span className="font-label-caps text-label-caps text-primary tracking-widest block font-bold">
-            EDITORIAL LOOKBOOK
+        <div className="lg:col-span-6 space-y-6">
+          <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
+            THE NAARZI STORY
           </span>
           <h2 className="font-display-lg text-3xl md:text-5xl text-on-surface leading-tight font-bold">
-            Sun-Drenched Warm Minimalism
+            “Beauty Where Others Saw Waste”
           </h2>
-          <p className="font-body-lg text-on-surface-variant">
-            Our visual language draws inspiration from Mediterranean beachside walls, organic cotton, linen wraps, and neutral plaster backdrops. We focus on breathing rooms, soft tactile shadows, and quiet luxury.
+          <p className="font-headline-sm text-base md:text-lg text-primary font-medium italic">
+            Turning simple fabrics into vibrant stories.
           </p>
+          <p className="font-body-lg text-on-surface-variant leading-relaxed">
+            Naarzi was born from a singular belief: that art lives in the overlooked. We don’t chase transient fashion seasons — we design for pure, unapologetic self-expression. Every garment is colour-led, thoughtfully crafted, and cut for effortless confidence. Wear the vibe. Feel the colour.
+          </p>
+
+          {/* 3 Brand Pillars */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-outline-variant/30">
+            <div className="space-y-1">
+              <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">01 · COLOUR FIRST</span>
+              <p className="font-body-md text-xs text-on-surface-variant leading-normal">
+                Mood-defining palettes that speak before you do.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">02 · THOUGHTFUL DESIGN</span>
+              <p className="font-body-md text-xs text-on-surface-variant leading-normal">
+                Fluid, relaxed cuts crafted for everyday confidence.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">03 · LIMITED DROPS</span>
+              <p className="font-body-md text-xs text-on-surface-variant leading-normal">
+                Small, intentional capsules made to be cherished.
+              </p>
+            </div>
+          </div>
+
           <div className="pt-4">
             <Link 
-              href="/?category=apparel"
-              className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b border-primary pb-2 hover:opacity-80 transition-opacity font-bold"
+              href="/shop?tag=new arrival"
+              className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-80 transition-opacity font-bold"
             >
-              EXPLORE RESORT COLLECTION
+              EXPLORE THE LAUNCH CAPSULE
               <span className="material-symbols-outlined text-sm">arrow_forward</span>
             </Link>
           </div>
         </div>
-        <div className="lg:col-span-7 grid grid-cols-2 gap-4">
-          <div className="rounded-xl overflow-hidden h-96 shadow-sm">
+
+        {/* Visual Editorial Composition */}
+        <div className="lg:col-span-6 grid grid-cols-2 gap-4 items-center">
+          <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container">
             <img 
-              src="https://lh3.googleusercontent.com/aida/AP1WRLuwbVtOXdrb3zdk3EkZNAYsYDMcjI2Uvg1gu0lmnIiVbCsJ1bPWsmB5lKQBX6yGZcratFfqfDaMiNBw4a3Oi_oBUGkzFJr7bXZIfG1d5Q324u_YsRt5ROKVe7C6amQF15jezlafwLwmfOftrQSejvgG3VxXAxoxwA8LhKSasDUvrk28pLa6Wp2bRRRJmAVGDmtgiccat1cYRCf8MSzUZvnEOYhctK22eXsBy3jDH1EYJeBwMmx3jM4bN7a1" 
-              className="w-full h-full object-cover category-tile-image" 
-              alt="Lookbook 1" 
+              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop" 
+              className="w-full h-full object-cover" 
+              alt="Naarzi Colour-Led Ready-to-Wear" 
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+            <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
+              COLOUR FIRST · 2026
+            </span>
           </div>
-          <div className="rounded-xl overflow-hidden h-96 mt-8 shadow-sm">
-            <img 
-              src="https://lh3.googleusercontent.com/aida/AP1WRLue8q7KBq8NRPdoVsB-Ss2K9mtkUh2W48y_oRra9g-28X3rBJUX9nYZVBgrNuftBmURFLGAxoWBDiHBtGKU_CQe5se06BdixWuKGd49AFd57SmE0ErJOYEyA8muHMaz4R7jZvrTaAMQhjBwli7O67zfycy9LcCqE8yzdB27X504m5RqJ8CuY3Zv-9RjPEwqkzHYKpAQamYiD9C4OoMwgfm2fOV1RD2goAyNz0dK-hZTHu8RApy-eagWqTbH" 
-              className="w-full h-full object-cover category-tile-image" 
-              alt="Lookbook 2" 
-            />
+
+          <div className="space-y-4">
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container mt-6">
+              <img 
+                src="https://images.unsplash.com/photo-1617922001439-4a2e6562f328?q=80&w=1000&auto=format&fit=crop" 
+                className="w-full h-full object-cover" 
+                alt="Naarzi Atelier and Thoughtful Design" 
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+              <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
+                ART FROM THE OVERLOOKED
+              </span>
+            </div>
+
+            <div className="bg-surface-container-high/60 border border-outline-variant/30 rounded-xl p-4 text-center">
+              <p className="font-display-md text-xs sm:text-sm text-primary font-bold italic">
+                “A friend who inspires, not a brand that shouts.”
+              </p>
+            </div>
           </div>
         </div>
       </motion.section>

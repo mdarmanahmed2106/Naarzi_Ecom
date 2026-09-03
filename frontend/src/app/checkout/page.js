@@ -43,6 +43,7 @@ export default function CheckoutPage() {
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   
   const [selectedAddressId, setSelectedAddressId] = useState('');
+  const [saveAddressToProfile, setSaveAddressToProfile] = useState(false);
 
   // Auto-fill address and phone if user is logged in
   React.useEffect(() => {
@@ -57,6 +58,11 @@ export default function CheckoutPage() {
         setState(defaultAddr.state || '');
         setPostalCode(defaultAddr.postalCode || '');
         setCountry(defaultAddr.country || 'India');
+        if (defaultAddr.phone) {
+          setPhone(defaultAddr.phone);
+        } else if (user.phone) {
+          setPhone(user.phone);
+        }
         setSelectedAddressId(defaultAddr._id);
       }
     }
@@ -152,6 +158,23 @@ export default function CheckoutPage() {
       const orderResponse = await ordersApi.create(orderData);
       
       if (orderResponse.success) {
+        if (saveAddressToProfile && !selectedAddressId) {
+          try {
+            const addrRes = await authApi.addAddress({
+              street,
+              city,
+              state,
+              postalCode,
+              country,
+              phone
+            });
+            if (addrRes.success) {
+              setUser(addrRes.user);
+            }
+          } catch (addrErr) {
+            console.error('Failed to save address to profile:', addrErr);
+          }
+        }
         const orderId = orderResponse.order._id;
         
         // 2. Create Razorpay Payment order
@@ -305,6 +328,7 @@ export default function CheckoutPage() {
                       setState('');
                       setPostalCode('');
                       setCountry('India');
+                      setPhone(user?.phone || '');
                       return;
                     }
                     const addr = user.addresses.find(a => a._id === addrId);
@@ -314,13 +338,14 @@ export default function CheckoutPage() {
                       setState(addr.state);
                       setPostalCode(addr.postalCode);
                       setCountry(addr.country);
+                      setPhone(addr.phone || user?.phone || '');
                     }
                   }}
                 >
                   <option value="">-- Enter a new address --</option>
                   {user.addresses.map(addr => (
                     <option key={addr._id} value={addr._id}>
-                      {addr.street}, {addr.city}, {addr.state} {addr.postalCode} {addr.isDefault ? '(Default)' : ''}
+                      {addr.street}, {addr.city}, {addr.state} {addr.postalCode} {addr.phone ? `· Phone: ${addr.phone}` : ''} {addr.isDefault ? '(Default)' : ''}
                     </option>
                   ))}
                 </select>
@@ -419,6 +444,21 @@ export default function CheckoutPage() {
                   className="w-full px-4 py-3 bg-surface border border-outline/20 rounded-lg text-sm text-on-surface focus:border-primary focus:outline-none transition-colors"
                 />
               </div>
+
+              {!selectedAddressId && user && (
+                <div className="md:col-span-2 flex items-center gap-2 mt-2">
+                  <input
+                    type="checkbox"
+                    id="saveAddressCheckout"
+                    checked={saveAddressToProfile}
+                    onChange={(e) => setSaveAddressToProfile(e.target.checked)}
+                    className="w-4 h-4 accent-primary"
+                  />
+                  <label htmlFor="saveAddressCheckout" className="text-xs text-on-surface cursor-pointer">
+                    Save this address and contact number to my account
+                  </label>
+                </div>
+              )}
             </div>
 
               <div className="pt-8 flex items-center justify-between border-t border-outline-variant/30 mt-6">

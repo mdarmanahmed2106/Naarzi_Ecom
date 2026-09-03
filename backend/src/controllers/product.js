@@ -55,13 +55,20 @@ exports.getProducts = async (req, res, next) => {
 
     // 1. Category Filter (can be category ID or slug)
     if (category) {
-      if (category.match(/^[0-9a-fA-F]{24}$/)) {
+      if (category.toLowerCase() === 'apparel') {
+        // "apparel" is the umbrella ready-to-wear brand collection; show all products
+      } else if (category.match(/^[0-9a-fA-F]{24}$/)) {
         query.category = category;
       } else {
         // Find category by slug first
-        const foundCategory = await Category.findOne({ slug: category });
+        const foundCategory = await Category.findOne({ slug: category.toLowerCase() });
         if (foundCategory) {
-          query.category = foundCategory._id;
+          const childCategories = await Category.find({ parentCategory: foundCategory._id });
+          if (childCategories.length > 0) {
+            query.category = { $in: [foundCategory._id, ...childCategories.map(c => c._id)] };
+          } else {
+            query.category = foundCategory._id;
+          }
         } else {
           // If category slug not found, return empty results
           return res.status(200).json({

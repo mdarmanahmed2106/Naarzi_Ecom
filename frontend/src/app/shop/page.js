@@ -287,9 +287,9 @@ function ShopContent() {
               </button>
             )}
           </div>
-           {activeCategory === '' && !activeTag && !activeSearch && (
+           {(activeCategory === '' || activeCategory === 'apparel') && !activeTag && !activeSearch && (
              <p className="font-body-md text-on-surface-variant mt-4 max-w-xl">
-               Discover our consciously crafted resort wear, designed to transition smoothly from daytime leisure to sunset ocean breezes.
+               Contemporary, colour-led ready-to-wear designed for effortless confidence and personal expression.
              </p>
            )}
         </div>
@@ -373,8 +373,8 @@ function ShopContent() {
 
             <FilterSection title="Product Type">
               <label className="flex items-center gap-3 text-on-surface cursor-pointer group hover:text-primary transition-colors">
-                <input type="checkbox" className="w-4 h-4 accent-primary" checked={activeCategory === ''} onChange={() => updateFilters({ category: null })} /> 
-                <span>All Types</span>
+                <input type="checkbox" className="w-4 h-4 accent-primary" checked={activeCategory === '' || activeCategory === 'apparel'} onChange={() => updateFilters({ category: null })} /> 
+                <span>All Apparel</span>
               </label>
               {categories.map((cat) => (
                 <label key={cat._id} className="flex items-center gap-3 text-on-surface cursor-pointer group hover:text-primary transition-colors">

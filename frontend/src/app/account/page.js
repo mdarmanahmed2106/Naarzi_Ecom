@@ -26,7 +26,7 @@ export default function AccountDashboardPage() {
   const [addresses, setAddresses] = useState(user?.addresses || []);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addressForm, setAddressForm] = useState({
-    street: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false
+    street: '', city: '', state: '', postalCode: '', country: 'India', phone: '', isDefault: false
   });
   const [isSubmittingAddress, setIsSubmittingAddress] = useState(false);
 
@@ -99,7 +99,7 @@ export default function AccountDashboardPage() {
         setUser(response.user);
         setAddresses(response.user.addresses);
         setShowAddressForm(false);
-        setAddressForm({ street: '', city: '', state: '', postalCode: '', country: 'India', isDefault: false });
+        setAddressForm({ street: '', city: '', state: '', postalCode: '', country: 'India', phone: '', isDefault: false });
         setToastMessage('Address added successfully');
       }
     } catch (err) {
@@ -403,6 +403,19 @@ export default function AccountDashboardPage() {
                           <label className="text-xs font-label-caps text-on-surface-variant">Country</label>
                           <input type="text" required value={addressForm.country} onChange={e => setAddressForm({...addressForm, country: e.target.value})} className="w-full p-3 bg-surface border border-outline-variant/50 rounded-lg text-sm focus:outline-none focus:border-primary" />
                         </div>
+                        <div className="space-y-1 md:col-span-2">
+                          <label className="text-xs font-label-caps text-on-surface-variant flex justify-between">
+                            <span>Contact Phone for this Address</span>
+                            <span className="text-[10px] lowercase text-on-surface-variant/70 font-normal">Optional — defaults to your account phone</span>
+                          </label>
+                          <input 
+                            type="tel" 
+                            placeholder={user?.phone || "+91 9876543210"} 
+                            value={addressForm.phone} 
+                            onChange={e => setAddressForm({...addressForm, phone: e.target.value})} 
+                            className="w-full p-3 bg-surface border border-outline-variant/50 rounded-lg text-sm focus:outline-none focus:border-primary" 
+                          />
+                        </div>
                         <div className="md:col-span-2 flex items-center gap-2 mt-2">
                           <input type="checkbox" id="isDefault" checked={addressForm.isDefault} onChange={e => setAddressForm({...addressForm, isDefault: e.target.checked})} className="w-4 h-4 accent-primary" />
                           <label htmlFor="isDefault" className="text-sm text-on-surface">Set as default shipping address</label>
@@ -428,6 +441,11 @@ export default function AccountDashboardPage() {
                           <p className="font-sans text-sm text-on-surface font-medium">{addr.street}</p>
                           <p className="font-sans text-sm text-on-surface-variant mt-1">{addr.city}, {addr.state} {addr.postalCode}</p>
                           <p className="font-sans text-sm text-on-surface-variant">{addr.country}</p>
+                          {addr.phone && (
+                            <p className="font-sans text-xs text-primary font-medium mt-2 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">phone</span> {addr.phone}
+                            </p>
+                          )}
                           <button onClick={() => handleDeleteAddress(addr._id)} className="mt-4 text-xs font-label-caps tracking-widest text-error hover:underline flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <span className="material-symbols-outlined text-[14px]">delete</span> Delete
                           </button>
