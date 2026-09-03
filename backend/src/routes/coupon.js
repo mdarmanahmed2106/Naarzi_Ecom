@@ -1,17 +1,19 @@
 const express = require('express');
 const {
   validateCoupon,
+  getActiveCoupons,
   getCoupons,
   createCoupon,
   updateCoupon,
   deleteCoupon
 } = require('../controllers/coupon');
-const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireAdmin, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public route for checking coupon validity at checkout
-router.post('/validate', validateCoupon);
+// Public routes
+router.post('/validate', optionalAuth, validateCoupon);
+router.get('/active', getActiveCoupons);
 
 // Admin-only CRUD
 router.use(requireAuth);

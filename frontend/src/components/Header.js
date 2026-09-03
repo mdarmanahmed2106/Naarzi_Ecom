@@ -15,6 +15,7 @@ export default function Header() {
     setIsCartOpen,
     setIsAuthOpen,
     setAuthModalTab,
+    wishlistItems = [],
   } = useApp();
 
   const [banners, setBanners] = useState([]);
@@ -248,10 +249,15 @@ export default function Header() {
               <span className="material-symbols-outlined text-[22px] leading-none">search</span>
             </button>
             
-            <Link href="/wishlist" className="hidden md:flex items-center">
-              <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-[22px] leading-none" title="My Wishlist">
+            <Link href="/wishlist" className="hidden md:flex items-center relative" title="My Wishlist">
+              <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-[22px] leading-none">
                 favorite
               </span>
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  {wishlistItems.length}
+                </span>
+              )}
             </Link>
 
             {/* User Icon */}
@@ -353,9 +359,16 @@ export default function Header() {
             <span className="material-symbols-outlined text-on-surface-variant text-[22px]">search</span>
             <span className="font-label-caps text-xs font-bold">SEARCH</span>
           </div>
-          <Link href="/wishlist" className="flex items-center gap-3 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
-            <span className="material-symbols-outlined text-on-surface-variant text-[22px]">favorite</span>
-            <span className="font-label-caps text-xs font-bold">MY WISHLIST</span>
+          <Link href="/wishlist" className="flex items-center justify-between cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-on-surface-variant text-[22px]">favorite</span>
+              <span className="font-label-caps text-xs font-bold">MY WISHLIST</span>
+            </div>
+            {wishlistItems.length > 0 && (
+              <span className="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                {wishlistItems.length}
+              </span>
+            )}
           </Link>
           {user ? (
             <>

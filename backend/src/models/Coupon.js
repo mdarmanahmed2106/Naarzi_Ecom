@@ -22,10 +22,31 @@ const couponSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  maxDiscountAmount: {
+    type: Number,
+    default: null // null means no cap on discount
+  },
   maxUses: {
     type: Number,
-    default: null // null means infinite uses
+    default: null // null means infinite store-wide uses
   },
+  maxUsesPerUser: {
+    type: Number,
+    default: 1 // default 1 redemption per customer
+  },
+  firstOrderOnly: {
+    type: Boolean,
+    default: false
+  },
+  description: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  applicableCategories: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
+  }],
   usedCount: {
     type: Number,
     default: 0

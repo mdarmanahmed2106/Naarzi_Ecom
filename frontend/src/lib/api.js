@@ -156,7 +156,8 @@ export const promoBannersApi = {
 };
 
 export const couponsApi = {
-  validate: (code, cartTotal) => fetchApi('/coupons/validate', { method: 'POST', body: { code, cartTotal } }),
+  validate: (code, cartTotal, cartItems = []) => fetchApi('/coupons/validate', { method: 'POST', body: { code, cartTotal, cartItems } }),
+  getActive: () => fetchApi('/coupons/active'),
   getAll: () => fetchApi('/coupons'),
   create: (data) => fetchApi('/coupons', { method: 'POST', body: data }),
   update: (id, data) => fetchApi(`/coupons/${id}`, { method: 'PUT', body: data }),

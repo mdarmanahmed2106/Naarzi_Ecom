@@ -52,6 +52,7 @@ export default function ProductDetailPage({ params }) {
   const [reviewSuccess, setReviewSuccess] = useState('');
 
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlistPopping, setIsWishlistPopping] = useState(false);
 
   useEffect(() => {
     if (product && wishlistItems) {
@@ -69,14 +70,17 @@ export default function ProductDetailPage({ params }) {
     const productId = product._id;
     const nextState = !isWishlisted;
 
+    setIsWishlistPopping(true);
+    setTimeout(() => setIsWishlistPopping(false), 500);
+
     // Optimistic UI update
     setIsWishlisted(nextState);
 
     try {
       if (nextState) {
-        await addToWishlist(productId);
+        await addToWishlist(productId, product.name);
       } else {
-        await removeFromWishlist(productId);
+        await removeFromWishlist(productId, product.name);
       }
     } catch (err) {
       console.error('Wishlist toggle error:', err);
@@ -414,17 +418,23 @@ export default function ProductDetailPage({ params }) {
                     : 'ADD TO BAG'}
                 </button>
 
-                {/* Wishlist Button */}
+                {/* Wishlist Button with Heart Pop Animation */}
                 <button 
                   onClick={handleWishlistToggle}
                   aria-label={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"} 
-                  className={`w-14 h-14 shrink-0 rounded-xl border flex items-center justify-center transition-colors focus:outline-none cursor-pointer ${
+                  className={`w-14 h-14 shrink-0 rounded-xl border flex items-center justify-center transition-all focus:outline-none cursor-pointer relative overflow-visible ${
                     isWishlisted
                       ? 'border-primary text-primary bg-primary/5 hover:bg-primary/10'
                       : 'border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary'
                   }`}
                 >
-                  <span className={`material-symbols-outlined ${isWishlisted ? 'fill-1' : ''}`} style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}>
+                  {isWishlistPopping && (
+                    <span className="absolute inset-0 rounded-xl bg-primary/25 animate-pulse-ring pointer-events-none" />
+                  )}
+                  <span 
+                    className={`material-symbols-outlined text-2xl transition-transform duration-200 ${isWishlistPopping ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1' : ''}`} 
+                    style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+                  >
                     favorite
                   </span>
                 </button>

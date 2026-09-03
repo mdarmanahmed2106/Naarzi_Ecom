@@ -19,17 +19,35 @@ export default function CartDrawer() {
     setIsQuickBuyOpen,
   } = useApp();
 
-  const [isDiscountsOpen, setIsDiscountsOpen] = React.useState(false);
+  const [isDiscountsOpen, setIsDiscountsOpen] = React.useState(true);
   const [promoCode, setPromoCode] = React.useState('');
   const [couponError, setCouponError] = React.useState('');
   const [couponLoading, setCouponLoading] = React.useState(false);
+  const [availableCoupons, setAvailableCoupons] = React.useState([]);
 
-  const handleApplyCoupon = async () => {
-    if (!promoCode.trim()) return;
+  React.useEffect(() => {
+    async function loadActiveCoupons() {
+      try {
+        const res = await couponsApi.getActive();
+        if (res.success) {
+          setAvailableCoupons(res.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to load active coupons:', err);
+      }
+    }
+    if (isCartOpen) {
+      loadActiveCoupons();
+    }
+  }, [isCartOpen]);
+
+  const handleApplyCoupon = async (codeToUse) => {
+    const code = (typeof codeToUse === 'string' ? codeToUse : promoCode).trim();
+    if (!code) return;
     setCouponLoading(true);
     setCouponError('');
     try {
-      const res = await couponsApi.validate(promoCode.trim(), cartTotal);
+      const res = await couponsApi.validate(code, cartTotal, cartItems);
       if (res.success) {
         setAppliedCoupon({
           code: res.couponCode,
@@ -93,15 +111,18 @@ export default function CartDrawer() {
         </div>
 
         {/* Free shipping progress */}
-        <div className="px-6 py-4 border-t border-b border-outline-variant/30 bg-white">
-          <p className="text-center text-sm font-medium text-on-surface mb-3">FREE shipping will be applied at checkout</p>
-          <div className="w-full h-1.5 bg-[#FFF0E8] rounded-full overflow-hidden mx-auto max-w-[90%]">
-            <div className="h-full bg-[#FFF0E8] w-full"></div>
+        <div className="px-6 py-4 border-t border-b border-outline-variant/30 bg-surface-container/20">
+          <p className="text-center text-xs font-medium text-on-surface mb-2 flex items-center justify-center gap-1.5">
+            <span className="material-symbols-outlined text-sm text-[#C5A059]">local_shipping</span>
+            <span>FREE Pan-India Shipping Applied</span>
+          </p>
+          <div className="w-full h-1.5 bg-outline-variant/30 rounded-full overflow-hidden mx-auto max-w-[90%]">
+            <div className="h-full bg-primary w-full rounded-full"></div>
           </div>
         </div>
 
         {/* Cart Items List */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-hide bg-white">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide bg-white">
           {cartItems.length === 0 ? (
             <div className="text-center py-12">
               <p className="font-body-md text-on-surface-variant mb-6">
@@ -109,23 +130,25 @@ export default function CartDrawer() {
               </p>
               <button 
                 onClick={() => setIsCartOpen(false)}
-                className="px-6 py-3 bg-black text-white font-bold tracking-widest rounded-lg hover:bg-black/90 transition-colors"
+                className="px-6 py-3 bg-black text-white font-bold tracking-widest rounded-lg hover:bg-black/90 transition-colors cursor-pointer font-label-caps text-xs"
               >
                 CONTINUE SHOPPING
               </button>
             </div>
           ) : (
-            cartItems.map((item, index) => {
+            cartItems.map((item) => {
               const hasDiscount = item.product.discountedPrice !== undefined && item.product.discountedPrice !== null;
               const price = hasDiscount ? item.product.discountedPrice : item.product.price;
               const originalPrice = item.product.price;
+              const colorObj = item.product.colors?.find((c) => c.name === item.color) || item.product.colors?.[0];
+              const itemImage = colorObj?.images?.[0] || item.product.images?.[0] || '/placeholder.png';
 
               return (
-                <div key={`${item.product._id}-${item.size}`} className="flex gap-5 border-b border-outline-variant/30 pb-8">
-                  {/* Product Image */}
-                  <div className="w-[100px] h-[100px] bg-surface-container rounded-xl overflow-hidden flex-none">
+                <div key={`${item.product._id}-${item.size}-${item.color || 'default'}`} className="flex gap-4 border-b border-outline-variant/30 pb-6">
+                  {/* Product Image matching selected color */}
+                  <div className="w-[88px] h-[105px] bg-surface-container rounded-lg overflow-hidden flex-none">
                     <img 
-                      src={item.product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150'} 
+                      src={itemImage} 
                       alt={item.product.name} 
                       className="w-full h-full object-cover" 
                     />
@@ -135,50 +158,47 @@ export default function CartDrawer() {
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-bold text-on-surface text-base">
+                        <h4 className="font-bold text-on-surface text-sm line-clamp-1">
                           {item.product.name}
                         </h4>
-                        <div className="text-right">
+                        <div className="text-right flex-none">
                           {hasDiscount ? (
                             <>
-                              <p className="font-medium text-on-surface">INR {price.toFixed(2)}</p>
-                              <p className="text-sm text-on-surface-variant line-through">INR {originalPrice.toFixed(2)}</p>
+                              <p className="font-bold text-on-surface text-sm">INR {price.toFixed(2)}</p>
+                              <p className="text-xs text-on-surface-variant line-through">INR {originalPrice.toFixed(2)}</p>
                             </>
                           ) : (
-                            <p className="font-medium text-on-surface">INR {price.toFixed(2)}</p>
+                            <p className="font-bold text-on-surface text-sm">INR {price.toFixed(2)}</p>
                           )}
                         </div>
                       </div>
-                      <p className="text-[13px] text-on-surface-variant mt-1.5">
-                        Size: {item.size}{item.color ? ' | Color: ' + item.color : ''}
-                      </p>
-                      <p className="text-[13px] text-on-surface-variant mt-0.5">
-                        Color: {item.color || 'Default'}
+                      <p className="text-xs text-on-surface-variant mt-1 font-medium">
+                        Size: {item.size}{item.color ? ` · Color: ${item.color}` : ''}
                       </p>
                     </div>
 
                     {/* Quantity Selector & Price */}
-                    <div className="flex justify-between items-end mt-4">
-                      <div className="flex items-center border border-outline-variant/60 bg-white">
+                    <div className="flex justify-between items-center mt-3">
+                      <div className="flex items-center border border-outline-variant/60 rounded">
                         <button 
                           onClick={() => updateCartQuantity(item.product._id, item.size, item.color, item.quantity - 1)}
-                          className="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors font-light"
+                          className="w-7 h-7 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors font-light cursor-pointer"
                         >
                           -
                         </button>
-                        <span className="w-8 h-8 flex items-center justify-center text-[13px] text-on-surface font-medium border-l border-r border-outline-variant/60">
+                        <span className="w-7 h-7 flex items-center justify-center text-xs text-on-surface font-bold border-l border-r border-outline-variant/60">
                           {item.quantity}
                         </span>
                         <button 
                           onClick={() => updateCartQuantity(item.product._id, item.size, item.color, item.quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors font-light"
+                          className="w-7 h-7 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors font-light cursor-pointer"
                         >
                           +
                         </button>
                       </div>
                       <button 
                         onClick={() => removeFromCart(item.product._id, item.size, item.color)}
-                        className="text-[13px] text-on-surface-variant underline decoration-1 underline-offset-[3px] hover:text-on-surface transition-colors"
+                        className="text-xs text-on-surface-variant hover:text-error transition-colors cursor-pointer"
                       >
                         Remove
                       </button>
@@ -189,51 +209,118 @@ export default function CartDrawer() {
             })
           )}
 
-          {/* Cross-sell removed to avoid static prices */}
-
           {cartItems.length > 0 && (
-            <div className="mt-8">
+            <div className="mt-6 pt-2">
               <div 
-                className="border-t border-outline-variant/40 py-5 flex justify-between items-center cursor-pointer group"
+                className="border-t border-outline-variant/40 py-4 flex justify-between items-center cursor-pointer group"
                 onClick={() => setIsDiscountsOpen(!isDiscountsOpen)}
               >
-                <span className="text-[15px] text-on-surface">Discounts</span>
-                <span className="text-2xl font-light text-on-surface-variant group-hover:text-on-surface transition-transform duration-300" style={{ transform: isDiscountsOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
+                <span className="text-sm font-bold text-on-surface flex items-center gap-2">
+                  <span className="material-symbols-outlined text-base text-[#C5A059]">local_offer</span>
+                  Offers & Coupons
+                </span>
+                <span className="text-xl font-light text-on-surface-variant group-hover:text-on-surface transition-transform duration-300" style={{ transform: isDiscountsOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
               </div>
-              <div className={`overflow-hidden transition-all duration-300 ${isDiscountsOpen ? 'max-h-32 mb-5' : 'max-h-0'}`}>
-                <div className="flex gap-2 relative">
+
+              <div className={`overflow-hidden transition-all duration-300 ${isDiscountsOpen ? 'max-h-[600px] mb-4' : 'max-h-0'}`}>
+                {/* Manual coupon input */}
+                <div className="flex gap-2 relative mb-2">
                   <input 
                     type="text" 
-                    placeholder="Discount code" 
-                    className="flex-1 border border-outline-variant/60 rounded px-3 py-2.5 text-[15px] focus:outline-none focus:border-on-surface"
+                    placeholder="Enter coupon code" 
+                    className="flex-1 border border-outline-variant/60 rounded px-3 py-2 text-xs uppercase focus:outline-none focus:border-primary tracking-wider"
                     value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
+                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                     disabled={appliedCoupon || couponLoading}
                   />
                   <button 
-                    className="bg-surface-variant text-on-surface font-medium px-4 py-2.5 rounded text-[15px] hover:bg-surface-variant/80 transition-colors disabled:opacity-50"
-                    onClick={handleApplyCoupon}
+                    className="bg-primary text-white font-bold px-4 py-2 rounded text-xs tracking-wider uppercase hover:bg-primary-container transition-colors disabled:opacity-50 cursor-pointer"
+                    onClick={() => handleApplyCoupon()}
                     disabled={appliedCoupon || couponLoading || !promoCode.trim()}
                   >
                     {couponLoading ? '...' : 'Apply'}
                   </button>
                 </div>
-                {couponError && <p className="text-[#E55B5B] text-xs mt-2">{couponError}</p>}
+                {couponError && <p className="text-error text-xs mb-3">{couponError}</p>}
                 
+                {/* Applied coupon pill */}
                 {appliedCoupon && (
-                  <div className="mt-3 flex justify-between items-center bg-[#F4F4F4] px-3 py-2 rounded">
+                  <div className="mb-4 flex justify-between items-center bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">sell</span>
-                      <span className="text-sm font-medium">{appliedCoupon.code}</span>
+                      <span className="material-symbols-outlined text-sm text-green-700">check_circle</span>
+                      <div>
+                        <span className="text-xs font-bold text-green-800">{appliedCoupon.code}</span>
+                        <span className="text-xs text-green-700 ml-1 font-medium">(₹{appliedCoupon.discountAmount} saved)</span>
+                      </div>
                     </div>
-                    <button onClick={removeCoupon} className="text-xs underline text-on-surface-variant hover:text-on-surface">Remove</button>
+                    <button onClick={removeCoupon} className="text-xs underline text-on-surface-variant hover:text-error font-medium cursor-pointer">Remove</button>
                   </div>
                 )}
-              </div>
 
-              <div className="border-t border-b border-outline-variant/40 py-5 flex justify-between items-center cursor-pointer group">
-                <span className="text-[15px] text-on-surface">Calculate shipping</span>
-                <span className="text-2xl font-light text-on-surface-variant group-hover:text-on-surface transition-colors">+</span>
+                {/* Available Offers Cards (Click to Apply) */}
+                {availableCoupons.length > 0 && !appliedCoupon && (
+                  <div className="space-y-2 pt-2">
+                    <p className="text-[10px] font-label-caps tracking-widest text-on-surface-variant uppercase font-bold">
+                      AVAILABLE OFFERS
+                    </p>
+                    {availableCoupons.map((c) => {
+                      const qualifies = !c.minOrderValue || cartTotal >= c.minOrderValue;
+                      const remaining = c.minOrderValue ? c.minOrderValue - cartTotal : 0;
+
+                      return (
+                        <div 
+                          key={c._id} 
+                          className={`p-3 rounded-lg border transition-all ${
+                            qualifies 
+                              ? 'border-dashed border-primary/40 bg-surface-container/30 hover:border-primary' 
+                              : 'border-outline-variant/30 bg-surface-container-low/40'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <div>
+                              <span className="inline-block font-mono font-bold text-xs bg-white text-primary px-2 py-0.5 rounded border border-primary/30 tracking-wider">
+                                {c.code}
+                              </span>
+                              <p className="text-xs text-on-surface mt-1 font-medium">
+                                {c.description || (c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `₹${c.discountValue} FLAT OFF`)}
+                                {c.maxDiscountAmount ? ` (Up to ₹${c.maxDiscountAmount})` : ''}
+                              </p>
+                              {c.applicableCategories && c.applicableCategories.length > 0 && (
+                                <p className="text-[10px] text-primary font-medium mt-0.5">
+                                  Only on: {c.applicableCategories.map(cat => cat.name).join(', ')}
+                                </p>
+                              )}
+                              {c.firstOrderOnly && (
+                                <p className="text-[10px] text-on-surface-variant font-label-caps mt-0.5">
+                                  FIRST ORDER ONLY
+                                </p>
+                              )}
+                              {!qualifies && remaining > 0 && (
+                                <p className="text-[11px] text-[#C5A059] font-medium mt-1">
+                                  Add ₹{remaining} more to unlock
+                                </p>
+                              )}
+                            </div>
+                            
+                            {qualifies ? (
+                              <button
+                                onClick={() => handleApplyCoupon(c.code)}
+                                disabled={couponLoading}
+                                className="font-label-caps text-[11px] text-primary hover:text-white hover:bg-primary font-bold uppercase tracking-wider py-1 px-3 rounded bg-white border border-primary/30 transition-all cursor-pointer shadow-xs"
+                              >
+                                APPLY
+                              </button>
+                            ) : (
+                              <span className="text-[10px] font-label-caps text-on-surface-variant/60 py-1 px-2">
+                                LOCKED
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           )}

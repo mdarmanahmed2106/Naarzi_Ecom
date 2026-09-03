@@ -173,14 +173,72 @@ exports.createOrder = async (req, res, next) => {
       if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) {
         return res.status(400).json({ success: false, message: 'Coupon usage limit reached' });
       }
-      if (coupon.minOrderValue && totalAmount < coupon.minOrderValue) {
-        return res.status(400).json({ success: false, message: `Cart total must be at least ${coupon.minOrderValue} to use this coupon` });
+      // Check firstOrderOnly rule
+      if (coupon.firstOrderOnly) {
+        const previousPaidOrders = await Order.countDocuments({
+          user: req.user._id,
+          paymentStatus: 'paid'
+        });
+        if (previousPaidOrders > 0) {
+          return res.status(400).json({ 
+            success: false, 
+            message: 'This coupon is valid only on your first purchase' 
+          });
+        }
+      }
+
+      // Check per-user limit rule
+      if (coupon.maxUsesPerUser) {
+        const userRedemptions = await Order.countDocuments({
+          user: req.user._id,
+          couponCode: coupon.code,
+          paymentStatus: { $in: ['paid', 'pending'] }
+        });
+        if (userRedemptions >= coupon.maxUsesPerUser) {
+          return res.status(400).json({ 
+            success: false, 
+            message: `You have already redeemed coupon ${coupon.code}` 
+          });
+        }
+      }
+
+      // Check category-specific restrictions
+      let calculationBase = totalAmount;
+      if (coupon.applicableCategories && coupon.applicableCategories.length > 0) {
+        const prodIds = orderedItems.map(i => i.product);
+        const prods = await Product.find({ _id: { $in: prodIds } }).select('_id category');
+        const applicableCatSet = new Set(coupon.applicableCategories.map(c => c.toString()));
+
+        let qualifyingTotal = 0;
+        for (const item of orderedItems) {
+          const prod = prods.find(p => p._id.toString() === item.product.toString());
+          if (prod && prod.category && applicableCatSet.has(prod.category.toString())) {
+            qualifyingTotal += item.priceAtPurchase * item.quantity;
+          }
+        }
+
+        if (qualifyingTotal === 0) {
+          return res.status(400).json({ success: false, message: 'Coupon is not applicable to any items in your cart' });
+        }
+
+        if (coupon.minOrderValue && qualifyingTotal < coupon.minOrderValue) {
+          return res.status(400).json({ success: false, message: `Cart must contain at least INR ${coupon.minOrderValue} of eligible items` });
+        }
+
+        calculationBase = qualifyingTotal;
+      } else {
+        if (coupon.minOrderValue && totalAmount < coupon.minOrderValue) {
+          return res.status(400).json({ success: false, message: `Cart total must be at least INR ${coupon.minOrderValue} to use this coupon` });
+        }
       }
 
       if (coupon.discountType === 'percentage') {
-        discountAmount = (totalAmount * coupon.discountValue) / 100;
+        discountAmount = (calculationBase * coupon.discountValue) / 100;
+        if (coupon.maxDiscountAmount !== null && coupon.maxDiscountAmount > 0) {
+          discountAmount = Math.min(discountAmount, coupon.maxDiscountAmount);
+        }
       } else {
-        discountAmount = coupon.discountValue;
+        discountAmount = Math.min(coupon.discountValue, calculationBase);
       }
       
       discountAmount = Math.round(Math.min(discountAmount, totalAmount));

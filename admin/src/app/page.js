@@ -164,11 +164,18 @@ export default function AdminDashboardPage() {
 
   // Coupon Modal States
   const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [couponModalMode, setCouponModalMode] = useState('add'); // 'add' | 'edit'
+  const [currentCouponId, setCurrentCouponId] = useState(null);
   const [couponCode, setCouponCode] = useState('');
+  const [couponDescription, setCouponDescription] = useState('');
   const [couponDiscountType, setCouponDiscountType] = useState('percentage');
-  const [couponDiscountValue, setCouponDiscountValue] = useState(0);
+  const [couponDiscountValue, setCouponDiscountValue] = useState(10);
+  const [couponMaxDiscount, setCouponMaxDiscount] = useState('');
   const [couponMinOrder, setCouponMinOrder] = useState(0);
   const [couponMaxUses, setCouponMaxUses] = useState(100);
+  const [couponMaxUsesPerUser, setCouponMaxUsesPerUser] = useState(1);
+  const [couponFirstOrderOnly, setCouponFirstOrderOnly] = useState(false);
+  const [couponApplicableCategories, setCouponApplicableCategories] = useState([]);
   
   // Sizes stocks in Form
   // (Moved up)
@@ -763,11 +770,36 @@ export default function AdminDashboardPage() {
   };
 
   const openCouponAddModal = () => {
+    setCouponModalMode('add');
+    setCurrentCouponId(null);
     setCouponCode('');
+    setCouponDescription('');
     setCouponDiscountType('percentage');
-    setCouponDiscountValue(0);
+    setCouponDiscountValue(10);
+    setCouponMaxDiscount('');
     setCouponMinOrder(0);
     setCouponMaxUses(100);
+    setCouponMaxUsesPerUser(1);
+    setCouponFirstOrderOnly(false);
+    setCouponApplicableCategories([]);
+    setIsCouponModalOpen(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+  };
+
+  const openCouponEditModal = (c) => {
+    setCouponModalMode('edit');
+    setCurrentCouponId(c._id);
+    setCouponCode(c.code || '');
+    setCouponDescription(c.description || '');
+    setCouponDiscountType(c.discountType || 'percentage');
+    setCouponDiscountValue(c.discountValue || 0);
+    setCouponMaxDiscount(c.maxDiscountAmount !== null && c.maxDiscountAmount !== undefined ? c.maxDiscountAmount : '');
+    setCouponMinOrder(c.minOrderValue || 0);
+    setCouponMaxUses(c.maxUses !== null && c.maxUses !== undefined ? c.maxUses : '');
+    setCouponMaxUsesPerUser(c.maxUsesPerUser || 1);
+    setCouponFirstOrderOnly(Boolean(c.firstOrderOnly));
+    setCouponApplicableCategories(c.applicableCategories ? c.applicableCategories.map(cat => cat._id || cat) : []);
     setIsCouponModalOpen(true);
     setErrorMsg('');
     setSuccessMsg('');
@@ -927,21 +959,34 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     setErrorMsg('');
     try {
-      const response = await couponsApi.create({
-        code: couponCode.toUpperCase(),
+      const payload = {
+        code: couponCode.toUpperCase().trim(),
+        description: couponDescription.trim(),
         discountType: couponDiscountType,
         discountValue: Number(couponDiscountValue),
-        minOrderValue: Number(couponMinOrder),
-        maxUses: Number(couponMaxUses),
-        isActive: true
-      });
+        maxDiscountAmount: couponMaxDiscount ? Number(couponMaxDiscount) : null,
+        minOrderValue: Number(couponMinOrder) || 0,
+        maxUses: couponMaxUses ? Number(couponMaxUses) : null,
+        maxUsesPerUser: Number(couponMaxUsesPerUser) || 1,
+        firstOrderOnly: Boolean(couponFirstOrderOnly),
+        applicableCategories: couponApplicableCategories,
+      };
+
+      let response;
+      if (couponModalMode === 'add') {
+        payload.isActive = true;
+        response = await couponsApi.create(payload);
+      } else {
+        response = await couponsApi.update(currentCouponId, payload);
+      }
+
       if (response.success) {
-        setSuccessMsg('Coupon created successfully');
+        setSuccessMsg(couponModalMode === 'add' ? 'Coupon created successfully' : 'Coupon updated successfully');
         setIsCouponModalOpen(false);
         loadData();
       }
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to create coupon');
+      setErrorMsg(err.message || 'Failed to save coupon');
     }
   };
 
@@ -1821,44 +1866,171 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         ) : activeTab === 'coupons' ? (
-          /* Coupons Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
-                    <th className="py-4 px-6">Code</th>
-                    <th className="py-4 px-6">Discount</th>
-                    <th className="py-4 px-6">Uses</th>
-                    <th className="py-4 px-6">Status</th>
-                    <th className="py-4 px-6 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/20 font-body-md">
-                  {coupons.map((c) => (
-                    <tr key={c._id} className="hover:bg-surface-container/10 transition-colors">
-                      <td className="py-4 px-6 font-semibold text-on-surface font-sans">{c.code}</td>
-                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">
-                        {c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`}
-                      </td>
-                      <td className="py-4 px-6 font-mono text-xs text-on-surface-variant">
-                        {c.usedCount} / {c.maxUses || '∞'}
-                      </td>
-                      <td className="py-4 px-6 font-mono text-xs">
-                        <button 
-                          onClick={() => handleToggleCoupon(c)}
-                          className={`px-2 py-1 rounded text-[10px] font-bold ${c.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                        >
-                          {c.isActive ? 'ACTIVE' : 'INACTIVE'}
-                        </button>
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <button onClick={() => handleDeleteCoupon(c._id)} className="px-3 text-error text-[10px] font-bold">DELETE</button>
-                      </td>
+        ) : activeTab === 'coupons' ? (
+          /* Coupons Tab Dashboard */
+          <div className="space-y-6 animate-fade-in">
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-none">
+                  <span className="material-symbols-outlined text-2xl">local_offer</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-label-caps text-on-surface-variant font-bold tracking-wider uppercase">Active Coupons</p>
+                  <p className="text-xl font-bold text-on-surface font-mono mt-0.5">
+                    {coupons.filter(c => c.isActive).length} <span className="text-xs text-on-surface-variant font-normal">/ {coupons.length} Total</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-[#C5A059]/15 text-[#C5A059] flex items-center justify-center flex-none">
+                  <span className="material-symbols-outlined text-2xl">redeem</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-label-caps text-on-surface-variant font-bold tracking-wider uppercase">Total Redemptions</p>
+                  <p className="text-xl font-bold text-on-surface font-mono mt-0.5">
+                    {coupons.reduce((sum, c) => sum + (c.usedCount || 0), 0)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-green-50 text-green-700 flex items-center justify-center flex-none border border-green-200">
+                  <span className="material-symbols-outlined text-2xl">star</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-label-caps text-on-surface-variant font-bold tracking-wider uppercase">Top Performing Code</p>
+                  <p className="text-sm font-bold text-on-surface font-mono mt-1">
+                    {coupons.length > 0 
+                      ? [...coupons].sort((a, b) => (b.usedCount || 0) - (a.usedCount || 0))[0]?.code 
+                      : 'None'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Coupons Table */}
+            <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-outline-variant/30 bg-surface-container/30 text-[10px] font-label-caps text-on-surface-variant tracking-widest uppercase">
+                      <th className="py-4 px-6">Coupon & Details</th>
+                      <th className="py-4 px-6">Discount</th>
+                      <th className="py-4 px-6">Safeguards & Rules</th>
+                      <th className="py-4 px-6">Redemptions</th>
+                      <th className="py-4 px-6">Status</th>
+                      <th className="py-4 px-6 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/20 font-body-md">
+                    {coupons.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="py-12 text-center text-on-surface-variant text-sm italic">
+                          No coupons found. Click "ADD NEW COUPON" above to launch your first offer!
+                        </td>
+                      </tr>
+                    ) : (
+                      coupons.map((c) => (
+                        <tr key={c._id} className="hover:bg-surface-container/10 transition-colors">
+                          {/* Code & Description */}
+                          <td className="py-4 px-6">
+                            <span className="inline-block font-mono font-bold text-xs bg-surface-container px-2.5 py-1 rounded-md border border-outline-variant/50 text-primary tracking-wider">
+                              {c.code}
+                            </span>
+                            {c.description && (
+                              <p className="text-xs text-on-surface-variant mt-1 max-w-xs leading-snug">
+                                {c.description}
+                              </p>
+                            )}
+                          </td>
+
+                          {/* Discount & Cap */}
+                          <td className="py-4 px-6 font-mono text-xs text-on-surface">
+                            <span className="font-bold text-sm">
+                              {c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`}
+                            </span>
+                            {c.discountType === 'percentage' && c.maxDiscountAmount && (
+                              <span className="block text-[11px] text-on-surface-variant mt-0.5">
+                                Capped at INR {c.maxDiscountAmount}
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Safeguards & Rules */}
+                          <td className="py-4 px-6 text-xs space-y-1">
+                            {c.firstOrderOnly && (
+                              <span className="inline-block font-label-caps text-[9px] bg-[#FFF0E8] text-primary px-2 py-0.5 rounded font-bold mr-1.5">
+                                FIRST ORDER ONLY
+                              </span>
+                            )}
+                            {c.minOrderValue > 0 ? (
+                              <span className="inline-block text-[11px] font-mono text-on-surface-variant">
+                                Min: INR {c.minOrderValue}
+                              </span>
+                            ) : (
+                              <span className="inline-block text-[11px] text-on-surface-variant">
+                                No min order
+                              </span>
+                            )}
+                            {c.applicableCategories && c.applicableCategories.length > 0 ? (
+                              <span className="block text-[10px] text-primary font-medium">
+                                Only on: {c.applicableCategories.map(cat => cat.name || 'Category').join(', ')}
+                              </span>
+                            ) : (
+                              <span className="block text-[10px] text-on-surface-variant/70">
+                                All Collections (Storewide)
+                              </span>
+                            )}
+                            {c.maxUsesPerUser && (
+                              <span className="block text-[10px] text-on-surface-variant/80">
+                                {c.maxUsesPerUser} use per user
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Uses Count */}
+                          <td className="py-4 px-6 font-mono text-xs text-on-surface">
+                            <span className="font-bold">{c.usedCount || 0}</span>
+                            <span className="text-on-surface-variant"> / {c.maxUses ? c.maxUses : '∞'}</span>
+                          </td>
+
+                          {/* Status Toggle */}
+                          <td className="py-4 px-6">
+                            <button 
+                              onClick={() => handleToggleCoupon(c)}
+                              className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-wider font-label-caps transition-colors cursor-pointer ${
+                                c.isActive 
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                  : 'bg-red-100 text-red-800 hover:bg-red-200'
+                              }`}
+                            >
+                              {c.isActive ? 'ACTIVE' : 'INACTIVE'}
+                            </button>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="py-4 px-6 text-right space-x-2">
+                            <button 
+                              onClick={() => openCouponEditModal(c)} 
+                              className="px-2.5 py-1 text-primary hover:bg-primary/10 rounded text-xs font-bold font-label-caps transition-colors cursor-pointer"
+                            >
+                              EDIT
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteCoupon(c._id)} 
+                              className="px-2.5 py-1 text-error hover:bg-error/10 rounded text-xs font-bold font-label-caps transition-colors cursor-pointer"
+                            >
+                              DELETE
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         ) : activeTab === 'marketing' ? (
@@ -2687,10 +2859,17 @@ export default function AdminDashboardPage() {
       {/* Coupon Add Modal */}
       {isCouponModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+          <div className="relative w-full max-w-lg bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
             {/* Title */}
             <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
-              <h2 className="font-display-lg text-xl text-primary font-bold">Add New Coupon</h2>
+              <div>
+                <h2 className="font-display-lg text-xl text-primary font-bold">
+                  {couponModalMode === 'add' ? 'Create New Coupon' : `Edit Coupon: ${couponCode}`}
+                </h2>
+                <p className="text-xs text-on-surface-variant mt-0.5">
+                  Configure discount terms, customer eligibility, and profit safeguards.
+                </p>
+              </div>
               <button 
                 onClick={() => setIsCouponModalOpen(false)}
                 className="material-symbols-outlined text-on-surface-variant/70 hover:text-primary cursor-pointer text-xl bg-transparent border-none"
@@ -2708,8 +2887,19 @@ export default function AdminDashboardPage() {
                   required
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="e.g. WELCOME10"
-                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors uppercase"
+                  placeholder="e.g. FESTIVE15"
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors uppercase font-mono font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">OFFER DESCRIPTION / TAGLINE</label>
+                <input 
+                  type="text" 
+                  value={couponDescription}
+                  onChange={(e) => setCouponDescription(e.target.value)}
+                  placeholder="e.g. Flat 15% off on our signature capsule"
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs"
                 />
               </div>
 
@@ -2738,25 +2928,121 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
+              {/* Safeguards: Max Discount Cap & Min Order Value */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">MIN ORDER VALUE</label>
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
+                    MAX DISCOUNT CAP (INR)
+                  </label>
                   <input 
                     type="number" 
+                    placeholder="e.g. 1500 (optional)"
+                    value={couponMaxDiscount}
+                    onChange={(e) => setCouponMaxDiscount(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs"
+                  />
+                  <span className="text-[10px] text-on-surface-variant/70 block">Protects against large carts</span>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
+                    MIN ORDER VALUE (INR)
+                  </label>
+                  <input 
+                    type="number" 
+                    placeholder="0"
                     value={couponMinOrder}
                     onChange={(e) => setCouponMinOrder(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs"
+                  />
+                  <span className="text-[10px] text-on-surface-variant/70 block">0 = no minimum required</span>
+                </div>
+              </div>
+
+              {/* Usage Limits */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
+                    MAX TOTAL USES
+                  </label>
+                  <input 
+                    type="number" 
+                    placeholder="Leave empty for unlimited"
+                    value={couponMaxUses}
+                    onChange={(e) => setCouponMaxUses(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">MAX USES</label>
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
+                    MAX USES PER USER
+                  </label>
                   <input 
                     type="number" 
-                    value={couponMaxUses}
-                    onChange={(e) => setCouponMaxUses(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+                    min="1"
+                    value={couponMaxUsesPerUser}
+                    onChange={(e) => setCouponMaxUsesPerUser(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs"
                   />
                 </div>
+              </div>
+
+              {/* Applicable Categories Scope */}
+              <div className="space-y-1 pt-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
+                  APPLICABLE CATEGORIES / COLLECTIONS
+                </label>
+                <div className="p-3 bg-surface border border-outline-variant/40 rounded-xl space-y-2 max-h-36 overflow-y-auto">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-on-surface">
+                    <input 
+                      type="checkbox"
+                      checked={couponApplicableCategories.length === 0}
+                      onChange={() => setCouponApplicableCategories([])}
+                      className="rounded text-primary focus:ring-primary"
+                    />
+                    <span>All Collections (Storewide)</span>
+                  </label>
+                  <div className="border-t border-outline-variant/30 pt-1.5 space-y-1.5">
+                    {categories.map((cat) => {
+                      const isChecked = couponApplicableCategories.includes(cat._id);
+                      return (
+                        <label key={cat._id} className="flex items-center gap-2 cursor-pointer text-xs text-on-surface-variant hover:text-on-surface">
+                          <input 
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setCouponApplicableCategories(prev => [...prev, cat._id]);
+                              } else {
+                                setCouponApplicableCategories(prev => prev.filter(id => id !== cat._id));
+                              }
+                            }}
+                            className="rounded text-primary focus:ring-primary"
+                          />
+                          <span>{cat.name}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+                <span className="text-[10px] text-on-surface-variant/70 block">
+                  Leave on "All Collections" to apply across the entire store, or select specific categories.
+                </span>
+              </div>
+
+              {/* First Order Checkbox */}
+              <div className="pt-2">
+                <label className="flex items-center gap-3 p-3 rounded-xl border border-outline-variant/30 bg-surface-container/20 cursor-pointer hover:bg-surface-container/40 transition-colors">
+                  <input 
+                    type="checkbox" 
+                    checked={couponFirstOrderOnly}
+                    onChange={(e) => setCouponFirstOrderOnly(e.target.checked)}
+                    className="w-4 h-4 text-primary rounded focus:ring-primary"
+                  />
+                  <div>
+                    <p className="text-xs font-bold text-on-surface">First-Time Customer Only</p>
+                    <p className="text-[11px] text-on-surface-variant">Only accounts with zero previous paid orders can redeem this code.</p>
+                  </div>
+                </label>
               </div>
 
               {/* Submit Buttons */}
@@ -2765,7 +3051,7 @@ export default function AdminDashboardPage() {
                   type="submit"
                   className="flex-1 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold cursor-pointer"
                 >
-                  CREATE
+                  {couponModalMode === 'add' ? 'CREATE COUPON' : 'SAVE CHANGES'}
                 </button>
                 <button 
                   type="button"

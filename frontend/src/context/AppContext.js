@@ -11,7 +11,7 @@ export function AppProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState('login'); // 'login' | 'signup'
+  const [authModalTab, setAuthModalTab] = useState('login'); 
   const [wishlistItems, setWishlistItems] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(true);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -41,7 +41,7 @@ export function AppProvider({ children }) {
   useEffect(() => {
     async function syncCartWithServer() {
       if (!user || hasSyncedRef.current) return;
-      hasSyncedRef.current = true; // mark synced for this session, before the async call, to prevent a race if this effect fires twice quickly
+      hasSyncedRef.current = true; 
       
       const localCart = localStorage.getItem('naarzi_cart');
       let itemsToSync = [];

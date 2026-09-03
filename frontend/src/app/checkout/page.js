@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
@@ -41,9 +41,25 @@ export default function CheckoutPage() {
   const [couponInput, setCouponInput] = useState(appliedCoupon ? appliedCoupon.code : '');
   const [couponError, setCouponError] = useState('');
   const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
   
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [saveAddressToProfile, setSaveAddressToProfile] = useState(false);
+
+  // Load active coupons
+  useEffect(() => {
+    async function loadActiveCoupons() {
+      try {
+        const res = await couponsApi.getActive();
+        if (res.success) {
+          setAvailableCoupons(res.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to load active coupons:', err);
+      }
+    }
+    loadActiveCoupons();
+  }, []);
 
   // Auto-fill address and phone if user is logged in
   React.useEffect(() => {
@@ -73,17 +89,22 @@ export default function CheckoutPage() {
 
   const finalTotal = appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal;
 
-  const handleApplyCoupon = async () => {
-    if (!couponInput) return;
+  const handleApplyCoupon = async (codeToUse) => {
+    const code = (typeof codeToUse === 'string' ? codeToUse : couponInput).trim();
+    if (!code) return;
     setValidatingCoupon(true);
     setCouponError('');
     try {
-      const res = await couponsApi.validate(couponInput, cartTotal);
+      const res = await couponsApi.validate(code, cartTotal, cartItems);
       if (res.success) {
         setAppliedCoupon({
           code: res.couponCode,
           discountAmount: res.discountAmount
         });
+        setCouponInput(res.couponCode);
+      } else {
+        setCouponError(res.message || 'Invalid coupon');
+        setAppliedCoupon(null);
       }
     } catch (err) {
       setCouponError(err.message || 'Invalid coupon');
@@ -519,7 +540,83 @@ export default function CheckoutPage() {
                   )}
                 </div>
                 {couponError && <p className="text-xs text-error mt-1">{couponError}</p>}
-                {appliedCoupon && <p className="text-xs text-green-700 mt-1">Coupon {appliedCoupon.code} applied successfully!</p>}
+                {appliedCoupon && (
+                  <div className="flex items-center gap-1.5 text-xs text-green-700 mt-1 font-medium">
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    <span>Coupon <strong>{appliedCoupon.code}</strong> applied — you saved INR {appliedCoupon.discountAmount}!</span>
+                  </div>
+                )}
+
+                {/* Available Offers Cards */}
+                {availableCoupons.length > 0 && !appliedCoupon && (
+                  <div className="pt-3 space-y-2">
+                    <p className="text-[10px] font-label-caps tracking-widest text-on-surface-variant uppercase font-bold flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm text-[#C5A059]">local_offer</span>
+                      AVAILABLE OFFERS
+                    </p>
+                    <div className="space-y-2">
+                      {availableCoupons.map((c) => {
+                        const qualifies = !c.minOrderValue || cartTotal >= c.minOrderValue;
+                        const remaining = c.minOrderValue ? c.minOrderValue - cartTotal : 0;
+
+                        return (
+                          <div
+                            key={c._id}
+                            className={`p-3 rounded-lg border transition-all ${
+                              qualifies
+                                ? 'border-dashed border-primary/40 bg-surface hover:border-primary'
+                                : 'border-outline/20 bg-surface-container/40'
+                            }`}
+                          >
+                            <div className="flex justify-between items-center gap-2">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono font-bold text-xs bg-surface-container px-2 py-0.5 rounded border border-outline/20 text-primary tracking-wider">
+                                    {c.code}
+                                  </span>
+                                  {c.firstOrderOnly && (
+                                    <span className="text-[9px] font-label-caps bg-[#FFF0E8] text-primary px-1.5 py-0.5 rounded font-bold">
+                                      FIRST ORDER
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-on-surface mt-1 font-medium">
+                                  {c.description || (c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `INR ${c.discountValue} FLAT OFF`)}
+                                  {c.maxDiscountAmount ? ` (Up to INR ${c.maxDiscountAmount})` : ''}
+                                </p>
+                                {c.applicableCategories && c.applicableCategories.length > 0 && (
+                                  <p className="text-[10px] text-primary font-medium mt-0.5">
+                                    Only on: {c.applicableCategories.map(cat => cat.name).join(', ')}
+                                  </p>
+                                )}
+                                {!qualifies && remaining > 0 && (
+                                  <p className="text-[11px] text-[#C5A059] font-medium mt-0.5">
+                                    Add INR {remaining} more to unlock
+                                  </p>
+                                )}
+                              </div>
+
+                              {qualifies ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleApplyCoupon(c.code)}
+                                  disabled={validatingCoupon}
+                                  className="font-label-caps text-xs text-primary hover:text-white hover:bg-primary font-bold uppercase tracking-wider py-1.5 px-3 rounded bg-surface border border-primary/30 transition-all cursor-pointer shadow-xs"
+                                >
+                                  APPLY
+                                </button>
+                              ) : (
+                                <span className="text-[10px] font-label-caps text-on-surface-variant/60 py-1 px-2">
+                                  LOCKED
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

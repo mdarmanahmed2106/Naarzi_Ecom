@@ -26,8 +26,9 @@ function FilterSection({ title, children, defaultOpen = true }) {
 }
 
 function ProductCard({ product }) {
-  const { wishlistItems = [], addToWishlist, removeFromWishlist, setQuickBuyProduct, setIsQuickBuyOpen } = useApp();
+  const { wishlistItems = [], addToWishlist, removeFromWishlist, setQuickBuyProduct, setIsQuickBuyOpen, user, setIsAuthOpen, setAuthModalTab } = useApp();
   const isWishlisted = wishlistItems.some(item => item._id === product._id);
+  const [isPopping, setIsPopping] = useState(false);
   const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
   const price = hasDiscount ? product.discountedPrice : product.price;
   const originalPrice = product.price;
@@ -63,22 +64,32 @@ function ProductCard({ product }) {
               <span className="material-symbols-outlined text-lg font-bold">shopping_bag</span>
             </button>
             
-            {/* Wishlist Icon */}
+            {/* Wishlist Icon with Heart Pop Animation */}
             <button
               onClick={async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                if (!user) {
+                  setAuthModalTab('login');
+                  setIsAuthOpen(true);
+                  return;
+                }
+                setIsPopping(true);
+                setTimeout(() => setIsPopping(false), 500);
                 if (isWishlisted) {
-                  await removeFromWishlist(product._id);
+                  await removeFromWishlist(product._id, product.name);
                 } else {
-                  await addToWishlist(product._id);
+                  await addToWishlist(product._id, product.name);
                 }
               }}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
+              {isPopping && (
+                <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
+              )}
               <span 
-                className={`material-symbols-outlined text-[18px] ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant'}`}
+                className={`material-symbols-outlined text-[18px] transition-transform duration-200 ${isPopping ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
                 style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
               >
                 favorite

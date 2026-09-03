@@ -27,8 +27,9 @@ function MarqueeBadge({ text }) {
 function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen, wishlistItems = [], addToWishlist, removeFromWishlist } = useApp();
+  const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen, wishlistItems = [], addToWishlist, removeFromWishlist, user, setIsAuthOpen, setAuthModalTab } = useApp();
   const shouldReduceMotion = useReducedMotion();
+  const [poppingWishlistId, setPoppingWishlistId] = useState(null);
   
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -508,22 +509,32 @@ function HomePageContent() {
                             <span className="material-symbols-outlined text-lg font-bold">shopping_bag</span>
                           </button>
                           
-                          {/* Wishlist Icon */}
+                          {/* Wishlist Icon with Heart Pop Animation */}
                           <button
                             onClick={async (e) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              if (!user) {
+                                setAuthModalTab('login');
+                                setIsAuthOpen(true);
+                                return;
+                              }
+                              setPoppingWishlistId(product._id);
+                              setTimeout(() => setPoppingWishlistId(null), 500);
                               if (isWishlisted) {
-                                await removeFromWishlist(product._id);
+                                await removeFromWishlist(product._id, product.name);
                               } else {
-                                await addToWishlist(product._id);
+                                await addToWishlist(product._id, product.name);
                               }
                             }}
-                            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer"
+                            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
                             title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                           >
+                            {poppingWishlistId === product._id && (
+                              <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
+                            )}
                             <span 
-                              className={`material-symbols-outlined text-[18px] ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant'}`}
+                              className={`material-symbols-outlined text-[18px] transition-transform duration-200 ${poppingWishlistId === product._id ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
                               style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
                             >
                               favorite
