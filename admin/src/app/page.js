@@ -2081,9 +2081,12 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="py-4">
                             <div className="flex -space-x-2 overflow-hidden">
-                              {cart.items.slice(0, 3).map((item, idx) => (
-                                <img key={idx} src={item.product?.images[0]} alt="Product" className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" />
-                              ))}
+                              {cart.items.slice(0, 3).map((item, idx) => {
+                                const imgSrc = item.product?.colors?.[0]?.images?.[0] || item.product?.images?.[0] || '/placeholder.png';
+                                return (
+                                  <img key={idx} src={imgSrc} alt="Product" className="inline-block h-8 w-8 rounded-full ring-2 ring-white object-cover" />
+                                );
+                              })}
                               {cart.items.length > 3 && (
                                 <div className="flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-white bg-surface-container text-xs font-bold">
                                   +{cart.items.length - 3}
@@ -2125,19 +2128,22 @@ export default function AdminDashboardPage() {
                   {wishlistInsights.length === 0 ? (
                     <div className="text-on-surface-variant">No wishlist data available.</div>
                   ) : (
-                    wishlistInsights.slice(0, 5).map((insight, idx) => (
-                      <div key={insight._id} className="flex items-center gap-4">
-                        <span className="font-display-md text-xl text-on-surface-variant font-bold w-4">{idx + 1}</span>
-                        <img src={insight.images[0]} alt={insight.name} className="w-12 h-12 rounded object-cover" />
-                        <div className="flex-1 overflow-hidden">
-                          <div className="font-bold text-sm truncate">{insight.name}</div>
-                          <div className="text-xs text-on-surface-variant">INR {insight.discountedPrice || insight.price}</div>
+                    wishlistInsights.slice(0, 5).map((insight, idx) => {
+                      const imgSrc = insight.colors?.[0]?.images?.[0] || insight.images?.[0] || '/placeholder.png';
+                      return (
+                        <div key={insight._id} className="flex items-center gap-4">
+                          <span className="font-display-md text-xl text-on-surface-variant font-bold w-4">{idx + 1}</span>
+                          <img src={imgSrc} alt={insight.name} className="w-12 h-12 rounded object-cover" />
+                          <div className="flex-1 overflow-hidden">
+                            <div className="font-bold text-sm truncate">{insight.name}</div>
+                            <div className="text-xs text-on-surface-variant">INR {insight.discountedPrice || insight.price}</div>
+                          </div>
+                          <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold font-label-caps flex-shrink-0">
+                            {insight.count} LIKES
+                          </div>
                         </div>
-                        <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold font-label-caps flex-shrink-0">
-                          {insight.count} LIKES
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
