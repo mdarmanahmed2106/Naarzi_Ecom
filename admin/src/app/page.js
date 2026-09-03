@@ -1866,7 +1866,6 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         ) : activeTab === 'coupons' ? (
-        ) : activeTab === 'coupons' ? (
           /* Coupons Tab Dashboard */
           <div className="space-y-6 animate-fade-in">
             {/* Quick Metrics */}
