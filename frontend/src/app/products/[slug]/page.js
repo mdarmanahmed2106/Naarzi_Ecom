@@ -392,7 +392,7 @@ export default function ProductDetailPage({ params }) {
                   >
                     <span className="material-symbols-outlined text-[20px]">remove</span>
                   </button>
-                  <span className="w-6 md:w-8 text-center font-body-md text-body-md text-on-surface select-none">
+                  <span className="w-6 md:w-8 text-center font-body-md text-sm text-on-surface select-none">
                     {quantity}
                   </span>
                   <button 

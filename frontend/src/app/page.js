@@ -277,11 +277,11 @@ function HomePageContent() {
       <Header />
 
       {/* Hero Banner with Page Load Animations */}
-      <section className="sticky top-0 w-full h-screen h-[100dvh] flex items-center overflow-hidden z-0">
+      <section className="sticky top-0 w-full h-dvh flex items-center overflow-hidden z-0">
         <div className="absolute inset-0 z-0">
-          <img 
-            alt="Naarzi Resort Collection Hero" 
-            className="w-full h-full object-cover object-center" 
+          <img
+            alt="Naarzi Resort Collection Hero"
+            className="w-full h-full object-cover object-[30%_center] md:object-center"
             src="/hero_image.png"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/30 to-transparent"></div>
@@ -296,7 +296,7 @@ function HomePageContent() {
           >
             <motion.span 
               variants={heroChildVariants}
-              className="font-label-caps text-label-caps text-primary tracking-widest block mb-4"
+              className="font-label-caps text-xs text-primary tracking-widest block mb-4"
             >
               LAUNCH CAPSULE
             </motion.span>
@@ -308,7 +308,7 @@ function HomePageContent() {
             </motion.h1>
             <motion.p 
               variants={heroChildVariants}
-              className="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md"
+              className="font-body-lg text-base md:text-lg text-on-surface-variant mb-8 max-w-md"
             >
               Wear Your Colour.<br />Feel the Vibe.
             </motion.p>

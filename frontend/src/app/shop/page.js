@@ -413,7 +413,7 @@ function ShopContent() {
         </aside>
 
         {/* MAIN PRODUCT GRID */}
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full pb-24 lg:pb-0">
           {/* Top Bar (Desktop sorting) */}
           <div className="hidden lg:flex items-center justify-between mb-8 pb-4 border-b border-outline-variant/30">
             <span className="font-body-md text-sm text-on-surface-variant">Showing {loading ? '...' : totalProducts} products</span>
