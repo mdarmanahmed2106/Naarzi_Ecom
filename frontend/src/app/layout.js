@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${playfairDisplay.variable} ${sourceSans3.variable} h-full antialiased overflow-x-hidden`}
+      className={`${playfairDisplay.variable} ${sourceSans3.variable} h-full antialiased overflow-x-clip`}
     >
       <head>
         <link
@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-surface font-body-md text-on-surface overflow-x-hidden">
+      <body className="min-h-full flex flex-col bg-surface font-body-md text-on-surface overflow-x-clip">
         <AppProvider>
           {children}
           <QuickBuyDrawer />
