@@ -122,7 +122,7 @@ export default function Footer() {
             </div>
 
             {/* Social Icons with Clean SVGs */}
-            <div className="flex items-center gap-4 pt-3">
+            <div className="flex flex-wrap items-center gap-4 pt-3">
               <span className="text-[11px] font-label-caps tracking-widest text-surface/70 uppercase">Follow Our Journey</span>
               <div className="flex items-center gap-3">
                 {/* Instagram */}
