@@ -6,12 +6,16 @@ const Product = require('../models/Product');
 // @access  Private
 exports.getWishlist = async (req, res, next) => {
   try {
-    let wishlist = await Wishlist.findOne({ user: req.user._id }).populate('products');
-
-    if (!wishlist) {
-      // Create empty wishlist if it doesn't exist
-      wishlist = await Wishlist.create({ user: req.user._id, products: [] });
-    }
+    // Atomic find-or-create: a plain findOne-then-create has a race window where
+    // two concurrent requests for a brand-new user (e.g. React double-invoking the
+    // load effect) can both see "no wishlist" and both try to create one, hitting
+    // the unique index on `user` with an E11000 duplicate key error. Upserting in
+    // one op lets MongoDB resolve the race instead of the application code.
+    const wishlist = await Wishlist.findOneAndUpdate(
+      { user: req.user._id },
+      { $setOnInsert: { user: req.user._id, products: [] } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ).populate('products');
 
     res.status(200).json({
       success: true,
@@ -39,27 +43,22 @@ exports.addToWishlist = async (req, res, next) => {
       });
     }
 
-    let wishlist = await Wishlist.findOne({ user: req.user._id });
-
-    if (!wishlist) {
-      wishlist = await Wishlist.create({
-        user: req.user._id,
-        products: [productId]
+    const existing = await Wishlist.findOne({ user: req.user._id, products: productId });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: 'Product already in wishlist'
       });
-    } else {
-      // Check if product is already in wishlist
-      if (wishlist.products.includes(productId)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Product already in wishlist'
-        });
-      }
-      wishlist.products.push(productId);
-      await wishlist.save();
     }
 
-    // Populate products for response
-    await wishlist.populate('products');
+    // Upsert + $addToSet: same atomic find-or-create as getWishlist, and $addToSet
+    // is idempotent so two concurrent "add" clicks for the same product can never
+    // insert it twice even if both raced past the "already in wishlist" check above.
+    const wishlist = await Wishlist.findOneAndUpdate(
+      { user: req.user._id },
+      { $addToSet: { products: productId }, $setOnInsert: { user: req.user._id } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    ).populate('products');
 
     res.status(200).json({
       success: true,
@@ -78,9 +77,9 @@ exports.removeFromWishlist = async (req, res, next) => {
   try {
     const { productId } = req.params;
 
-    let wishlist = await Wishlist.findOne({ user: req.user._id });
+    const wishlistDoc = await Wishlist.findOne({ user: req.user._id });
 
-    if (!wishlist) {
+    if (!wishlistDoc) {
       return res.status(404).json({
         success: false,
         message: 'Wishlist not found'
@@ -88,20 +87,21 @@ exports.removeFromWishlist = async (req, res, next) => {
     }
 
     // Check if product is in wishlist
-    if (!wishlist.products.includes(productId)) {
+    if (!wishlistDoc.products.some((id) => id.toString() === productId)) {
       return res.status(400).json({
         success: false,
         message: 'Product not found in wishlist'
       });
     }
 
-    wishlist.products = wishlist.products.filter(
-      (id) => id.toString() !== productId
-    );
-    await wishlist.save();
-
-    // Populate products for response
-    await wishlist.populate('products');
+    // Atomic $pull instead of read-modify-save: two concurrent removals of
+    // *different* products would otherwise race on the same document and the
+    // second .save() would silently overwrite (undo) the first's removal.
+    const wishlist = await Wishlist.findOneAndUpdate(
+      { user: req.user._id },
+      { $pull: { products: productId } },
+      { new: true }
+    ).populate('products');
 
     res.status(200).json({
       success: true,
