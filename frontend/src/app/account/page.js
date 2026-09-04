@@ -292,10 +292,37 @@ export default function AccountDashboardPage() {
             </button>
           </div>
         ) : (
-          <div className="bg-surface-container/20 border border-outline-variant/40 rounded-2xl flex flex-col md:flex-row min-h-[600px] mt-4 shadow-sm">
-            
-            {/* Sidebar */}
-            <div className="w-full md:w-[280px] border-b md:border-b-0 md:border-r border-outline-variant/40 p-6 flex flex-col gap-1">
+          <div className="bg-surface-container/20 border border-outline-variant/40 rounded-2xl flex flex-col md:flex-row md:min-h-[600px] mt-4 shadow-sm">
+
+            {/* Mobile: horizontal scrollable tab bar (a tall vertical nav list ate the whole first screen otherwise) */}
+            <div className="md:hidden border-b border-outline-variant/40">
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4 py-3">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-label-caps tracking-wide whitespace-nowrap transition-colors cursor-pointer ${
+                      activeTab === tab.id
+                        ? 'bg-primary text-white font-bold'
+                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+                <button
+                  onClick={handleLogout}
+                  className="flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-label-caps tracking-wide whitespace-nowrap text-error border border-error/30 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">logout</span>
+                  Log out
+                </button>
+              </div>
+            </div>
+
+            {/* Desktop: vertical sidebar */}
+            <div className="hidden md:flex md:w-[280px] md:border-r border-outline-variant/40 p-6 flex-col gap-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -310,8 +337,8 @@ export default function AccountDashboardPage() {
                   {tab.label}
                 </button>
               ))}
-              
-              <div className="mt-6 pt-6 border-t border-outline-variant/20 md:border-none md:mt-0 md:pt-0">
+
+              <div className="mt-6 pt-6 border-t border-outline-variant/20">
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-4 px-4 py-3.5 rounded-lg text-sm font-medium text-on-surface hover:text-error hover:bg-error-container/20 transition-colors w-full text-left"
