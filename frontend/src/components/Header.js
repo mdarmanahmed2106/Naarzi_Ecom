@@ -245,7 +245,7 @@ export default function Header() {
               <Link href="/contact" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold leading-none">CONTACT</Link>
             </nav>
 
-            <button onClick={() => setSearchOpen(true)} className="hidden md:flex items-center text-on-surface-variant hover:text-primary transition-colors">
+            <button onClick={() => setSearchOpen(true)} className="flex items-center text-on-surface-variant hover:text-primary transition-colors">
               <span className="material-symbols-outlined text-[22px] leading-none">search</span>
             </button>
             
