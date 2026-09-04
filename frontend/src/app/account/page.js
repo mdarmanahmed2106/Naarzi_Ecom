@@ -10,6 +10,87 @@ import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
 
+const ORDER_TRACKING_STEPS = [
+  { key: 'processing', label: 'Order Placed', icon: 'receipt_long' },
+  { key: 'shipped', label: 'Shipped', icon: 'local_shipping' },
+  { key: 'delivered', label: 'Delivered', icon: 'inventory_2' },
+];
+
+function OrderTracker({ order }) {
+  const historyDate = (statusKey) => {
+    const entry = order.statusHistory?.find((h) => h.status === statusKey);
+    return entry
+      ? new Date(entry.changedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+      : null;
+  };
+
+  if (order.orderStatus === 'cancelled') {
+    const cancelledDate = historyDate('cancelled');
+    return (
+      <div className="px-6 pt-5">
+        <div className="flex items-center gap-2 text-error bg-error-container/10 border border-error/20 rounded-lg px-4 py-3 text-xs font-medium">
+          <span className="material-symbols-outlined text-lg">cancel</span>
+          <span>This order was cancelled{cancelledDate ? ` on ${cancelledDate}` : ''}.</span>
+        </div>
+      </div>
+    );
+  }
+
+  const currentIndex = ORDER_TRACKING_STEPS.findIndex((s) => s.key === order.orderStatus);
+
+  return (
+    <div className="px-6 pt-5">
+      <div className="flex items-start">
+        {ORDER_TRACKING_STEPS.map((step, idx) => {
+          const isDone = idx < currentIndex;
+          const isCurrent = idx === currentIndex;
+          const date = historyDate(step.key);
+          return (
+            <React.Fragment key={step.key}>
+              <div className="flex flex-col items-center text-center w-16 sm:w-24">
+                <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 shrink-0 transition-colors ${
+                  isDone
+                    ? 'bg-primary border-primary text-white'
+                    : isCurrent
+                    ? 'border-primary text-primary bg-primary/10'
+                    : 'border-outline-variant/40 text-on-surface-variant/40'
+                }`}>
+                  <span className="material-symbols-outlined text-[14px] sm:text-[16px]">
+                    {isDone ? 'check' : step.icon}
+                  </span>
+                </div>
+                <span className={`text-[9px] sm:text-[10px] font-label-caps tracking-wide mt-2 font-bold leading-tight ${
+                  isDone || isCurrent ? 'text-on-surface' : 'text-on-surface-variant/50'
+                }`}>
+                  {step.label.toUpperCase()}
+                </span>
+                {date && <span className="text-[9px] sm:text-[10px] text-on-surface-variant mt-0.5">{date}</span>}
+              </div>
+              {idx < ORDER_TRACKING_STEPS.length - 1 && (
+                <div className={`flex-1 h-0.5 mt-3.5 sm:mt-4 min-w-[16px] ${isDone ? 'bg-primary' : 'bg-outline-variant/30'}`} />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      {(order.trackingNumber || order.carrier || order.estimatedDelivery) && (
+        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-[11px] text-on-surface-variant">
+          {order.trackingNumber && (
+            <span>Tracking #: <span className="font-mono font-semibold text-on-surface">{order.trackingNumber}</span></span>
+          )}
+          {order.carrier && (
+            <span>Carrier: <span className="font-semibold text-on-surface">{order.carrier}</span></span>
+          )}
+          {order.estimatedDelivery && (
+            <span>Est. Delivery: <span className="font-semibold text-on-surface">{new Date(order.estimatedDelivery).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span></span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AccountDashboardPage() {
   const router = useRouter();
   const { user, setUser, authLoading, logout, setIsAuthOpen, setAuthModalTab } = useApp();
@@ -350,7 +431,9 @@ export default function AccountDashboardPage() {
                               </div>
                             )}
                           </div>
-                          
+
+                          <OrderTracker order={order} />
+
                           {/* Purchased Items List */}
                           <div className="p-6 divide-y divide-outline-variant/30">
                             {order.items.map((item, index) => (

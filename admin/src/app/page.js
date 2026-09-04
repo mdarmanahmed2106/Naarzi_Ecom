@@ -690,18 +690,42 @@ export default function AdminDashboardPage() {
       const response = await ordersApi.updateStatus(orderId, status);
       if (response.success) {
         setSuccessMsg(`Order status updated to ${status}`);
-        
-        // Update local state to reflect change immediately
-        setOrders(prevOrders => 
-          prevOrders.map(o => o._id === orderId ? { ...o, orderStatus: status } : o)
+
+        // Sync the full order back (not just orderStatus) so statusHistory stays accurate
+        setOrders(prevOrders =>
+          prevOrders.map(o => o._id === orderId ? { ...o, ...response.order } : o)
         );
 
         if (selectedOrder && selectedOrder._id === orderId) {
-          setSelectedOrder(prev => ({ ...prev, orderStatus: status }));
+          setSelectedOrder(prev => ({ ...prev, ...response.order }));
         }
       }
     } catch (err) {
       setErrorMsg(`Failed to update order status: ${err.message}`);
+    }
+  };
+
+  // Save tracking number / carrier / estimated delivery without changing fulfillment status
+  const handleSaveTracking = async (orderId) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    try {
+      const response = await ordersApi.updateStatus(orderId, selectedOrder.orderStatus, {
+        trackingNumber: selectedOrder.trackingNumber || '',
+        carrier: selectedOrder.carrier || '',
+        estimatedDelivery: selectedOrder.estimatedDelivery
+          ? new Date(selectedOrder.estimatedDelivery).toISOString().slice(0, 10)
+          : ''
+      });
+      if (response.success) {
+        setSuccessMsg('Tracking details saved');
+        setOrders(prevOrders =>
+          prevOrders.map(o => o._id === orderId ? { ...o, ...response.order } : o)
+        );
+        setSelectedOrder(prev => ({ ...prev, ...response.order }));
+      }
+    } catch (err) {
+      setErrorMsg(`Failed to save tracking details: ${err.message}`);
     }
   };
 
@@ -2581,6 +2605,50 @@ export default function AdminDashboardPage() {
                   <option value="cancelled">cancelled</option>
                 </select>
               </div>
+            </div>
+
+            {/* Tracking Details — powers the customer-facing order tracker */}
+            <div className="bg-surface-container/40 border border-outline-variant/20 p-4 rounded-xl mb-6">
+              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block font-bold mb-3">
+                TRACKING DETAILS
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-[10px] text-on-surface-variant block mb-1">Tracking Number</label>
+                  <input
+                    type="text"
+                    value={selectedOrder.trackingNumber || ''}
+                    onChange={(e) => setSelectedOrder(prev => ({ ...prev, trackingNumber: e.target.value }))}
+                    placeholder="e.g. AWB1234567890"
+                    className="w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-xs focus:outline-none focus:border-primary bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-on-surface-variant block mb-1">Carrier</label>
+                  <input
+                    type="text"
+                    value={selectedOrder.carrier || ''}
+                    onChange={(e) => setSelectedOrder(prev => ({ ...prev, carrier: e.target.value }))}
+                    placeholder="e.g. Delhivery"
+                    className="w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-xs focus:outline-none focus:border-primary bg-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-on-surface-variant block mb-1">Estimated Delivery</label>
+                  <input
+                    type="date"
+                    value={selectedOrder.estimatedDelivery ? new Date(selectedOrder.estimatedDelivery).toISOString().slice(0, 10) : ''}
+                    onChange={(e) => setSelectedOrder(prev => ({ ...prev, estimatedDelivery: e.target.value }))}
+                    className="w-full px-3 py-2 border border-outline-variant/40 rounded-lg text-xs focus:outline-none focus:border-primary bg-white"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => handleSaveTracking(selectedOrder._id)}
+                className="mt-3 px-4 py-2 bg-primary text-white text-xs font-label-caps tracking-widest rounded-lg hover:bg-primary-container transition-colors cursor-pointer"
+              >
+                SAVE TRACKING DETAILS
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">

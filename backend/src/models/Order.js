@@ -73,6 +73,33 @@ const orderSchema = new mongoose.Schema({
     enum: ['processing', 'shipped', 'delivered', 'cancelled'],
     default: 'processing'
   },
+  // One entry per orderStatus transition, so the customer-facing tracker can show
+  // when each step actually happened instead of just the current status.
+  statusHistory: [{
+    status: {
+      type: String,
+      enum: ['processing', 'shipped', 'delivered', 'cancelled'],
+      required: true
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  trackingNumber: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  carrier: {
+    type: String,
+    trim: true,
+    default: null
+  },
+  estimatedDelivery: {
+    type: Date,
+    default: null
+  },
   refundStatus: {
     type: String,
     enum: ['not_applicable', 'pending', 'completed'],

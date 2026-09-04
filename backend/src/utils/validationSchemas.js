@@ -110,7 +110,10 @@ const createOrderSchema = z.object({
 
 const updateOrderStatusSchema = z.object({
   body: z.object({
-    orderStatus: z.enum(['processing', 'shipped', 'delivered', 'cancelled'])
+    orderStatus: z.enum(['processing', 'shipped', 'delivered', 'cancelled']),
+    trackingNumber: z.string().trim().max(100).optional(),
+    carrier: z.string().trim().max(100).optional(),
+    estimatedDelivery: z.string().optional()
   })
 });
 

@@ -105,7 +105,7 @@ export const ordersApi = {
   getMyOrders: () => fetchApi('/orders/my-orders'),
   getDetails: (id) => fetchApi(`/orders/${id}`),
   getAll: () => fetchApi('/orders'),
-  updateStatus: (id, status) => fetchApi(`/orders/${id}/status`, { method: 'PUT', body: { orderStatus: status } }),
+  updateStatus: (id, status, tracking = {}) => fetchApi(`/orders/${id}/status`, { method: 'PUT', body: { orderStatus: status, ...tracking } }),
 };
 
 export const paymentApi = {

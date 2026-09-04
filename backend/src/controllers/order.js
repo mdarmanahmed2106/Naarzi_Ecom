@@ -255,7 +255,8 @@ exports.createOrder = async (req, res, next) => {
       discountAmount,
       shippingAddress,
       paymentStatus: 'pending',
-      orderStatus: 'processing' // Default status
+      orderStatus: 'processing', // Default status
+      statusHistory: [{ status: 'processing', changedAt: new Date() }]
     });
 
     // Create Notification
@@ -386,7 +387,7 @@ exports.getAllOrders = async (req, res, next) => {
 // @access  Private/Admin
 exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const { orderStatus } = req.body;
+    const { orderStatus, trackingNumber, carrier, estimatedDelivery } = req.body;
     const order = await Order.findById(req.params.id);
 
     if (!order) {
@@ -401,7 +402,19 @@ exports.updateOrderStatus = async (req, res, next) => {
       await releaseOrderStock(order);
     }
 
+    // Only append a timeline entry when the status is actually changing, so
+    // resaving tracking details on an unchanged status doesn't duplicate it.
+    if (order.orderStatus !== orderStatus) {
+      order.statusHistory.push({ status: orderStatus, changedAt: new Date() });
+    }
     order.orderStatus = orderStatus;
+
+    // Tracking fields are optional and independent of the status transition -
+    // empty string clears the field, undefined leaves it untouched.
+    if (trackingNumber !== undefined) order.trackingNumber = trackingNumber || null;
+    if (carrier !== undefined) order.carrier = carrier || null;
+    if (estimatedDelivery !== undefined) order.estimatedDelivery = estimatedDelivery || null;
+
     await order.save();
 
     res.status(200).json({
@@ -449,8 +462,9 @@ exports.cancelOrder = async (req, res, next) => {
     await releaseOrderStock(order);
 
     const wasAlreadyPaid = order.paymentStatus === 'paid';
-    
+
     order.orderStatus = 'cancelled';
+    order.statusHistory.push({ status: 'cancelled', changedAt: new Date() });
     if (wasAlreadyPaid) {
       order.refundStatus = 'pending';
     }
