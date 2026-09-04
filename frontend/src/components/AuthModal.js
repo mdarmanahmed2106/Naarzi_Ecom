@@ -75,12 +75,12 @@ export default function AuthModal() {
         </button>
 
         {/* Top/Left panel - image banner */}
-        <div className="flex flex-col justify-center items-center w-full md:w-1/2 h-40 md:h-auto relative overflow-hidden bg-primary shrink-0">
+        <div className="flex flex-col justify-center items-center w-full md:w-1/2 h-48 md:h-auto relative overflow-hidden bg-primary shrink-0">
           <Image 
             src="/login_banner.png" 
             alt="Naarzi Login" 
             fill
-            className="object-cover"
+            className="object-contain p-4 md:p-0 md:object-cover"
             priority
           />
         </div>
