@@ -198,6 +198,44 @@ exports.addAddress = async (req, res, next) => {
   }
 };
 
+// @desc    Update a shipping address
+// @route   PUT /api/auth/me/addresses/:id
+// @access  Private
+exports.updateAddress = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const address = user.addresses.id(req.params.id);
+
+    if (!address) {
+      return res.status(404).json({ success: false, message: 'Address not found' });
+    }
+
+    const { street, city, state, postalCode, country, phone, isDefault } = req.body;
+    if (street !== undefined) address.street = street;
+    if (city !== undefined) address.city = city;
+    if (state !== undefined) address.state = state;
+    if (postalCode !== undefined) address.postalCode = postalCode;
+    if (country !== undefined) address.country = country;
+    if (phone !== undefined) address.phone = phone;
+
+    if (isDefault) {
+      // Unset default on every other address, set it on this one
+      user.addresses.forEach(addr => {
+        addr.isDefault = addr._id.toString() === address._id.toString();
+      });
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Delete a shipping address
 // @route   DELETE /api/auth/me/addresses/:id
 // @access  Private

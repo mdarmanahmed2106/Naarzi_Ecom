@@ -25,6 +25,7 @@ export default function AccountDashboardPage() {
   // Address State
   const [addresses, setAddresses] = useState(user?.addresses || []);
   const [showAddressForm, setShowAddressForm] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
   const [addressForm, setAddressForm] = useState({
     street: '', city: '', state: '', postalCode: '', country: 'India', phone: '', isDefault: false
   });
@@ -90,20 +91,47 @@ export default function AccountDashboardPage() {
     router.push('/');
   };
 
-  const handleAddAddress = async (e) => {
+  const resetAddressForm = () => {
+    setShowAddressForm(false);
+    setEditingAddressId(null);
+    setAddressForm({ street: '', city: '', state: '', postalCode: '', country: 'India', phone: '', isDefault: false });
+  };
+
+  const handleStartAddAddress = () => {
+    setEditingAddressId(null);
+    setAddressForm({ street: '', city: '', state: '', postalCode: '', country: 'India', phone: '', isDefault: false });
+    setShowAddressForm(true);
+  };
+
+  const handleStartEditAddress = (addr) => {
+    setEditingAddressId(addr._id);
+    setAddressForm({
+      street: addr.street || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      postalCode: addr.postalCode || '',
+      country: addr.country || 'India',
+      phone: addr.phone || '',
+      isDefault: addr.isDefault || false
+    });
+    setShowAddressForm(true);
+  };
+
+  const handleAddressFormSubmit = async (e) => {
     e.preventDefault();
     setIsSubmittingAddress(true);
     try {
-      const response = await authApi.addAddress(addressForm);
+      const response = editingAddressId
+        ? await authApi.updateAddress(editingAddressId, addressForm)
+        : await authApi.addAddress(addressForm);
       if (response.success) {
         setUser(response.user);
         setAddresses(response.user.addresses);
-        setShowAddressForm(false);
-        setAddressForm({ street: '', city: '', state: '', postalCode: '', country: 'India', phone: '', isDefault: false });
-        setToastMessage('Address added successfully');
+        setToastMessage(editingAddressId ? 'Address updated successfully' : 'Address added successfully');
+        resetAddressForm();
       }
     } catch (err) {
-      setToastMessage(err.message || 'Failed to add address');
+      setToastMessage(err.message || `Failed to ${editingAddressId ? 'update' : 'add'} address`);
     } finally {
       setIsSubmittingAddress(false);
     }
@@ -372,8 +400,8 @@ export default function AccountDashboardPage() {
                   
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-bold font-sans text-on-surface">Saved Addresses</h2>
-                    <button 
-                      onClick={() => setShowAddressForm(!showAddressForm)}
+                    <button
+                      onClick={() => (showAddressForm ? resetAddressForm() : handleStartAddAddress())}
                       className="px-4 py-2 bg-primary text-white text-xs font-label-caps tracking-widest rounded-lg hover:bg-primary-container transition-colors"
                     >
                       {showAddressForm ? 'CANCEL' : 'ADD ADDRESS'}
@@ -381,7 +409,10 @@ export default function AccountDashboardPage() {
                   </div>
 
                   {showAddressForm && (
-                    <form onSubmit={handleAddAddress} className="mb-8 bg-surface-container/30 p-6 rounded-xl border border-outline-variant/30 space-y-4">
+                    <form onSubmit={handleAddressFormSubmit} className="mb-8 bg-surface-container/30 p-6 rounded-xl border border-outline-variant/30 space-y-4">
+                      <h3 className="text-sm font-bold font-sans text-on-surface">
+                        {editingAddressId ? 'Edit Address' : 'Add New Address'}
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1 md:col-span-2">
                           <label className="text-xs font-label-caps text-on-surface-variant">Street Address</label>
@@ -422,7 +453,7 @@ export default function AccountDashboardPage() {
                         </div>
                       </div>
                       <button type="submit" disabled={isSubmittingAddress} className="w-full md:w-auto px-6 py-3 bg-primary text-white text-xs font-label-caps tracking-widest rounded-lg hover:bg-primary-container transition-colors disabled:opacity-50 mt-4">
-                        {isSubmittingAddress ? 'SAVING...' : 'SAVE ADDRESS'}
+                        {isSubmittingAddress ? 'SAVING...' : editingAddressId ? 'UPDATE ADDRESS' : 'SAVE ADDRESS'}
                       </button>
                     </form>
                   )}
@@ -446,9 +477,14 @@ export default function AccountDashboardPage() {
                               <span className="material-symbols-outlined text-[14px]">phone</span> {addr.phone}
                             </p>
                           )}
-                          <button onClick={() => handleDeleteAddress(addr._id)} className="mt-4 text-xs font-label-caps tracking-widest text-error hover:underline flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="material-symbols-outlined text-[14px]">delete</span> Delete
-                          </button>
+                          <div className="mt-4 flex items-center gap-4">
+                            <button onClick={() => handleStartEditAddress(addr)} className="text-xs font-label-caps tracking-widest text-primary hover:underline flex items-center gap-1 cursor-pointer">
+                              <span className="material-symbols-outlined text-[14px]">edit</span> Edit
+                            </button>
+                            <button onClick={() => handleDeleteAddress(addr._id)} className="text-xs font-label-caps tracking-widest text-error hover:underline flex items-center gap-1 cursor-pointer">
+                              <span className="material-symbols-outlined text-[14px]">delete</span> Delete
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>

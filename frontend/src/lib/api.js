@@ -71,6 +71,7 @@ export const authApi = {
   getMe: () => fetchApi('/auth/me'),
   updateProfile: (profileData) => fetchApi('/auth/me', { method: 'PUT', body: profileData }),
   addAddress: (addressData) => fetchApi('/auth/me/addresses', { method: 'POST', body: addressData }),
+  updateAddress: (id, addressData) => fetchApi(`/auth/me/addresses/${id}`, { method: 'PUT', body: addressData }),
   deleteAddress: (id) => fetchApi(`/auth/me/addresses/${id}`, { method: 'DELETE' }),
 };
 
