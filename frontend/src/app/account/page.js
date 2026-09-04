@@ -407,37 +407,18 @@ export default function AccountDashboardPage() {
                     <div className="space-y-6">
                       {orders.map((order) => (
                         <div key={order._id} className="bg-surface border border-outline-variant/50 rounded-xl shadow-sm overflow-hidden">
-                          {/* Order Summary Header */}
-                          <div className="bg-surface-container/60 p-6 flex flex-wrap justify-between items-center gap-4 border-b border-outline-variant/30 text-xs font-label-caps text-on-surface-variant">
-                            <div className="space-y-1">
-                              <span>ORDER DATE</span>
-                              <p className="font-sans text-on-surface font-medium text-sm mt-0.5">
+                          {/* Order Summary Header — order status itself is conveyed by the tracker below, so it's not repeated here */}
+                          <div className="p-5 sm:p-6 flex items-start justify-between gap-4 border-b border-outline-variant/20">
+                            <div>
+                              <p className="text-xs text-on-surface-variant">
                                 {new Date(order.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                               </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span>TOTAL AMOUNT</span>
-                              <p className="font-sans text-primary font-bold text-sm mt-0.5">
+                              <p className="font-sans text-primary font-bold text-base mt-1">
                                 INR {order.totalAmount}
                               </p>
                             </div>
-                            <div className="space-y-1">
-                              <span>ORDER STATUS</span>
-                              <p className="font-sans mt-0.5">
-                                <span className={`px-2 py-0.5 rounded font-bold text-[10px] uppercase border ${
-                                  order.orderStatus === 'delivered'
-                                    ? 'text-green-700 bg-green-50 border-green-200'
-                                    : order.orderStatus === 'cancelled'
-                                    ? 'text-error bg-error-container/20 border-error/20'
-                                    : 'text-secondary bg-secondary-container/20 border-secondary/20'
-                                }`}>
-                                  {order.orderStatus}
-                                </span>
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span>PAYMENT STATUS</span>
-                              <p className="font-sans mt-0.5">
+                            <div className="flex flex-col items-end gap-1.5">
+                              <div className="flex items-center gap-1.5 flex-wrap justify-end">
                                 <span className={`px-2 py-0.5 rounded font-bold text-[10px] uppercase border ${
                                   order.paymentStatus === 'paid'
                                     ? 'text-green-700 bg-green-50 border-green-200'
@@ -448,23 +429,21 @@ export default function AccountDashboardPage() {
                                   {order.paymentStatus}
                                 </span>
                                 {order.refundStatus === 'pending' && (
-                                  <span className="ml-2 px-2 py-0.5 rounded font-bold text-[10px] uppercase border text-yellow-700 bg-yellow-50 border-yellow-200">
-                                    REFUND PENDING
+                                  <span className="px-2 py-0.5 rounded font-bold text-[10px] uppercase border text-yellow-700 bg-yellow-50 border-yellow-200">
+                                    Refund pending
                                   </span>
                                 )}
-                              </p>
-                            </div>
-                            {order.orderStatus === 'processing' && (
-                              <div className="ml-auto">
+                              </div>
+                              {order.orderStatus === 'processing' && (
                                 <button
                                   onClick={() => handleCancelOrder(order._id)}
                                   disabled={cancellingId === order._id}
-                                  className="text-xs font-bold tracking-widest text-error border border-error/20 rounded-lg px-4 py-2 hover:bg-error-container/20 disabled:opacity-50 transition-colors cursor-pointer uppercase"
+                                  className="text-[11px] font-bold tracking-wide text-error hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
                                 >
                                   {cancellingId === order._id ? 'Cancelling...' : 'Cancel Order'}
                                 </button>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
 
                           <OrderTracker order={order} />
