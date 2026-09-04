@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -30,6 +30,10 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState([]);
   const [wordSuggestions, setWordSuggestions] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [activeResultIndex, setActiveResultIndex] = useState(-1);
+  const searchInputRef = useRef(null);
+  const searchCacheRef = useRef(new Map());
+  const searchRequestIdRef = useRef(0);
 
   const handleMouseEnter = (menu) => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
@@ -57,29 +61,58 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    if (searchQuery.trim().length < 2) {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    setActiveResultIndex(-1);
+
+    if (normalizedQuery.length < 2) {
       setSearchResults([]);
       setWordSuggestions([]);
+      setSearchLoading(false);
       return;
     }
+
+    // Serve from cache instantly if we've already fetched this exact query this session
+    const cached = searchCacheRef.current.get(normalizedQuery);
+    if (cached) {
+      setSearchResults(cached.results);
+      setWordSuggestions(cached.suggestions);
+      setSearchLoading(false);
+      return;
+    }
+
     setSearchLoading(true);
+    const requestId = ++searchRequestIdRef.current;
+
     const timeout = setTimeout(async () => {
       try {
         const [productsRes, suggestionsRes] = await Promise.all([
           productsApi.getAll({ search: searchQuery, limit: 5 }),
           productsApi.getSuggestions(searchQuery)
         ]);
-        
-        if (productsRes.success) {
-          setSearchResults(productsRes.data || []);
+
+        // Ignore this response if a newer search has since been kicked off
+        if (requestId !== searchRequestIdRef.current) return;
+
+        const results = productsRes.success ? (productsRes.data || []) : [];
+        const suggestions = suggestionsRes.success ? (suggestionsRes.data || []) : [];
+
+        // Cap cache size with simple FIFO eviction so it can't grow unbounded in a long session
+        if (searchCacheRef.current.size >= 50) {
+          const oldestKey = searchCacheRef.current.keys().next().value;
+          searchCacheRef.current.delete(oldestKey);
         }
-        if (suggestionsRes.success) {
-          setWordSuggestions(suggestionsRes.data || []);
-        }
+        searchCacheRef.current.set(normalizedQuery, { results, suggestions });
+
+        setSearchResults(results);
+        setWordSuggestions(suggestions);
       } catch (err) {
-        console.error('Search failed:', err);
+        if (requestId === searchRequestIdRef.current) {
+          console.error('Search failed:', err);
+        }
       } finally {
-        setSearchLoading(false);
+        if (requestId === searchRequestIdRef.current) {
+          setSearchLoading(false);
+        }
       }
     }, 300);
 
@@ -96,15 +129,68 @@ export default function Header() {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
+  // Lock background scroll while the full-screen mobile search overlay is open
+  useEffect(() => {
+    if (searchOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [searchOpen]);
+
   const closeSearch = () => {
     setSearchOpen(false);
     setSearchQuery('');
+    setActiveResultIndex(-1);
   };
 
-  const handleSearchSubmit = () => {
-    if (searchQuery.trim().length > 0) {
+  const handleSearchSubmit = (query) => {
+    const q = (typeof query === 'string' ? query : searchQuery).trim();
+    if (q.length > 0) {
       closeSearch();
-      router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+      router.push(`/shop?search=${encodeURIComponent(q)}`);
+    }
+  };
+
+  const goToProduct = (product) => {
+    closeSearch();
+    router.push(`/products/${product.slug}`);
+  };
+
+  // Combined, keyboard-navigable list: word suggestions first, then product results
+  const navigableItems = [
+    ...wordSuggestions.map((word) => ({ type: 'suggestion', value: word })),
+    ...searchResults.map((product) => ({ type: 'product', value: product })),
+  ];
+
+  const handleSearchKeyDown = (e) => {
+    if (navigableItems.length === 0) {
+      if (e.key === 'Enter') handleSearchSubmit();
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveResultIndex((prev) => (prev + 1) % navigableItems.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveResultIndex((prev) => (prev - 1 + navigableItems.length) % navigableItems.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const active = navigableItems[activeResultIndex];
+      if (!active) {
+        handleSearchSubmit();
+      } else if (active.type === 'suggestion') {
+        handleSearchSubmit(active.value);
+      } else {
+        goToProduct(active.value);
+      }
     }
   };
 
@@ -245,7 +331,7 @@ export default function Header() {
               <Link href="/contact" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold leading-none">CONTACT</Link>
             </nav>
 
-            <button onClick={() => setSearchOpen(true)} className="flex items-center text-on-surface-variant hover:text-primary transition-colors">
+            <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center text-on-surface-variant hover:text-primary transition-colors p-2.5 -m-2.5">
               <span className="material-symbols-outlined text-[22px] leading-none">search</span>
             </button>
             
@@ -389,31 +475,40 @@ export default function Header() {
           )}
         </div>
       </div>
-      {/* Search Overlay */}
+      {/* Search Overlay: full-screen takeover on mobile, centered modal from sm: up */}
       {searchOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/40 flex items-start justify-center pt-24 backdrop-blur-sm" onClick={closeSearch}>
-          <div className="bg-surface w-full max-w-2xl rounded-2xl shadow-2xl p-6 mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-4 border-b border-outline-variant/30 pb-4">
+        <div
+          className="fixed inset-0 z-[100] flex flex-col bg-surface sm:items-start sm:justify-center sm:bg-black/40 sm:pt-24 sm:backdrop-blur-sm"
+          onClick={closeSearch}
+        >
+          <div
+            className="flex h-full w-full flex-col overflow-hidden bg-surface sm:h-auto sm:max-h-[80vh] sm:w-full sm:max-w-2xl sm:mx-4 sm:rounded-2xl sm:shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 sm:gap-4 border-b border-outline-variant/30 p-4 sm:p-6 sm:pb-4">
               <span className="material-symbols-outlined text-on-surface-variant text-2xl">search</span>
               <input
+                ref={searchInputRef}
                 autoFocus
                 type="text"
+                inputMode="search"
+                enterKeyHint="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit()}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search products..."
-                className="flex-1 outline-none text-lg bg-transparent text-on-surface font-body-md"
+                className="flex-1 min-w-0 outline-none text-base sm:text-lg bg-transparent text-on-surface font-body-md"
               />
-              <button onClick={closeSearch} className="text-on-surface-variant hover:text-primary transition-colors">
+              <button onClick={closeSearch} aria-label="Close search" className="text-on-surface-variant hover:text-primary transition-colors p-2 -m-2">
                 <span className="material-symbols-outlined text-2xl">close</span>
               </button>
             </div>
-            
+
             {/* Live Preview Results */}
             {searchQuery.trim().length >= 2 && (
-              <div className="mt-6 max-h-[60vh] overflow-y-auto">
+              <div className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6 sm:flex-none sm:max-h-[60vh]">
                 {searchLoading && <p className="text-sm text-on-surface-variant font-label-caps tracking-widest text-center py-4">SEARCHING...</p>}
-                
+
                 {!searchLoading && searchResults.length === 0 && wordSuggestions.length === 0 && (
                   <div className="text-center py-8">
                     <p className="text-sm text-on-surface-variant font-body-md">No products found for "{searchQuery}"</p>
@@ -424,50 +519,56 @@ export default function Header() {
                 )}
 
                 {wordSuggestions.length > 0 && (
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    {wordSuggestions.map(word => (
+                  <div className="mb-4 mt-4 flex flex-wrap gap-2">
+                    {wordSuggestions.map((word, idx) => (
                       <button
                         key={word}
-                        onClick={() => {
-                          closeSearch();
-                          router.push(`/shop?search=${encodeURIComponent(word)}`);
-                        }}
-                        className="px-3 py-1.5 bg-surface-container rounded-full text-xs font-label-caps tracking-widest text-on-surface hover:bg-primary hover:text-white transition-colors"
+                        onClick={() => handleSearchSubmit(word)}
+                        onMouseEnter={() => setActiveResultIndex(idx)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-label-caps tracking-widest transition-colors ${
+                          activeResultIndex === idx ? 'bg-primary text-white' : 'bg-surface-container text-on-surface hover:bg-primary hover:text-white'
+                        }`}
                       >
                         {word}
                       </button>
                     ))}
                   </div>
                 )}
-                
+
                 {!searchLoading && searchResults.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    {searchResults.map((product) => (
-                      <Link
-                        key={product._id}
-                        href={`/products/${product.slug}`}
-                        onClick={closeSearch}
-                        className="flex items-center gap-4 p-3 hover:bg-surface-container rounded-xl transition-colors group"
-                      >
-                        <img 
-                          src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150'} 
-                          alt={product.name} 
-                          className="w-16 h-20 object-cover rounded-lg bg-surface-container-high" 
-                        />
-                        <div className="flex-1">
-                          <p className="font-headline-sm text-sm text-on-surface group-hover:text-primary transition-colors">{product.name}</p>
-                          <p className="text-sm font-medium text-primary mt-1">
-                            ${product.discountedPrice ?? product.price}
-                          </p>
-                        </div>
-                        <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
-                          chevron_right
-                        </span>
-                      </Link>
-                    ))}
-                    
+                  <div className="flex flex-col gap-1 mt-4">
+                    {searchResults.map((product, idx) => {
+                      const resultIndex = wordSuggestions.length + idx;
+                      return (
+                        <Link
+                          key={product._id}
+                          href={`/products/${product.slug}`}
+                          onClick={closeSearch}
+                          onMouseEnter={() => setActiveResultIndex(resultIndex)}
+                          className={`flex items-center gap-4 p-3 rounded-xl transition-colors group ${
+                            activeResultIndex === resultIndex ? 'bg-surface-container' : 'hover:bg-surface-container'
+                          }`}
+                        >
+                          <img
+                            src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150'}
+                            alt={product.name}
+                            className="w-16 h-20 object-cover rounded-lg bg-surface-container-high flex-none"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-headline-sm text-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">{product.name}</p>
+                            <p className="text-sm font-medium text-primary mt-1">
+                              ${product.discountedPrice ?? product.price}
+                            </p>
+                          </div>
+                          <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
+                            chevron_right
+                          </span>
+                        </Link>
+                      );
+                    })}
+
                     <button
-                      onClick={handleSearchSubmit}
+                      onClick={() => handleSearchSubmit()}
                       className="mt-4 py-4 border-t border-outline-variant/30 text-center text-xs font-label-caps tracking-widest text-primary hover:bg-surface-container rounded-xl transition-colors font-bold"
                     >
                       SEE ALL RESULTS FOR "{searchQuery.toUpperCase()}"
