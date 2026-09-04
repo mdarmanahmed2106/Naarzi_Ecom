@@ -621,44 +621,76 @@ export default function AccountDashboardPage() {
                     </div>
                   )}
 
-                  <h2 className="text-lg font-bold font-sans text-on-surface mb-6">Account Details</h2>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display-lg text-xl font-bold shrink-0">
+                      {(user?.name?.[0] || 'N').toUpperCase()}
+                    </div>
+                    <div>
+                      <h2 className="font-headline-sm text-xl text-on-surface font-semibold">Account Details</h2>
+                      <p className="text-sm text-on-surface-variant mt-0.5">Manage your personal information</p>
+                    </div>
+                  </div>
 
-                  <form onSubmit={handleUpdateProfile} className="bg-surface-container/30 p-6 rounded-xl border border-outline-variant/30 space-y-4 max-w-2xl">
-                    <div className="space-y-1">
-                      <label className="text-xs font-label-caps text-on-surface-variant">Full Name</label>
-                      <input 
-                        type="text" 
-                        required 
-                        value={profileForm.name} 
-                        onChange={e => setProfileForm({...profileForm, name: e.target.value})} 
-                        className="w-full p-3 bg-surface border border-outline-variant/50 rounded-lg text-sm focus:outline-none focus:border-primary" 
+                  <form onSubmit={handleUpdateProfile} className="bg-surface-container/30 p-6 rounded-xl border border-outline-variant/30 space-y-5 max-w-2xl">
+                    <div className="space-y-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-label-caps text-on-surface-variant tracking-wide">
+                        <span className="material-symbols-outlined text-[16px]">badge</span>
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={profileForm.name}
+                        onChange={e => setProfileForm({...profileForm, name: e.target.value})}
+                        className="w-full px-4 py-3 bg-surface border border-outline-variant/50 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-label-caps text-on-surface-variant">Email Address</label>
-                      <input 
-                        type="email" 
-                        value={profileForm.email} 
-                        onChange={e => setProfileForm({...profileForm, email: e.target.value})} 
-                        className="w-full p-3 bg-surface border border-outline-variant/50 rounded-lg text-sm focus:outline-none focus:border-primary" 
+                    <div className="space-y-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-label-caps text-on-surface-variant tracking-wide">
+                        <span className="material-symbols-outlined text-[16px]">mail</span>
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={profileForm.email}
+                        onChange={e => setProfileForm({...profileForm, email: e.target.value})}
+                        className="w-full px-4 py-3 bg-surface border border-outline-variant/50 rounded-lg text-sm text-on-surface focus:outline-none focus:border-primary transition-colors"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-label-caps text-on-surface-variant">Phone Number (Read Only)</label>
-                      <input 
-                        type="text" 
-                        disabled 
-                        value={user?.phone || ''} 
-                        className="w-full p-3 bg-surface-container/50 border border-outline-variant/50 rounded-lg text-sm text-on-surface-variant cursor-not-allowed" 
-                      />
+                    <div className="space-y-1.5">
+                      <label className="flex items-center gap-1.5 text-xs font-label-caps text-on-surface-variant tracking-wide">
+                        <span className="material-symbols-outlined text-[16px]">lock</span>
+                        Phone Number
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          disabled
+                          value={user?.phone || 'Not linked'}
+                          className="w-full px-4 py-3 pr-20 bg-surface-container/50 border border-outline-variant/50 rounded-lg text-sm text-on-surface-variant cursor-not-allowed"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-label-caps tracking-wider text-on-surface-variant/60 bg-surface-container px-2 py-1 rounded uppercase">
+                          Read only
+                        </span>
+                      </div>
                     </div>
-                    
-                    <button 
-                      type="submit" 
-                      disabled={isSubmittingProfile} 
-                      className="w-full md:w-auto px-6 py-3 bg-primary text-white text-xs font-label-caps tracking-widest rounded-lg hover:bg-primary-container transition-colors disabled:opacity-50 mt-6"
+
+                    <button
+                      type="submit"
+                      disabled={isSubmittingProfile}
+                      className="w-full md:w-auto px-6 py-3 bg-primary text-white text-xs font-label-caps tracking-widest rounded-lg hover:bg-primary-container transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      {isSubmittingProfile ? 'SAVING...' : 'SAVE CHANGES'}
+                      {isSubmittingProfile ? (
+                        <>
+                          <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                          SAVING...
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-sm">check</span>
+                          SAVE CHANGES
+                        </>
+                      )}
                     </button>
                   </form>
                 </div>
