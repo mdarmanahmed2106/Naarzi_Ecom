@@ -98,7 +98,7 @@ export default function Footer() {
             <div className="space-y-3 pt-1">
               <form onSubmit={handleSubscribe} className="flex gap-2 border-b border-surface/30 focus-within:border-surface pb-2 transition-colors">
                 <input 
-                  className="bg-transparent outline-none flex-1 text-surface-container-lowest placeholder:text-surface-container-lowest/40 text-sm focus:ring-0" 
+                  className="bg-transparent outline-none flex-1 min-w-0 text-surface-container-lowest placeholder:text-surface-container-lowest/40 text-sm focus:ring-0" 
                   placeholder="Enter your email" 
                   type="email"
                   required
