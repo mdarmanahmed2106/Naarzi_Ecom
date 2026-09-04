@@ -17,6 +17,7 @@ export default function AuthModal() {
 
   useEffect(() => {
     if (isAuthOpen) {
+      document.body.style.overflow = 'hidden';
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',
@@ -25,6 +26,7 @@ export default function AuthModal() {
       setStep('phone');
       setPhone('');
     } else {
+      document.body.style.overflow = 'unset';
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
@@ -32,6 +34,7 @@ export default function AuthModal() {
     }
 
     return () => {
+      document.body.style.overflow = 'unset';
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
