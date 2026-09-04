@@ -64,11 +64,11 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-all duration-300">
       <div 
-        className="bg-surface rounded-2xl overflow-hidden flex w-full max-w-3xl shadow-2xl mx-4"
+        className="bg-surface rounded-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-3xl shadow-2xl mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Left panel - image banner */}
-        <div className="hidden md:flex flex-col justify-center items-center w-1/2 relative overflow-hidden bg-primary">
+        {/* Top/Left panel - image banner */}
+        <div className="flex flex-col justify-center items-center w-full md:w-1/2 h-40 md:h-auto relative overflow-hidden bg-primary shrink-0">
           <Image 
             src="/login_banner.png" 
             alt="Naarzi Login" 
@@ -78,8 +78,8 @@ export default function AuthModal() {
           />
         </div>
 
-        {/* Right panel — form, step-dependent content */}
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center relative bg-surface">
+        {/* Bottom/Right panel — form, step-dependent content */}
+        <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col justify-center relative bg-surface">
           <button 
             onClick={() => setIsAuthOpen(false)} 
             className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
