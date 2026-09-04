@@ -64,9 +64,16 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-all duration-300">
       <div 
-        className="bg-surface rounded-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-3xl shadow-2xl mx-4 max-h-[90vh] overflow-y-auto"
+        className="bg-surface rounded-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-3xl shadow-2xl mx-4 max-h-[90vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
+        <button 
+          onClick={() => setIsAuthOpen(false)} 
+          className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors cursor-pointer z-10 bg-surface/80 md:bg-transparent p-1 md:p-0 rounded-full"
+        >
+          <span className="material-symbols-outlined text-2xl block">close</span>
+        </button>
+
         {/* Top/Left panel - image banner */}
         <div className="flex flex-col justify-center items-center w-full md:w-1/2 h-40 md:h-auto relative overflow-hidden bg-primary shrink-0">
           <Image 
@@ -80,12 +87,6 @@ export default function AuthModal() {
 
         {/* Bottom/Right panel — form, step-dependent content */}
         <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col justify-center relative bg-surface">
-          <button 
-            onClick={() => setIsAuthOpen(false)} 
-            className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-2xl">close</span>
-          </button>
           
           {/* required invisible reCAPTCHA anchor */}
           <div id="recaptcha-container"></div>
