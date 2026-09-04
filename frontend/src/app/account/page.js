@@ -263,7 +263,7 @@ export default function AccountDashboardPage() {
   const tabs = [
     { id: 'orders', label: 'Order history', icon: 'inventory_2' },
     { id: 'address', label: 'Shipping Address', icon: 'person' },
-    { id: 'details', label: 'Account details', icon: 'person' }
+    { id: 'details', label: 'Account details', icon: 'manage_accounts' }
   ];
 
   return (
@@ -294,30 +294,38 @@ export default function AccountDashboardPage() {
         ) : (
           <div className="bg-surface-container/20 border border-outline-variant/40 rounded-2xl flex flex-col md:flex-row md:min-h-[600px] mt-4 shadow-sm">
 
-            {/* Mobile: horizontal scrollable tab bar (a tall vertical nav list ate the whole first screen otherwise) */}
-            <div className="md:hidden border-b border-outline-variant/40">
-              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4 py-3">
+            {/* Mobile: icon-tile nav grid */}
+            <div className="md:hidden border-b border-outline-variant/40 px-6 pt-6 pb-5">
+              <div className="flex items-center justify-end mb-3 -mt-1">
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 text-[11px] font-label-caps tracking-wide text-on-surface-variant hover:text-error transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[15px]">logout</span>
+                  Log out
+                </button>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-label-caps tracking-wide whitespace-nowrap transition-colors cursor-pointer ${
-                      activeTab === tab.id
-                        ? 'bg-primary text-white font-bold'
-                        : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                    }`}
+                    className="flex flex-col items-center gap-2 cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[16px]">{tab.icon}</span>
-                    {tab.label}
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-surface-container text-on-surface-variant'
+                    }`}>
+                      <span className="material-symbols-outlined text-[22px]">{tab.icon}</span>
+                    </div>
+                    <span className={`text-[11px] leading-tight text-center ${
+                      activeTab === tab.id ? 'text-primary font-bold' : 'text-on-surface-variant font-medium'
+                    }`}>
+                      {tab.label}
+                    </span>
                   </button>
                 ))}
-                <button
-                  onClick={handleLogout}
-                  className="flex-none flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-label-caps tracking-wide whitespace-nowrap text-error border border-error/30 cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[16px]">logout</span>
-                  Log out
-                </button>
               </div>
             </div>
 
