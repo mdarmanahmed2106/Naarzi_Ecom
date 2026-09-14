@@ -2,6 +2,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
+const Settings = require('../models/Settings');
 
 const releaseOrderStock = async (order) => {
   try {
@@ -159,6 +160,7 @@ exports.createOrder = async (req, res, next) => {
       });
     }
 
+    const itemsSubtotal = totalAmount;
     let discountAmount = 0;
     let appliedCouponCode = null;
 
@@ -246,6 +248,13 @@ exports.createOrder = async (req, res, next) => {
       appliedCouponCode = coupon.code;
     }
 
+    // Shipping cost — free once the (pre-discount) items subtotal clears the configured threshold
+    const settings = await Settings.getSingleton();
+    const freeShippingThreshold = settings.freeShippingThreshold || 0;
+    const qualifiesForFreeShipping = freeShippingThreshold <= 0 || itemsSubtotal >= freeShippingThreshold;
+    const shippingCost = qualifiesForFreeShipping ? 0 : (settings.shippingCost || 0);
+    totalAmount += shippingCost;
+
     // 3. Create pending order in DB
     const order = await Order.create({
       user: req.user._id,
@@ -253,6 +262,7 @@ exports.createOrder = async (req, res, next) => {
       totalAmount,
       couponCode: appliedCouponCode,
       discountAmount,
+      shippingCost,
       shippingAddress,
       paymentStatus: 'pending',
       orderStatus: 'processing', // Default status

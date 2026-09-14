@@ -129,9 +129,11 @@ export default function Header() {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  // Lock background scroll while the full-screen mobile search overlay is open
+  // Lock background scroll while the full-screen mobile search overlay is open.
+  // The desktop inline dropdown (lg+) isn't a full takeover, so it leaves scroll alone.
   useEffect(() => {
-    if (searchOpen) {
+    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
+    if (searchOpen && !isDesktop) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -191,6 +193,27 @@ export default function Header() {
       } else {
         goToProduct(active.value);
       }
+    }
+  };
+
+  // Desktop inline dropdown only shows text suggestions (no product cards),
+  // so its keyboard nav is scoped to wordSuggestions rather than navigableItems.
+  const handleDesktopSearchKeyDown = (e) => {
+    if (wordSuggestions.length === 0) {
+      if (e.key === 'Enter') handleSearchSubmit();
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveResultIndex((prev) => (prev + 1) % wordSuggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveResultIndex((prev) => (prev - 1 + wordSuggestions.length) % wordSuggestions.length);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const activeWord = wordSuggestions[activeResultIndex];
+      handleSearchSubmit(activeWord || undefined);
     }
   };
 
@@ -277,7 +300,7 @@ export default function Header() {
                           <li><Link href="/shop?tag=new-arrival" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">New Arrivals</Link></li>
                           <li><Link href="/shop?tag=bestsellers" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Best Sellers</Link></li>
                           <li>
-                            <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className="font-bold text-white bg-[#E55B5B] px-2 py-0.5 rounded w-fit hover:opacity-80 transition-opacity inline-block">
+                            <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className="font-bold text-white bg-sale px-2 py-0.5 rounded w-fit hover:opacity-80 transition-opacity inline-block">
                               Sale
                             </Link>
                           </li>
@@ -304,23 +327,86 @@ export default function Header() {
                 NEW
               </Link>
 
-              <Link href="/shop?tag=sale" className="font-label-caps text-[11px] bg-[#E55B5B] text-white px-2 py-0.5 rounded hover:opacity-80 transition-opacity font-bold flex items-center justify-center">
+              <Link href="/shop?tag=sale" className="font-label-caps text-[11px] bg-sale text-white px-2 py-0.5 rounded hover:opacity-80 transition-opacity font-bold flex items-center justify-center">
                 SALE
               </Link>
             </nav>
           </div>
 
-          {/* Logo */}
-          <div className="flex justify-center flex-1">
-            <Link href="/" className="flex flex-col items-center justify-center">
-              <span className="font-display-lg text-3xl md:text-4xl tracking-widest text-primary font-bold leading-none">
-                NAARZI
-              </span>
-              <span className="font-label-caps text-[8px] md:text-[10px] tracking-[0.4em] text-[#C5A059] font-bold mt-2 uppercase">
-                OWN THE MOMENT
-              </span>
-            </Link>
+          {/* Logo, or inline search bar (desktop) when search is active */}
+          <div className="relative flex justify-center items-center flex-1">
+            {searchOpen ? (
+              <div className="hidden lg:flex w-full items-center gap-3 border border-outline-variant rounded-full px-5 py-2.5 bg-surface focus-within:border-primary transition-colors">
+                <span className="material-symbols-outlined text-on-surface-variant text-xl leading-none">search</span>
+                <input
+                  ref={searchInputRef}
+                  autoFocus
+                  type="text"
+                  inputMode="search"
+                  enterKeyHint="search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleDesktopSearchKeyDown}
+                  placeholder="Search products..."
+                  className="flex-1 min-w-0 outline-none bg-transparent text-sm text-on-surface font-body-md"
+                />
+                <button onClick={closeSearch} aria-label="Close search" className="text-on-surface-variant hover:text-primary transition-colors">
+                  <span className="material-symbols-outlined text-xl leading-none">close</span>
+                </button>
+
+                {/* Suggestions dropdown, anchored directly under the input */}
+                {searchQuery.trim().length >= 2 && (
+                  <div className="absolute left-0 right-0 top-full mt-2 bg-surface border border-outline-variant/30 rounded-xl shadow-xl overflow-hidden z-50 text-left">
+                    {searchLoading ? (
+                      <p className="text-xs text-on-surface-variant font-label-caps tracking-widest text-center py-4">SEARCHING...</p>
+                    ) : wordSuggestions.length === 0 ? (
+                      <div className="text-center py-6 px-4">
+                        <p className="text-sm text-on-surface-variant font-body-md">No matches for &quot;{searchQuery}&quot;</p>
+                        <Link href="/shop" onClick={closeSearch} className="inline-block mt-2 text-xs font-label-caps tracking-widest text-primary hover:underline underline-offset-4">
+                          BROWSE ALL PRODUCTS
+                        </Link>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="px-4 py-2 bg-surface-container/60 text-[10px] font-label-caps tracking-widest text-on-surface-variant font-bold">
+                          SUGGESTIONS
+                        </div>
+                        <ul className="max-h-80 overflow-y-auto py-1">
+                          {wordSuggestions.map((word, idx) => (
+                            <li key={word}>
+                              <button
+                                onClick={() => handleSearchSubmit(word)}
+                                onMouseEnter={() => setActiveResultIndex(idx)}
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors cursor-pointer ${
+                                  activeResultIndex === idx ? 'text-primary bg-surface-container/40' : 'text-on-surface hover:text-primary hover:bg-surface-container/30'
+                                }`}
+                              >
+                                {word}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link href="/" className="flex flex-col items-center justify-center">
+                <span className="font-display-lg text-3xl md:text-4xl tracking-widest text-primary font-bold leading-none">
+                  NAARZI
+                </span>
+                <span className="font-label-caps text-[8px] md:text-[10px] tracking-[0.4em] text-accent-gold font-bold mt-2 uppercase">
+                  OWN THE MOMENT
+                </span>
+              </Link>
+            )}
           </div>
+
+          {/* Click-catcher: closes the inline desktop search when clicking outside it */}
+          {searchOpen && (
+            <div className="hidden lg:block fixed inset-0 top-20 z-40" onClick={closeSearch}></div>
+          )}
 
           {/* Icons / Actions */}
           <div className="flex-1 flex items-center justify-end gap-3 md:gap-5">
@@ -331,7 +417,7 @@ export default function Header() {
               <Link href="/contact" className="font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold leading-none">CONTACT</Link>
             </nav>
 
-            <button onClick={() => setSearchOpen(true)} aria-label="Search" className="flex items-center text-on-surface-variant hover:text-primary transition-colors p-2.5 -m-2.5">
+            <button onClick={() => setSearchOpen(true)} aria-label="Search" className={`items-center text-on-surface-variant hover:text-primary transition-colors p-2.5 -m-2.5 flex ${searchOpen ? 'lg:hidden' : ''}`}>
               <span className="material-symbols-outlined text-[22px] leading-none">search</span>
             </button>
             
@@ -424,7 +510,7 @@ export default function Header() {
               NEW ARRIVAL
             </Link>
 
-            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm bg-[#E55B5B] text-white px-3 py-1 rounded w-fit font-bold tracking-widest hover:opacity-80 transition-opacity">
+            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm bg-sale text-white px-3 py-1 rounded w-fit font-bold tracking-widest hover:opacity-80 transition-opacity">
               SALE
             </Link>
           </nav>
@@ -475,10 +561,10 @@ export default function Header() {
           )}
         </div>
       </div>
-      {/* Search Overlay: full-screen takeover on mobile, centered modal from sm: up */}
+      {/* Search Overlay: full-screen takeover on mobile, centered modal from sm: to lg:. Desktop (lg+) uses the inline header search instead. */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col bg-surface sm:items-start sm:justify-center sm:bg-black/40 sm:pt-24 sm:backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex flex-col bg-surface sm:items-center sm:justify-center sm:bg-black/40 sm:pt-24 sm:backdrop-blur-sm lg:hidden"
           onClick={closeSearch}
         >
           <div
@@ -557,7 +643,7 @@ export default function Header() {
                           <div className="flex-1 min-w-0">
                             <p className="font-headline-sm text-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">{product.name}</p>
                             <p className="text-sm font-medium text-primary mt-1">
-                              ${product.discountedPrice ?? product.price}
+                              INR {product.discountedPrice ?? product.price}
                             </p>
                           </div>
                           <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi } from '@/lib/api';
+import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi } from '@/lib/api';
 
 function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, markAllAsRead, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,7 +16,7 @@ function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, mar
             <span className="font-display-lg text-xl md:text-2xl tracking-widest text-primary font-bold leading-none">
               NAARZI
             </span>
-            <span className="font-label-caps text-[6px] md:text-[8px] tracking-[0.4em] text-[#C5A059] font-bold mt-1 uppercase">
+            <span className="font-label-caps text-[6px] md:text-[8px] tracking-[0.4em] text-accent-gold font-bold mt-1 uppercase">
               OWN THE MOMENT
             </span>
           </Link>
@@ -103,7 +103,11 @@ export default function AdminDashboardPage() {
   const [wishlistCustomers, setWishlistCustomers] = useState([]);
   const [abandonedThreshold, setAbandonedThreshold] = useState(2);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('products'); // 'products' | 'inventory' | 'orders' | 'banners' | 'coupons' | 'marketing'
+  const [activeTab, setActiveTab] = useState('products'); // 'products' | 'inventory' | 'orders' | 'banners' | 'coupons' | 'marketing' | 'settings'
+
+  // Store Settings State
+  const [settingsForm, setSettingsForm] = useState({ freeShippingThreshold: 0, shippingCost: 0 });
+  const [savingSettings, setSavingSettings] = useState(false);
   
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -148,6 +152,7 @@ export default function AdminDashboardPage() {
   const [categoryUploading, setCategoryUploading] = useState(false);
   const [occasionsText, setOccasionsText] = useState('');
   const [tagsText, setTagsText] = useState('');
+  const [detailsText, setDetailsText] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBestSeller, setIsBestSeller] = useState(false);
 
@@ -298,6 +303,14 @@ export default function AdminDashboardPage() {
       const wcResponse = await adminApi.getWishlistCustomers();
       if (wcResponse.success) setWishlistCustomers(wcResponse.data);
 
+      const settingsResponse = await settingsApi.get();
+      if (settingsResponse.success) {
+        setSettingsForm({
+          freeShippingThreshold: settingsResponse.data.freeShippingThreshold ?? 0,
+          shippingCost: settingsResponse.data.shippingCost ?? 0
+        });
+      }
+
       await fetchNotifications();
     } catch (err) {
       console.error("Error loading admin data", err);
@@ -353,6 +366,7 @@ export default function AdminDashboardPage() {
     setCurrentProductId(product._id);
     setName(product.name);
     setDescription(product.description);
+    setDetailsText(product.details && product.details.length > 0 ? product.details.join('\n') : '');
     setPrice(product.price);
     setDiscountedPrice(product.discountedPrice !== undefined && product.discountedPrice !== null ? product.discountedPrice : '');
     setIsOnSale(product.isOnSale || false);
@@ -410,6 +424,7 @@ export default function AdminDashboardPage() {
     setCurrentProductId(null);
     setName('');
     setDescription('');
+    setDetailsText('');
     setPrice(0);
     setDiscountedPrice('');
     setIsOnSale(false);
@@ -589,6 +604,7 @@ export default function AdminDashboardPage() {
     const payload = {
       name,
       description,
+      details: detailsText ? detailsText.split('\n').map(s => s.trim()).filter(s => s !== '') : [],
       price: Number(price),
       discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : undefined,
       isOnSale,
@@ -937,6 +953,25 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    setErrorMsg('');
+    try {
+      const response = await settingsApi.update({
+        freeShippingThreshold: Number(settingsForm.freeShippingThreshold) || 0,
+        shippingCost: Number(settingsForm.shippingCost) || 0
+      });
+      if (response.success) {
+        setSuccessMsg('Settings saved.');
+      }
+    } catch (err) {
+      setErrorMsg(`Failed to save settings: ${err.message}`);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   const handleToggleCoupon = async (coupon) => {
     try {
       const response = await couponsApi.update(coupon._id, { isActive: !coupon.isActive });
@@ -1138,7 +1173,7 @@ export default function AdminDashboardPage() {
                 <span className="material-symbols-outlined text-[20px]">receipt_long</span>
                 ORDERS
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveTab('categories'); setSearchTerm(''); }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
                   activeTab === 'categories' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
@@ -1147,7 +1182,7 @@ export default function AdminDashboardPage() {
                 <span className="material-symbols-outlined text-[20px]">category</span>
                 CATEGORIES
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveTab('banners'); setSearchTerm(''); }}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
                   activeTab === 'banners' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
@@ -1192,6 +1227,15 @@ export default function AdminDashboardPage() {
                 <span className="material-symbols-outlined text-[20px]">insights</span>
                 MARKETING
               </button>
+              <button
+                onClick={() => { setActiveTab('settings'); setSearchTerm(''); }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer w-full text-left ${
+                  activeTab === 'settings' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[20px]">settings</span>
+                SETTINGS
+              </button>
             </nav>
           </div>
         </aside>
@@ -1218,7 +1262,7 @@ export default function AdminDashboardPage() {
               ADD NEW PRODUCT
             </button>
           ) : activeTab === 'categories' ? (
-            <button 
+            <button
               onClick={openCategoryAddModal}
               className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
             >
@@ -1358,7 +1402,7 @@ export default function AdminDashboardPage() {
           >
             ORDERS
           </button>
-          <button 
+          <button
             onClick={() => { setActiveTab('categories'); setSearchTerm(''); }}
             className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
               activeTab === 'categories' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
@@ -1366,7 +1410,7 @@ export default function AdminDashboardPage() {
           >
             CATEGORIES
           </button>
-          <button 
+          <button
             onClick={() => { setActiveTab('reviews'); setSearchTerm(''); }}
             className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
               activeTab === 'reviews' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
@@ -1718,9 +1762,9 @@ export default function AdminDashboardPage() {
                     return (
                       <tr key={cat._id} className="hover:bg-surface-container/10 transition-colors">
                         <td className="py-4 px-6">
-                          <img 
-                            src={cat.image || 'https://placehold.co/100x100?text=No+Image'} 
-                            alt={cat.name} 
+                          <img
+                            src={cat.image || 'https://placehold.co/100x100?text=No+Image'}
+                            alt={cat.name}
                             className="w-12 h-12 object-cover rounded-lg bg-surface-container border border-outline-variant/25 shadow-sm"
                           />
                         </td>
@@ -1734,13 +1778,13 @@ export default function AdminDashboardPage() {
                           {prodCount}
                         </td>
                         <td className="py-4 px-6 text-right space-x-2">
-                          <button 
+                          <button
                             onClick={() => openCategoryEditModal(cat)}
                             className="px-3 py-1.5 bg-transparent border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary text-[10px] font-label-caps tracking-widest rounded-lg transition-colors cursor-pointer font-bold inline-block"
                           >
                             EDIT
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDeleteCategory(cat._id, cat.name)}
                             className="px-3 py-1.5 bg-transparent border border-error/30 hover:bg-error hover:text-white text-error text-[10px] font-label-caps tracking-widest rounded-lg transition-colors cursor-pointer font-bold inline-block"
                           >
@@ -1907,7 +1951,7 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-[#C5A059]/15 text-[#C5A059] flex items-center justify-center flex-none">
+                <div className="w-11 h-11 rounded-xl bg-accent-gold/15 text-accent-gold flex items-center justify-center flex-none">
                   <span className="material-symbols-outlined text-2xl">redeem</span>
                 </div>
                 <div>
@@ -1984,7 +2028,7 @@ export default function AdminDashboardPage() {
                           {/* Safeguards & Rules */}
                           <td className="py-4 px-6 text-xs space-y-1">
                             {c.firstOrderOnly && (
-                              <span className="inline-block font-label-caps text-[9px] bg-[#FFF0E8] text-primary px-2 py-0.5 rounded font-bold mr-1.5">
+                              <span className="inline-block font-label-caps text-[9px] bg-first-order-badge text-primary px-2 py-0.5 rounded font-bold mr-1.5">
                                 FIRST ORDER ONLY
                               </span>
                             )}
@@ -2201,6 +2245,53 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+        ) : activeTab === 'settings' ? (
+          <div className="animate-fade-in max-w-2xl">
+            <form onSubmit={handleSaveSettings} className="bg-white border border-outline-variant/30 rounded-3xl p-8 shadow-sm space-y-8">
+              <div>
+                <h3 className="text-xl font-display-md text-on-surface font-bold">Shipping</h3>
+                <p className="text-on-surface-variant text-sm mt-1">Controls the free-shipping threshold shown in the storefront cart.</p>
+                <div className="grid sm:grid-cols-2 gap-6 mt-5">
+                  <div>
+                    <label className="block text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-2">
+                      FREE SHIPPING THRESHOLD (INR)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={settingsForm.freeShippingThreshold}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, freeShippingThreshold: e.target.value })}
+                      className="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-2">
+                      STANDARD SHIPPING COST (INR)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={settingsForm.shippingCost}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, shippingCost: e.target.value })}
+                      className="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-outline-variant/20">
+                <button
+                  type="submit"
+                  disabled={savingSettings}
+                  className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold disabled:opacity-50"
+                >
+                  {savingSettings ? 'SAVING...' : 'SAVE SETTINGS'}
+                </button>
+              </div>
+            </form>
+          </div>
         ) : null}
 
       </main>
@@ -2355,6 +2446,18 @@ export default function AdminDashboardPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Consciously crafted from premium organic linen, this dress features..."
+                  className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs leading-relaxed"
+                />
+              </div>
+
+              {/* Details */}
+              <div className="space-y-1">
+                <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DETAILS (ONE PER LINE — SHOWN AS PDP BULLET LIST)</label>
+                <textarea
+                  rows={4}
+                  value={detailsText}
+                  onChange={(e) => setDetailsText(e.target.value)}
+                  placeholder={'100% Organic Cotton\nConcealed side zipper\nDry clean only\nMade in India'}
                   className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs leading-relaxed"
                 />
               </div>

@@ -455,13 +455,17 @@ export default function ProductDetailPage({ params }) {
                   </button>
                   {detailsOpen && (
                     <div className="pb-5 transition-all duration-300">
-                      <ul className="list-disc pl-5 font-body-md text-sm text-on-surface-variant space-y-2">
-                        <li>100% European Linen</li>
-                        <li>Concealed side zipper</li>
-                        <li>Adjustable shoulder straps</li>
-                        <li>Dry clean only</li>
-                        <li>Made ethically in Portugal</li>
-                      </ul>
+                      {product.details && product.details.length > 0 ? (
+                        <ul className="list-disc pl-5 font-body-md text-sm text-on-surface-variant space-y-2">
+                          {product.details.map((detail, i) => (
+                            <li key={i}>{detail}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
+                          {product.description}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

@@ -104,6 +104,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/promo-banners', require('./src/routes/promoBanner'));
 app.use('/api/coupons', require('./src/routes/coupon'));
 app.use('/api/cart', require('./src/routes/cart'));
+app.use('/api/settings', require('./src/routes/settings'));
 
 // Welcome route
 app.get('/', (req, res) => {

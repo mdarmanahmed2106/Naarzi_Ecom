@@ -61,6 +61,10 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Product description is required']
   },
+  details: {
+    type: [String], // Bullet points: material, fit, care instructions, origin, etc.
+    default: []
+  },
   price: {
     type: Number,
     required: [true, 'Product price is required'],

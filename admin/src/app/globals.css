@@ -32,6 +32,11 @@
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
 
+  /* Accent colors used loosely across the app outside the core Material palette */
+  --color-sale: #e55b5b;
+  --color-accent-gold: #c5a059;
+  --color-first-order-badge: #fff0e8;
+
   /* Spacing and margins matching design guidelines */
   --spacing-margin-desktop: 64px;
   --spacing-margin-mobile: 20px;

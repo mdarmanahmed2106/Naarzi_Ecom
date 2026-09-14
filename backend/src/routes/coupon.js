@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Public routes
 router.post('/validate', optionalAuth, validateCoupon);
-router.get('/active', getActiveCoupons);
+router.get('/active', optionalAuth, getActiveCoupons);
 
 // Admin-only CRUD
 router.use(requireAuth);

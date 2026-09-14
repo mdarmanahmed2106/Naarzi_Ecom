@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Lottie } from 'lottie-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
+import orderConfirmedAnimation from '../../../public/animations/One Click Order.json';
+import confettiAnimation from '../../../public/animations/Confetti.json';
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -21,7 +24,8 @@ export default function CheckoutPage() {
     appliedCoupon,
     setAppliedCoupon,
     user,
-    setUser
+    setUser,
+    settings
   } = useApp();
 
   const [checkoutName, setCheckoutName] = useState(user?.name === 'New Customer' ? '' : user?.name || '');
@@ -42,9 +46,17 @@ export default function CheckoutPage() {
   const [couponError, setCouponError] = useState('');
   const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [showConfetti, setShowConfetti] = useState(false);
   
   const [selectedAddressId, setSelectedAddressId] = useState('');
   const [saveAddressToProfile, setSaveAddressToProfile] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('upi');
+
+  const deliveryEstimate = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short'
+  });
 
   // Load active coupons
   useEffect(() => {
@@ -87,7 +99,11 @@ export default function CheckoutPage() {
   const needsName = !user?.name || user?.name === 'New Customer';
   const needsEmail = !user?.email;
 
-  const finalTotal = appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal;
+  const freeShippingThreshold = settings?.freeShippingThreshold || 0;
+  const qualifiesForFreeShipping = freeShippingThreshold <= 0 || cartTotal >= freeShippingThreshold;
+  const shippingCost = qualifiesForFreeShipping ? 0 : (settings?.shippingCost || 0);
+
+  const finalTotal = (appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal) + shippingCost;
 
   const handleApplyCoupon = async (codeToUse) => {
     const code = (typeof codeToUse === 'string' ? codeToUse : couponInput).trim();
@@ -102,6 +118,7 @@ export default function CheckoutPage() {
           discountAmount: res.discountAmount
         });
         setCouponInput(res.couponCode);
+        setShowConfetti(true);
       } else {
         setCouponError(res.message || 'Invalid coupon');
         setAppliedCoupon(null);
@@ -234,8 +251,14 @@ export default function CheckoutPage() {
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
         <main className="max-w-md w-full mx-auto px-6 py-20 flex-1 flex flex-col justify-center items-center text-center">
-          <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center border border-green-200 mb-6 text-green-700">
-            <span className="material-symbols-outlined text-4xl">check_circle</span>
+          <div className="w-40 h-40 md:w-48 md:h-48 -mb-2">
+            <Lottie
+              src={orderConfirmedAnimation}
+              loop={false}
+              autoplay
+              segment={[0, 74]}
+              style={{ width: '100%', height: '100%' }}
+            />
           </div>
           <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-2">
             Order Confirmed
@@ -289,19 +312,29 @@ export default function CheckoutPage() {
         {/* Left side - Shipping Form */}
         <div className="w-full lg:w-[55%] xl:w-[60%] lg:border-r border-outline-variant/30 px-6 py-8 lg:py-12 lg:px-12 xl:px-20 bg-surface">
           <div className="max-w-xl mx-auto lg:ml-auto lg:mr-0 xl:mr-10">
-            <h1 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-8">
-              Checkout
-            </h1>
+            <div className="flex items-center justify-between mb-1">
+              <h1 className="font-display-lg text-2xl md:text-3xl text-on-surface">
+                Checkout
+              </h1>
+              <Link href="/" className="hidden sm:block text-xs font-label-caps tracking-widest text-on-surface-variant hover:text-primary transition-colors">
+                NAARZI
+              </Link>
+            </div>
+            <p className="text-xs text-on-surface-variant mb-8 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[14px]">lock</span>
+              Encrypted &amp; secure checkout
+            </p>
 
             {error && (
-              <div className="mb-6 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 w-full">
-                {error}
+              <div className="mb-6 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 w-full flex items-start gap-2">
+                <span className="material-symbols-outlined text-[18px] flex-none">error</span>
+                <span>{error}</span>
               </div>
             )}
 
             <form onSubmit={handleCheckoutSubmit} className="space-y-6">
             {(needsName || needsEmail) && (
-              <div className="bg-secondary-container/40 border border-secondary/20 rounded-xl p-5 mb-8">
+              <div className="bg-secondary-container/40 border border-secondary/20 rounded-xl p-5 mb-2">
                 <p className="text-sm font-medium mb-4 text-on-surface">We need a couple more details to complete your order:</p>
                 <div className="space-y-4">
                   {needsName && (
@@ -328,9 +361,18 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <h3 className="font-headline-sm text-lg text-on-surface mb-4">
-              Shipping Address
-            </h3>
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 md:p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-6 h-6 rounded-full bg-primary text-white text-[11px] font-bold flex items-center justify-center flex-none">1</span>
+                <h3 className="font-headline-sm text-lg text-on-surface">
+                  Shipping Address
+                </h3>
+              </div>
+
+              <div className="mb-4 flex items-center gap-2 text-[11px] font-medium text-on-surface-variant bg-surface-container/60 border border-outline-variant/30 rounded-lg px-3 py-2 w-fit">
+                <span className="material-symbols-outlined text-[15px] text-primary">local_shipping</span>
+                Estimated delivery: <span className="text-on-surface font-bold">{deliveryEstimate}</span>
+              </div>
 
             {user?.addresses?.length > 0 && (
               <div className="mb-4">
@@ -481,9 +523,46 @@ export default function CheckoutPage() {
                 </div>
               )}
             </div>
+            </div>
 
-              <div className="pt-8 flex items-center justify-between border-t border-outline-variant/30 mt-6">
-                <Link href="/shop" className="text-sm text-primary hover:underline flex items-center gap-1">
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 md:p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-5">
+                <span className="w-6 h-6 rounded-full bg-primary text-white text-[11px] font-bold flex items-center justify-center flex-none">2</span>
+                <h3 className="font-headline-sm text-lg text-on-surface">
+                  Payment Method
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: 'upi', label: 'UPI', icon: 'qr_code_2' },
+                  { id: 'card', label: 'Card', icon: 'credit_card' },
+                  { id: 'netbanking', label: 'Net Banking', icon: 'account_balance' },
+                ].map((method) => (
+                  <button
+                    type="button"
+                    key={method.id}
+                    onClick={() => setPaymentMethod(method.id)}
+                    className={`flex flex-col items-center justify-center gap-2 py-4 rounded-xl border text-xs font-medium transition-colors ${
+                      paymentMethod === method.id
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-outline/20 text-on-surface-variant hover:border-outline'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-xl">{method.icon}</span>
+                    {method.label}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 mt-4 text-[11px] text-on-surface-variant">
+                <span className="material-symbols-outlined text-[14px]">verified_user</span>
+                Payments are secured and encrypted &middot; powered by Razorpay
+              </div>
+            </div>
+
+              <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-4 border-t border-outline-variant/30 mt-2 pt-6">
+                <Link href="/shop" className="text-sm text-primary hover:underline flex items-center justify-center sm:justify-start gap-1">
                   <span className="material-symbols-outlined text-[16px]">chevron_left</span>
                   Return to shop
                 </Link>
@@ -492,7 +571,17 @@ export default function CheckoutPage() {
                   disabled={loading || cartItems.length === 0}
                   className="px-8 py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {loading ? 'PROCESSING...' : `PAY INR ${finalTotal}`}
+                  {loading ? (
+                    <>
+                      <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                      PROCESSING...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[16px]">lock</span>
+                      {`PAY INR ${finalTotal}`}
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -500,11 +589,86 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right side - Order Summary */}
-        <div className="w-full lg:w-[45%] xl:w-[40%] bg-[#fafafa] px-6 py-8 lg:py-12 lg:px-12 xl:px-20 border-t lg:border-t-0 border-outline-variant/30 relative">
+        <div className="w-full lg:w-[45%] xl:w-[40%] bg-surface-container-low px-6 py-8 lg:py-12 lg:px-12 xl:px-20 border-t lg:border-t-0 border-outline-variant/30 relative">
+          {showConfetti && (
+            <div className="absolute inset-0 pointer-events-none z-30 overflow-hidden">
+              <Lottie
+                src={confettiAnimation}
+                loop={false}
+                autoplay
+                style={{ width: '100%', height: '100%' }}
+                subscriptions={{ complete: () => setShowConfetti(false) }}
+              />
+            </div>
+          )}
           <div className="max-w-xl mx-auto lg:mr-auto lg:ml-0 xl:ml-10 lg:sticky lg:top-8">
-            <h3 className="font-headline-sm text-lg text-on-surface">
-              Order Summary
-            </h3>
+            <div className="flex items-baseline justify-between mb-6">
+              <h3 className="font-headline-sm text-lg text-on-surface">
+                Order Summary
+              </h3>
+              {cartItems.length > 0 && (
+                <span className="text-xs text-on-surface-variant font-label-caps tracking-wide">
+                  {cartItems.reduce((sum, i) => sum + i.quantity, 0)} ITEM{cartItems.reduce((sum, i) => sum + i.quantity, 0) === 1 ? '' : 'S'}
+                </span>
+              )}
+            </div>
+
+            {cartItems.length === 0 ? (
+              <p className="text-sm text-on-surface-variant">Your cart is empty.</p>
+            ) : (
+              <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-5 shadow-sm mb-6">
+                <div className="max-h-60 overflow-y-auto space-y-4 pr-2 scrollbar-hide">
+                  {cartItems.map((item) => {
+                    const price = item.product.discountedPrice !== undefined && item.product.discountedPrice !== null
+                      ? item.product.discountedPrice
+                      : item.product.price;
+                    return (
+                      <div key={`${item.product._id}-${item.size}`} className="flex justify-between items-center text-sm gap-2">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-12 h-14 bg-surface-container rounded-lg overflow-hidden flex-none">
+                            <img src={item.product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150'} alt={item.product.name} className="w-full h-full object-cover" />
+                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-on-surface text-white text-[10px] font-bold flex items-center justify-center">
+                              {item.quantity}
+                            </span>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-on-surface line-clamp-1">{item.product.name}</h4>
+                            <span className="text-[10px] text-on-surface-variant font-label-caps">SIZE: {item.size}</span>
+                          </div>
+                        </div>
+                        <span className="font-medium text-on-surface flex-none">INR {price * item.quantity}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="border-t border-outline-variant/30 mt-4 pt-4 flex justify-between items-center">
+                  <span className="font-label-caps text-xs text-on-surface-variant">SUBTOTAL</span>
+                  <span className="text-xs font-medium text-on-surface">INR {cartTotal}</span>
+                </div>
+
+                {appliedCoupon && (
+                  <div className="flex justify-between items-center mt-3">
+                    <span className="font-label-caps text-xs text-on-surface-variant">DISCOUNT ({appliedCoupon.code})</span>
+                    <span className="text-xs font-medium text-green-700">- INR {appliedCoupon.discountAmount}</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center mt-3">
+                  <span className="font-label-caps text-xs text-on-surface-variant">SHIPPING</span>
+                  {shippingCost > 0 ? (
+                    <span className="text-xs font-medium text-on-surface">INR {shippingCost}</span>
+                  ) : (
+                    <span className="text-xs text-green-700 font-bold font-label-caps bg-green-50 px-2 py-0.5 rounded border border-green-200">FREE</span>
+                  )}
+                </div>
+
+                <div className="border-t border-outline-variant/30 mt-4 pt-4 flex justify-between items-center font-bold text-base">
+                  <span className="font-label-caps text-xs text-on-surface">TOTAL</span>
+                  <span className="text-primary font-bold">INR {finalTotal}</span>
+                </div>
+              </div>
+            )}
 
             {cartItems.length > 0 && (
               <div className="mb-6 space-y-2">
@@ -551,7 +715,7 @@ export default function CheckoutPage() {
                 {availableCoupons.length > 0 && !appliedCoupon && (
                   <div className="pt-3 space-y-2">
                     <p className="text-[10px] font-label-caps tracking-widest text-on-surface-variant uppercase font-bold flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm text-[#C5A059]">local_offer</span>
+                      <span className="material-symbols-outlined text-sm text-accent-gold">local_offer</span>
                       AVAILABLE OFFERS
                     </p>
                     <div className="space-y-2">
@@ -575,7 +739,7 @@ export default function CheckoutPage() {
                                     {c.code}
                                   </span>
                                   {c.firstOrderOnly && (
-                                    <span className="text-[9px] font-label-caps bg-[#FFF0E8] text-primary px-1.5 py-0.5 rounded font-bold">
+                                    <span className="text-[9px] font-label-caps bg-first-order-badge text-primary px-1.5 py-0.5 rounded font-bold">
                                       FIRST ORDER
                                     </span>
                                   )}
@@ -590,7 +754,7 @@ export default function CheckoutPage() {
                                   </p>
                                 )}
                                 {!qualifies && remaining > 0 && (
-                                  <p className="text-[11px] text-[#C5A059] font-medium mt-0.5">
+                                  <p className="text-[11px] text-accent-gold font-medium mt-0.5">
                                     Add INR {remaining} more to unlock
                                   </p>
                                 )}
@@ -620,65 +784,19 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {cartItems.length === 0 ? (
-              <p className="text-sm text-on-surface-variant">Your cart is empty.</p>
-            ) : (
-              <div className="space-y-4">
-                <div className="max-h-60 overflow-y-auto space-y-4 pr-2 scrollbar-hide">
-                  {cartItems.map((item) => {
-                    const price = item.product.discountedPrice !== undefined && item.product.discountedPrice !== null
-                      ? item.product.discountedPrice
-                      : item.product.price;
-                    return (
-                      <div key={`${item.product._id}-${item.size}`} className="flex justify-between items-center text-sm gap-2">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-12 bg-surface-container rounded overflow-hidden flex-none">
-                            <img src={item.product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150'} alt={item.product.name} className="w-full h-full object-cover" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-on-surface line-clamp-1">{item.product.name}</h4>
-                            <span className="text-[10px] text-on-surface-variant font-label-caps">SIZE: {item.size} × {item.quantity}</span>
-                          </div>
-                        </div>
-                        <span className="font-medium text-on-surface flex-none">INR {price * item.quantity}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                <div className="border-t border-outline-variant/30 pt-4 flex justify-between items-center">
-                  <span className="font-label-caps text-xs text-on-surface-variant">SUBTOTAL</span>
-                  <span className="text-xs font-medium text-on-surface">INR {cartTotal}</span>
-                </div>
-
-                {appliedCoupon && (
-                  <div className="flex justify-between items-center">
-                    <span className="font-label-caps text-xs text-on-surface-variant">DISCOUNT ({appliedCoupon.code})</span>
-                    <span className="text-xs font-medium text-green-700">- INR {appliedCoupon.discountAmount}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center">
-                  <span className="font-label-caps text-xs text-on-surface-variant">SHIPPING</span>
-                  <span className="text-xs text-green-700 font-bold font-label-caps bg-green-50 px-2 py-0.5 rounded border border-green-200">FREE</span>
-                </div>
-
-                <div className="border-t border-outline-variant/30 pt-4 flex justify-between items-center font-bold text-base">
-                  <span className="font-label-caps text-xs text-on-surface">TOTAL</span>
-                  <span className="text-primary font-bold">INR {finalTotal}</span>
-                </div>
-              </div>
-            )}
-            
             {/* Trust Badges */}
-            <div className="mt-8 pt-6 border-t border-outline-variant/30 flex items-center gap-4 text-on-surface-variant justify-center lg:justify-start">
-              <div className="flex items-center gap-2 text-xs font-medium">
-                <span className="material-symbols-outlined text-[16px]">lock</span>
+            <div className="pt-2 flex flex-wrap items-center gap-2 text-on-surface-variant justify-center lg:justify-start">
+              <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
+                <span className="material-symbols-outlined text-[14px] text-primary">lock</span>
                 Secure checkout
               </div>
-              <div className="flex items-center gap-2 text-xs font-medium">
-                <span className="material-symbols-outlined text-[16px]">verified</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
+                <span className="material-symbols-outlined text-[14px] text-primary">verified</span>
                 Quality guaranteed
+              </div>
+              <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
+                <span className="material-symbols-outlined text-[14px] text-primary">replay</span>
+                Easy 7-day returns
               </div>
             </div>
 

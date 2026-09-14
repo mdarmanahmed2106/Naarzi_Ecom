@@ -144,6 +144,18 @@ function ProductCard({ product }) {
   );
 }
 
+function ProductCardSkeleton() {
+  return (
+    <div>
+      <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-4 animate-shimmer" />
+      <div className="space-y-2 px-1">
+        <div className="h-4 w-3/4 rounded animate-shimmer" />
+        <div className="h-3.5 w-1/3 rounded animate-shimmer" />
+      </div>
+    </div>
+  );
+}
+
 function ShopContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -447,8 +459,8 @@ function ShopContent() {
 
           {/* Grid */}
           {loading ? (
-             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12 animate-pulse">
-               {[1,2,3,4,5,6].map(i => <div key={i} className="aspect-[3/4] bg-surface-container rounded-xl"></div>)}
+             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
+               {[1,2,3,4,5,6].map(i => <ProductCardSkeleton key={i} />)}
              </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">

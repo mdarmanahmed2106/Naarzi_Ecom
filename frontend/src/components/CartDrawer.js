@@ -2,8 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Lottie } from 'lottie-react';
 import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
+import confettiAnimation from '../../public/animations/Confetti.json';
 
 export default function CartDrawer() {
   const {
@@ -17,6 +19,7 @@ export default function CartDrawer() {
     setAppliedCoupon,
     setQuickBuyProduct,
     setIsQuickBuyOpen,
+    settings,
   } = useApp();
 
   const [isDiscountsOpen, setIsDiscountsOpen] = React.useState(true);
@@ -24,6 +27,7 @@ export default function CartDrawer() {
   const [couponError, setCouponError] = React.useState('');
   const [couponLoading, setCouponLoading] = React.useState(false);
   const [availableCoupons, setAvailableCoupons] = React.useState([]);
+  const [showConfetti, setShowConfetti] = React.useState(false);
 
   React.useEffect(() => {
     async function loadActiveCoupons() {
@@ -54,6 +58,7 @@ export default function CartDrawer() {
           discountAmount: res.discountAmount
         });
         setPromoCode('');
+        setShowConfetti(true);
       } else {
         setCouponError(res.message || 'Invalid coupon code');
       }
@@ -88,15 +93,34 @@ export default function CartDrawer() {
 
   const finalTotal = cartTotal - (appliedCoupon ? appliedCoupon.discountAmount : 0);
 
+  const freeShippingThreshold = settings?.freeShippingThreshold || 0;
+  const qualifiesForFreeShipping = freeShippingThreshold <= 0 || cartTotal >= freeShippingThreshold;
+  const shippingProgress = freeShippingThreshold > 0
+    ? Math.min(100, (cartTotal / freeShippingThreshold) * 100)
+    : 100;
+  const amountToFreeShipping = Math.max(0, freeShippingThreshold - cartTotal);
+
   return (
     <div 
       className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm transition-all duration-300"
       onClick={() => setIsCartOpen(false)}
     >
-      <div 
-        className="bg-white max-w-[440px] w-full h-full flex flex-col shadow-2xl animate-slide-in"
+      <div
+        className="bg-white max-w-[440px] w-full h-full flex flex-col shadow-2xl animate-slide-in relative"
         onClick={(e) => e.stopPropagation()}
       >
+        {showConfetti && (
+          <div className="absolute inset-0 pointer-events-none z-[60] overflow-hidden">
+            <Lottie
+              src={confettiAnimation}
+              loop={false}
+              autoplay
+              style={{ width: '100%', height: '100%' }}
+              subscriptions={{ complete: () => setShowConfetti(false) }}
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div className="px-6 py-5 flex justify-between items-center bg-white">
           <h3 className="font-bold text-3xl text-on-surface flex items-baseline gap-2">
@@ -113,11 +137,15 @@ export default function CartDrawer() {
         {/* Free shipping progress */}
         <div className="px-6 py-4 border-t border-b border-outline-variant/30 bg-surface-container/20">
           <p className="text-center text-xs font-medium text-on-surface mb-2 flex items-center justify-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-[#C5A059]">local_shipping</span>
-            <span>FREE Pan-India Shipping Applied</span>
+            <span className="material-symbols-outlined text-sm text-accent-gold">local_shipping</span>
+            <span>
+              {qualifiesForFreeShipping
+                ? 'FREE Pan-India Shipping Applied'
+                : `Add INR ${amountToFreeShipping.toFixed(2)} more for FREE Shipping`}
+            </span>
           </p>
           <div className="w-full h-1.5 bg-outline-variant/30 rounded-full overflow-hidden mx-auto max-w-[90%]">
-            <div className="h-full bg-primary w-full rounded-full"></div>
+            <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${shippingProgress}%` }}></div>
           </div>
         </div>
 
@@ -216,7 +244,7 @@ export default function CartDrawer() {
                 onClick={() => setIsDiscountsOpen(!isDiscountsOpen)}
               >
                 <span className="text-sm font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-base text-[#C5A059]">local_offer</span>
+                  <span className="material-symbols-outlined text-base text-accent-gold">local_offer</span>
                   Offers & Coupons
                 </span>
                 <span className="text-xl font-light text-on-surface-variant group-hover:text-on-surface transition-transform duration-300" style={{ transform: isDiscountsOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
@@ -296,7 +324,7 @@ export default function CartDrawer() {
                                 </p>
                               )}
                               {!qualifies && remaining > 0 && (
-                                <p className="text-[11px] text-[#C5A059] font-medium mt-1">
+                                <p className="text-[11px] text-accent-gold font-medium mt-1">
                                   Add ₹{remaining} more to unlock
                                 </p>
                               )}
@@ -332,13 +360,13 @@ export default function CartDrawer() {
             {appliedCoupon && (
               <div className="flex justify-between items-center mb-4 text-sm">
                 <span className="text-on-surface-variant">Discount ({appliedCoupon.code})</span>
-                <span className="text-[#E55B5B] font-medium">-INR {appliedCoupon.discountAmount.toFixed(2)}</span>
+                <span className="text-sale font-medium">-INR {appliedCoupon.discountAmount.toFixed(2)}</span>
               </div>
             )}
             <Link 
               href="/checkout" 
               onClick={() => setIsCartOpen(false)}
-              className="w-full py-[18px] bg-[#0A0A0A] text-white font-bold text-sm tracking-widest rounded-[4px] hover:bg-black/90 transition-colors flex justify-center items-center gap-2"
+              className="w-full py-[18px] bg-primary text-white font-bold text-sm tracking-widest rounded-[4px] hover:bg-primary-container transition-colors flex justify-center items-center gap-2"
             >
               <span>CHECKOUT • INR {finalTotal.toFixed(2)}</span>
             </Link>

@@ -30,7 +30,7 @@ export default function Footer() {
                 <span className="font-display-lg text-3xl md:text-4xl tracking-widest text-surface font-bold leading-none group-hover:opacity-90 transition-opacity">
                   NAARZI
                 </span>
-                <span className="font-label-caps text-[9px] md:text-[10px] tracking-[0.4em] text-[#C5A059] font-bold mt-2 uppercase">
+                <span className="font-label-caps text-[9px] md:text-[10px] tracking-[0.4em] text-accent-gold font-bold mt-2 uppercase">
                   OWN THE MOMENT
                 </span>
               </Link>
@@ -170,15 +170,15 @@ export default function Footer() {
         {/* Trust Signals Bar */}
         <div className="py-6 border-y border-surface/10 grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-xs text-surface/80 mb-12">
           <div className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base text-[#C5A059]">lock</span>
+            <span className="material-symbols-outlined text-base text-accent-gold">lock</span>
             <span>100% Secure Checkout (UPI, Cards & Netbanking)</span>
           </div>
           <div className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base text-[#C5A059]">local_shipping</span>
+            <span className="material-symbols-outlined text-base text-accent-gold">local_shipping</span>
             <span>Pan-India Delivery</span>
           </div>
           <div className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base text-[#C5A059]">palette</span>
+            <span className="material-symbols-outlined text-base text-accent-gold">palette</span>
             <span>Thoughtful Design · Limited Collections</span>
           </div>
         </div>

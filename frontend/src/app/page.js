@@ -410,38 +410,6 @@ function HomePageContent() {
                 </button>
               ))}
             </div>
-
-            {/* Search Input */}
-            <div className="relative w-full md:w-80">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchVal}
-                onChange={(e) => setSearchVal(e.target.value)}
-                className="w-full px-4 py-2.5 pl-10 bg-surface border border-outline/20 rounded-xl text-sm focus:border-primary focus:outline-none transition-colors"
-              />
-              <span className="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant/60 text-lg">
-                search
-              </span>
-            </div>
-          </div>
-
-          {/* Tag Filter Chips */}
-          <div className="flex flex-wrap gap-2 mb-8 items-center">
-            <span className="text-xs font-label-caps text-on-surface-variant mr-2 font-bold">FILTER BY TAG:</span>
-            {['new arrival', 'trending', 'featured'].map((tag) => (
-              <button
-                key={tag}
-                onClick={() => handleTagFilter(selectedTag === tag ? '' : tag)}
-                className={`px-4 py-2 rounded-lg text-[10px] font-label-caps tracking-wider transition-colors cursor-pointer font-bold ${
-                  selectedTag === tag
-                    ? 'bg-primary-container text-primary font-bold'
-                    : 'bg-surface hover:bg-surface-container text-on-surface-variant'
-                }`}
-              >
-                {tag.toUpperCase()}
-              </button>
-            ))}
           </div>
 
           {/* Products Grid */}

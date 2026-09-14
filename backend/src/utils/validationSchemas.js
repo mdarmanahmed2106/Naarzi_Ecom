@@ -57,6 +57,7 @@ const createProductSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Product name must be at least 2 characters'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
+    details: z.array(z.string()).default([]),
     price: z.number().min(0, 'Price cannot be negative'),
     discountedPrice: z.number().min(0, 'Discounted price cannot be negative').optional(),
     category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID'),
@@ -73,6 +74,7 @@ const updateProductSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Product name must be at least 2 characters').optional(),
     description: z.string().min(10, 'Description must be at least 10 characters').optional(),
+    details: z.array(z.string()).optional(),
     price: z.number().min(0, 'Price cannot be negative').optional(),
     discountedPrice: z.number().min(0, 'Discounted price cannot be negative').optional(),
     category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID').optional(),
@@ -125,6 +127,14 @@ const createReviewSchema = z.object({
   })
 });
 
+// Settings Schema
+const updateSettingsSchema = z.object({
+  body: z.object({
+    freeShippingThreshold: z.number().min(0, 'Free shipping threshold cannot be negative').optional(),
+    shippingCost: z.number().min(0, 'Shipping cost cannot be negative').optional()
+  })
+});
+
 module.exports = {
   signupSchema,
   loginSchema,
@@ -135,5 +145,6 @@ module.exports = {
   updateProductSchema,
   createOrderSchema,
   updateOrderStatusSchema,
-  createReviewSchema
+  createReviewSchema,
+  updateSettingsSchema
 };

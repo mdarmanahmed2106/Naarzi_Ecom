@@ -136,6 +136,11 @@ export const notificationsApi = {
   markAllAsRead: () => fetchApi('/notifications/read-all', { method: 'PUT' }),
 };
 
+export const settingsApi = {
+  get: () => fetchApi('/settings'),
+  update: (data) => fetchApi('/settings', { method: 'PUT', body: data }),
+};
+
 export const couponsApi = {
   validate: (code, cartTotal) => fetchApi('/coupons/validate', { method: 'POST', body: { code, cartTotal } }),
   getAll: () => fetchApi('/coupons'),

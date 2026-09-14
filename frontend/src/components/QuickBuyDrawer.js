@@ -152,11 +152,6 @@ export default function QuickBuyDrawer() {
               </div>
             </div>
 
-            {/* Demo text */}
-            <p className="text-sm text-on-surface-variant leading-relaxed">
-              All products in this store are for demo purposes only. They have been generously provided by Alohas.
-            </p>
-
           </div>
         )}
 
@@ -166,7 +161,7 @@ export default function QuickBuyDrawer() {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className="w-full py-4 bg-[#0A0A0A] text-white font-bold text-sm tracking-widest rounded flex justify-center items-center gap-2 hover:bg-black/90 transition-colors disabled:opacity-50"
+              className="w-full py-4 bg-primary text-white font-bold text-sm tracking-widest rounded flex justify-center items-center gap-2 hover:bg-primary-container transition-colors disabled:opacity-50"
             >
               <span>ADD TO CART • INR {price?.toFixed(2)}</span>
             </button>

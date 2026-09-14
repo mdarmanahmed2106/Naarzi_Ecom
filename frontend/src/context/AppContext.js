@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { authApi, wishlistApi, cartApi } from '@/lib/api';
+import { authApi, wishlistApi, cartApi, settingsApi } from '@/lib/api';
 
 const AppContext = createContext(null);
 
@@ -17,8 +17,27 @@ export function AppProvider({ children }) {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false);
   const [quickBuyProduct, setQuickBuyProduct] = useState(null);
+  const [settings, setSettings] = useState({ freeShippingThreshold: 0, shippingCost: 0 });
   const quantityDebounceRef = useRef(null);
   const hasSyncedRef = useRef(false);
+
+  // Load store settings (shipping threshold, etc.) on mount
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const response = await settingsApi.get();
+        if (response.success && response.data) {
+          setSettings({
+            freeShippingThreshold: response.data.freeShippingThreshold ?? 0,
+            shippingCost: response.data.shippingCost ?? 0,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load store settings:', err);
+      }
+    }
+    loadSettings();
+  }, []);
 
   // Load user profile on mount
   useEffect(() => {
@@ -317,6 +336,7 @@ export function AppProvider({ children }) {
         setIsQuickBuyOpen,
         quickBuyProduct,
         setQuickBuyProduct,
+        settings,
       }}
     >
       {children}

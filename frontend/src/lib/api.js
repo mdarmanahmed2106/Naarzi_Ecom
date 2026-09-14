@@ -165,6 +165,10 @@ export const couponsApi = {
   delete: (id) => fetchApi(`/coupons/${id}`, { method: 'DELETE' }),
 };
 
+export const settingsApi = {
+  get: () => fetchApi('/settings'),
+};
+
 export const cartApi = {
   get: () => fetchApi('/cart'),
   add: (data) => fetchApi('/cart', { method: 'POST', body: data }),

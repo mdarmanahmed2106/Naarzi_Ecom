@@ -148,7 +148,7 @@ exports.validateCoupon = async (req, res, next) => {
 exports.getActiveCoupons = async (req, res, next) => {
   try {
     const now = new Date();
-    const coupons = await Coupon.find({
+    let coupons = await Coupon.find({
       isActive: true,
       $or: [
         { expiresAt: null },
@@ -157,6 +157,23 @@ exports.getActiveCoupons = async (req, res, next) => {
     })
     .populate('applicableCategories', 'name')
     .select('code discountType discountValue minOrderValue maxDiscountAmount description firstOrderOnly applicableCategories');
+
+    const hasFirstOrderOnly = coupons.some(c => c.firstOrderOnly);
+    if (hasFirstOrderOnly) {
+      // A logged-out visitor may still be a first-time buyer, so keep showing these;
+      // only hide them once we can confirm the user already has a paid order.
+      let alreadyPurchased = false;
+      if (req.user) {
+        const previousPaidOrders = await Order.countDocuments({
+          user: req.user._id,
+          paymentStatus: 'paid'
+        });
+        alreadyPurchased = previousPaidOrders > 0;
+      }
+      if (alreadyPurchased) {
+        coupons = coupons.filter(c => !c.firstOrderOnly);
+      }
+    }
 
     res.status(200).json({ success: true, data: coupons });
   } catch (error) {
