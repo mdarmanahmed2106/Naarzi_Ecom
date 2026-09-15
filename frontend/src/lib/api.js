@@ -1,4 +1,7 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000/api';
+// In dev, default to whatever host served this page (so it works from LAN devices/IPs too,
+// not just localhost) instead of hardcoding 127.0.0.1, which only resolves on the same machine.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+  || (typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://127.0.0.1:5000/api');
 
 /**
  * Base fetch wrapper to interact with the backend API

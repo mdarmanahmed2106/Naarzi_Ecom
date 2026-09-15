@@ -32,11 +32,17 @@ const app = express();
 // Set security headers
 app.use(helmet());
 
+// Private LAN IP ranges (RFC 1918), used to allow same-network devices (phones, other
+// machines) to reach this dev server without hardcoding a specific IP that goes stale.
+const isPrivateLanOrigin = (origin) => /^http:\/\/(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+):\d+$/.test(origin);
+
 // Enable CORS
 app.use(
   cors({
     origin: function (origin, callback) {
       if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        callback(null, true);
+      } else if (process.env.NODE_ENV === 'development' && isPrivateLanOrigin(origin)) {
         callback(null, true);
       } else {
         const allowedOrigins = [
