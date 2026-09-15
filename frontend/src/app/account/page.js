@@ -9,6 +9,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
+import Icon from '@/components/Icon';
 
 const ORDER_TRACKING_STEPS = [
   { key: 'processing', label: 'Order Placed', icon: 'receipt_long' },
@@ -29,7 +30,7 @@ function OrderTracker({ order }) {
     return (
       <div className="px-6 pt-5">
         <div className="flex items-center gap-2 text-error bg-error-container/10 border border-error/20 rounded-lg px-4 py-3 text-xs font-medium">
-          <span className="material-symbols-outlined text-lg">cancel</span>
+          <Icon name="cancel" size="md" />
           <span>This order was cancelled{cancelledDate ? ` on ${cancelledDate}` : ''}.</span>
         </div>
       </div>
@@ -55,9 +56,7 @@ function OrderTracker({ order }) {
                     ? 'border-primary text-primary bg-primary/10'
                     : 'border-outline-variant/40 text-on-surface-variant/40'
                 }`}>
-                  <span className="material-symbols-outlined text-[14px] sm:text-[16px]">
-                    {isDone ? 'check' : step.icon}
-                  </span>
+                  <Icon name={isDone ? 'check' : step.icon} size="sm" />
                 </div>
                 <span className={`text-[9px] sm:text-[10px] font-label-caps tracking-wide mt-2 font-bold leading-tight ${
                   isDone || isCurrent ? 'text-on-surface' : 'text-on-surface-variant/50'
@@ -275,9 +274,7 @@ export default function AccountDashboardPage() {
         {!user ? (
           /* User Not Logged In */
           <div className="max-w-md mx-auto text-center py-20 bg-surface-container/20 rounded-xl p-8 border border-outline-variant/30 mt-10">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4 block">
-              lock
-            </span>
+            <Icon name="lock" size="xl" className="text-on-surface-variant/40 mb-4 block" />
             <p className="font-body-md text-on-surface-variant mb-6 text-sm">
               Please log in to view your account details.
             </p>
@@ -301,7 +298,7 @@ export default function AccountDashboardPage() {
                   onClick={handleLogout}
                   className="flex items-center gap-1 text-[11px] font-label-caps tracking-wide text-on-surface-variant hover:text-error transition-colors cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[15px]">logout</span>
+                  <Icon name="logout" size="sm" />
                   Log out
                 </button>
               </div>
@@ -317,7 +314,7 @@ export default function AccountDashboardPage() {
                         ? 'bg-primary/10 text-primary'
                         : 'bg-surface-container text-on-surface-variant'
                     }`}>
-                      <span className="material-symbols-outlined text-[22px]">{tab.icon}</span>
+                      <Icon name={tab.icon} size="lg" />
                     </div>
                     <span className={`text-[11px] leading-tight text-center ${
                       activeTab === tab.id ? 'text-primary font-bold' : 'text-on-surface-variant font-medium'
@@ -341,7 +338,7 @@ export default function AccountDashboardPage() {
                       : 'text-on-surface hover:bg-surface-container/40'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[22px]">{tab.icon}</span>
+                  <Icon name={tab.icon} size="lg" />
                   {tab.label}
                 </button>
               ))}
@@ -351,7 +348,7 @@ export default function AccountDashboardPage() {
                   onClick={handleLogout}
                   className="flex items-center gap-4 px-4 py-3.5 rounded-lg text-sm font-medium text-on-surface hover:text-error hover:bg-error-container/20 transition-colors w-full text-left"
                 >
-                  <span className="material-symbols-outlined text-[22px]">logout</span>
+                  <Icon name="logout" size="lg" />
                   Log out
                 </button>
               </div>
@@ -378,7 +375,7 @@ export default function AccountDashboardPage() {
                       Update Profile
                     </button>
                     <button onClick={() => setBannerDismissed(true)} className="text-on-surface-variant hover:text-on-surface cursor-pointer">
-                      <span className="material-symbols-outlined text-lg align-middle">close</span>
+                      <Icon name="close" size="md" className="align-middle" />
                     </button>
                   </div>
                 </div>
@@ -390,7 +387,7 @@ export default function AccountDashboardPage() {
                     <div className="mb-6 p-4 bg-primary-container/20 border border-primary/20 rounded-lg text-sm text-on-surface flex justify-between items-center">
                       <span>{toastMessage}</span>
                       <button onClick={() => setToastMessage('')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <span className="material-symbols-outlined text-lg align-middle">close</span>
+                        <Icon name="close" size="md" className="align-middle" />
                       </button>
                     </div>
                   )}
@@ -490,7 +487,7 @@ export default function AccountDashboardPage() {
                     <div className="mb-6 p-4 bg-primary-container/20 border border-primary/20 rounded-lg text-sm text-on-surface flex justify-between items-center">
                       <span>{toastMessage}</span>
                       <button onClick={() => setToastMessage('')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <span className="material-symbols-outlined text-lg align-middle">close</span>
+                        <Icon name="close" size="md" className="align-middle" />
                       </button>
                     </div>
                   )}
@@ -571,15 +568,15 @@ export default function AccountDashboardPage() {
                           <p className="font-sans text-sm text-on-surface-variant">{addr.country}</p>
                           {addr.phone && (
                             <p className="font-sans text-xs text-primary font-medium mt-2 flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[14px]">phone</span> {addr.phone}
+                              <Icon name="phone" size="sm" /> {addr.phone}
                             </p>
                           )}
                           <div className="mt-4 flex items-center gap-4">
                             <button onClick={() => handleStartEditAddress(addr)} className="text-xs font-label-caps tracking-widest text-primary hover:underline flex items-center gap-1 cursor-pointer">
-                              <span className="material-symbols-outlined text-[14px]">edit</span> Edit
+                              <Icon name="edit" size="sm" /> Edit
                             </button>
                             <button onClick={() => handleDeleteAddress(addr._id)} className="text-xs font-label-caps tracking-widest text-error hover:underline flex items-center gap-1 cursor-pointer">
-                              <span className="material-symbols-outlined text-[14px]">delete</span> Delete
+                              <Icon name="delete" size="sm" /> Delete
                             </button>
                           </div>
                         </div>
@@ -595,7 +592,7 @@ export default function AccountDashboardPage() {
                     <div className="mb-6 p-4 bg-primary-container/20 border border-primary/20 rounded-lg text-sm text-on-surface flex justify-between items-center">
                       <span>{toastMessage}</span>
                       <button onClick={() => setToastMessage('')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <span className="material-symbols-outlined text-lg align-middle">close</span>
+                        <Icon name="close" size="md" className="align-middle" />
                       </button>
                     </div>
                   )}
@@ -613,7 +610,7 @@ export default function AccountDashboardPage() {
                   <form onSubmit={handleUpdateProfile} className="bg-surface-container/30 p-6 rounded-xl border border-outline-variant/30 space-y-5 max-w-2xl">
                     <div className="space-y-1.5">
                       <label className="flex items-center gap-1.5 text-xs font-label-caps text-on-surface-variant tracking-wide">
-                        <span className="material-symbols-outlined text-[16px]">badge</span>
+                        <Icon name="badge" size="sm" />
                         Full Name
                       </label>
                       <input
@@ -626,7 +623,7 @@ export default function AccountDashboardPage() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="flex items-center gap-1.5 text-xs font-label-caps text-on-surface-variant tracking-wide">
-                        <span className="material-symbols-outlined text-[16px]">mail</span>
+                        <Icon name="mail" size="sm" />
                         Email Address
                       </label>
                       <input
@@ -638,7 +635,7 @@ export default function AccountDashboardPage() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="flex items-center gap-1.5 text-xs font-label-caps text-on-surface-variant tracking-wide">
-                        <span className="material-symbols-outlined text-[16px]">lock</span>
+                        <Icon name="lock" size="sm" />
                         Phone Number
                       </label>
                       <div className="relative">
@@ -661,12 +658,12 @@ export default function AccountDashboardPage() {
                     >
                       {isSubmittingProfile ? (
                         <>
-                          <span className="material-symbols-outlined text-sm animate-spin">progress_activity</span>
+                          <Icon name="progress_activity" size="sm" className="animate-spin" />
                           SAVING...
                         </>
                       ) : (
                         <>
-                          <span className="material-symbols-outlined text-sm">check</span>
+                          <Icon name="check" size="sm" />
                           SAVE CHANGES
                         </>
                       )}

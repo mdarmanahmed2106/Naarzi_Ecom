@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
+import Icon from '@/components/Icon';
 
 export default function QuickBuyDrawer() {
   const {
@@ -79,7 +80,7 @@ export default function QuickBuyDrawer() {
             onClick={() => setIsQuickBuyOpen(false)}
             className="text-on-surface-variant hover:text-on-surface ml-auto"
           >
-            <span className="material-symbols-outlined font-light text-[28px]">close</span>
+            <Icon name="close" size="xl" className="font-light" />
           </button>
         </div>
 
@@ -115,7 +116,7 @@ export default function QuickBuyDrawer() {
                 <div className="w-8 h-8 rounded border border-on-surface flex items-center justify-center relative overflow-hidden bg-[#e6d5c3]">
                   {/* Ideally dynamic color from DB, but hardcoding beige-ish for design match if none provided */}
                   <span className="absolute inset-0 flex items-center justify-center text-white">
-                    <span className="material-symbols-outlined text-[18px]">check</span>
+                    <Icon name="check" size="md" />
                   </span>
                 </div>
               </div>
@@ -126,7 +127,7 @@ export default function QuickBuyDrawer() {
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[10px] font-label-caps tracking-widest text-on-surface-variant uppercase">SIZE</span>
                 <button className="text-[10px] font-label-caps tracking-widest text-on-surface-variant flex items-center gap-1 hover:text-on-surface">
-                  <span className="material-symbols-outlined text-[14px]">straighten</span>
+                  <Icon name="straighten" size="sm" />
                   SIZE GUIDE
                 </button>
               </div>

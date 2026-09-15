@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Icon from '@/components/Icon';
 export default function Footer() {
   const [email, setEmail] = React.useState('');
   const [isSubscribed, setIsSubscribed] = React.useState(false);
@@ -108,7 +109,7 @@ export default function Footer() {
                 />
                 <button type="submit" className="font-label-caps text-xs text-surface hover:opacity-80 transition-opacity tracking-widest uppercase font-bold cursor-pointer flex items-center gap-1 px-2 py-1">
                   {isSubscribed ? (
-                    <span className="material-symbols-outlined text-sm text-green-300">check</span>
+                    <Icon name="check" size="sm" className="text-green-300" />
                   ) : (
                     'SUBSCRIBE'
                   )}
@@ -170,15 +171,15 @@ export default function Footer() {
         {/* Trust Signals Bar */}
         <div className="py-6 border-y border-surface/10 grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-xs text-surface/80 mb-12">
           <div className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base text-accent-gold">lock</span>
+            <Icon name="lock" size="sm" className="text-accent-gold" />
             <span>100% Secure Checkout (UPI, Cards & Netbanking)</span>
           </div>
           <div className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base text-accent-gold">local_shipping</span>
+            <Icon name="local_shipping" size="sm" className="text-accent-gold" />
             <span>Pan-India Delivery</span>
           </div>
           <div className="flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base text-accent-gold">palette</span>
+            <Icon name="palette" size="sm" className="text-accent-gold" />
             <span>Thoughtful Design · Limited Collections</span>
           </div>
         </div>

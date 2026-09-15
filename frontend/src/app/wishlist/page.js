@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
+import Icon from '@/components/Icon';
 
 export default function WishlistPage() {
   const { 
@@ -44,9 +45,7 @@ export default function WishlistPage() {
         {!user ? (
           /* User Not Logged In State */
           <div className="max-w-md mx-auto text-center py-20 bg-surface-container/20 rounded-xl p-8 border border-outline-variant/30">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4 block">
-              lock
-            </span>
+            <Icon name="lock" size="xl" className="text-on-surface-variant/40 mb-4 block" />
             <p className="font-body-md text-on-surface-variant mb-6 text-sm">
               Please log in to view and manage your saved wishlist items.
             </p>
@@ -63,9 +62,7 @@ export default function WishlistPage() {
         ) : wishlistItems.length === 0 ? (
           /* Wishlist is Empty State */
           <div className="max-w-md mx-auto text-center py-20 bg-surface-container/20 rounded-xl p-8 border border-outline-variant/30">
-            <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4 block">
-              favorite
-            </span>
+            <Icon name="favorite" size="xl" className="text-on-surface-variant/40 mb-4 block" />
             <p className="font-body-md text-on-surface-variant mb-6 text-sm">
               Your wishlist is empty — start saving items you love.
             </p>
@@ -135,7 +132,7 @@ export default function WishlistPage() {
                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer z-20 border border-outline-variant/30"
                     title="Remove from Wishlist"
                   >
-                    <span className="material-symbols-outlined text-[16px] font-bold">close</span>
+                    <Icon name="close" size="sm" className="font-bold" />
                   </button>
                 </div>
               );

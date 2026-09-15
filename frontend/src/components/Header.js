@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import { promoBannersApi, productsApi } from '@/lib/api';
+import Icon from '@/components/Icon';
 
 export default function Header() {
   const {
@@ -260,7 +261,7 @@ export default function Header() {
               className="lg:hidden flex items-center justify-center p-2 -ml-2 mr-2 text-on-surface-variant hover:text-primary transition-colors"
               onClick={() => setIsMobileMenuOpen(true)}
             >
-              <span className="material-symbols-outlined text-2xl">menu</span>
+              <Icon name="menu" size="lg" />
             </button>
             <nav className="hidden lg:flex items-center gap-6 h-full">
               <div 
@@ -337,7 +338,7 @@ export default function Header() {
           <div className="relative flex justify-center items-center flex-1">
             {searchOpen ? (
               <div className="hidden lg:flex w-full items-center gap-3 border border-outline-variant rounded-full px-5 py-2.5 bg-surface focus-within:border-primary transition-colors">
-                <span className="material-symbols-outlined text-on-surface-variant text-xl leading-none">search</span>
+                <Icon name="search" size="md" className="text-on-surface-variant leading-none" />
                 <input
                   ref={searchInputRef}
                   autoFocus
@@ -351,7 +352,7 @@ export default function Header() {
                   className="flex-1 min-w-0 outline-none bg-transparent text-sm text-on-surface font-body-md"
                 />
                 <button onClick={closeSearch} aria-label="Close search" className="text-on-surface-variant hover:text-primary transition-colors">
-                  <span className="material-symbols-outlined text-xl leading-none">close</span>
+                  <Icon name="close" size="md" className="leading-none" />
                 </button>
 
                 {/* Suggestions dropdown, anchored directly under the input */}
@@ -418,13 +419,11 @@ export default function Header() {
             </nav>
 
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className={`items-center text-on-surface-variant hover:text-primary transition-colors p-2.5 -m-2.5 flex ${searchOpen ? 'lg:hidden' : ''}`}>
-              <span className="material-symbols-outlined text-[22px] leading-none">search</span>
+              <Icon name="search" size="lg" className="leading-none" />
             </button>
             
             <Link href="/wishlist" className="hidden md:flex items-center relative" title="My Wishlist">
-              <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors cursor-pointer text-[22px] leading-none">
-                favorite
-              </span>
+              <Icon name="favorite" size="lg" className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer leading-none" />
               {wishlistItems.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {wishlistItems.length}
@@ -435,19 +434,17 @@ export default function Header() {
             {/* User Icon */}
             {user ? (
               <Link href="/account" className="hidden md:flex items-center gap-2 cursor-pointer" title="My Account">
-                <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-[22px] leading-none">person</span>
+                <Icon name="person" size="lg" className="text-on-surface-variant hover:text-primary transition-colors leading-none" />
               </Link>
             ) : (
               <div className="hidden md:flex items-center cursor-pointer" onClick={() => { setAuthModalTab('login'); setIsAuthOpen(true); }}>
-                <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-[22px] leading-none">person</span>
+                <Icon name="person" size="lg" className="text-on-surface-variant hover:text-primary transition-colors leading-none" />
               </div>
             )}
 
             {/* Cart Icon */}
             <div className="relative cursor-pointer flex items-center" onClick={() => setIsCartOpen(true)}>
-              <span className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors text-[22px] leading-none">
-                shopping_bag
-              </span>
+              <Icon name="shopping_bag" size="lg" className="text-on-surface-variant hover:text-primary transition-colors leading-none" />
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-primary text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {cartCount}
@@ -480,7 +477,7 @@ export default function Header() {
         <div className="flex items-center justify-between p-6 border-b border-outline-variant/30">
           <span className="font-display-lg text-xl tracking-widest text-primary font-bold">NAARZI</span>
           <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 -mr-2 text-on-surface-variant hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-2xl">close</span>
+            <Icon name="close" size="lg" />
           </button>
         </div>
         
@@ -493,7 +490,7 @@ export default function Header() {
                 onClick={() => setMobileApparelOpen(!mobileApparelOpen)}
               >
                 <span>APPAREL</span>
-                <span className="material-symbols-outlined text-xl transition-transform duration-300" style={{ transform: mobileApparelOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>expand_more</span>
+                <Icon name="expand_more" size="md" className="transition-transform duration-300" style={{ transform: mobileApparelOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </div>
               <div className={`overflow-hidden transition-all duration-300 ${mobileApparelOpen ? 'max-h-[500px] mt-4' : 'max-h-0'}`}>
                 <ul className="space-y-4 pl-4 text-sm text-on-surface-variant font-medium">
@@ -528,12 +525,12 @@ export default function Header() {
         
         <div className="p-6 border-t border-outline-variant/30 bg-surface-container/30 flex flex-col gap-4">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setSearchOpen(true); }}>
-            <span className="material-symbols-outlined text-on-surface-variant text-[22px]">search</span>
+            <Icon name="search" size="lg" className="text-on-surface-variant" />
             <span className="font-label-caps text-xs font-bold">SEARCH</span>
           </div>
           <Link href="/wishlist" className="flex items-center justify-between cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-on-surface-variant text-[22px]">favorite</span>
+              <Icon name="favorite" size="lg" className="text-on-surface-variant" />
               <span className="font-label-caps text-xs font-bold">MY WISHLIST</span>
             </div>
             {wishlistItems.length > 0 && (
@@ -545,17 +542,17 @@ export default function Header() {
           {user ? (
             <>
               <Link href="/account" className="flex items-center gap-3 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="material-symbols-outlined text-on-surface-variant text-[22px]">person</span>
+                <Icon name="person" size="lg" className="text-on-surface-variant" />
                 <span className="font-label-caps text-xs font-bold">MY ACCOUNT</span>
               </Link>
               <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); logout(); }}>
-                <span className="material-symbols-outlined text-on-surface-variant text-[22px]">logout</span>
+                <Icon name="logout" size="lg" className="text-on-surface-variant" />
                 <span className="font-label-caps text-xs font-bold">LOGOUT</span>
               </div>
             </>
           ) : (
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setAuthModalTab('login'); setIsAuthOpen(true); }}>
-              <span className="material-symbols-outlined text-on-surface-variant text-[22px]">person</span>
+              <Icon name="person" size="lg" className="text-on-surface-variant" />
               <span className="font-label-caps text-xs font-bold">LOGIN / REGISTER</span>
             </div>
           )}
@@ -572,7 +569,7 @@ export default function Header() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 sm:gap-4 border-b border-outline-variant/30 p-4 sm:p-6 sm:pb-4">
-              <span className="material-symbols-outlined text-on-surface-variant text-2xl">search</span>
+              <Icon name="search" size="lg" className="text-on-surface-variant" />
               <input
                 ref={searchInputRef}
                 autoFocus
@@ -586,7 +583,7 @@ export default function Header() {
                 className="flex-1 min-w-0 outline-none text-base sm:text-lg bg-transparent text-on-surface font-body-md"
               />
               <button onClick={closeSearch} aria-label="Close search" className="text-on-surface-variant hover:text-primary transition-colors p-2 -m-2">
-                <span className="material-symbols-outlined text-2xl">close</span>
+                <Icon name="close" size="lg" />
               </button>
             </div>
 
@@ -646,9 +643,7 @@ export default function Header() {
                               INR {product.discountedPrice ?? product.price}
                             </p>
                           </div>
-                          <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
-                            chevron_right
-                          </span>
+                          <Icon name="chevron_right" size="lg" className="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" />
                         </Link>
                       );
                     })}

@@ -6,6 +6,7 @@ import { Lottie } from 'lottie-react';
 import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
 import confettiAnimation from '../../public/animations/Confetti.json';
+import Icon from '@/components/Icon';
 
 export default function CartDrawer() {
   const {
@@ -126,18 +127,18 @@ export default function CartDrawer() {
           <h3 className="font-bold text-3xl text-on-surface flex items-baseline gap-2">
             Cart <span className="text-sm font-medium font-body-md text-on-surface">({cartItems.length} items)</span>
           </h3>
-          <span 
-            className="material-symbols-outlined cursor-pointer hover:text-primary transition-colors text-on-surface-variant text-[28px] font-light"
+          <Icon
+            name="close"
+            size="xl"
+            className="cursor-pointer hover:text-primary transition-colors text-on-surface-variant font-light"
             onClick={() => setIsCartOpen(false)}
-          >
-            close
-          </span>
+          />
         </div>
 
         {/* Free shipping progress */}
         <div className="px-6 py-4 border-t border-b border-outline-variant/30 bg-surface-container/20">
           <p className="text-center text-xs font-medium text-on-surface mb-2 flex items-center justify-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-accent-gold">local_shipping</span>
+            <Icon name="local_shipping" size="sm" className="text-accent-gold" />
             <span>
               {qualifiesForFreeShipping
                 ? 'FREE Pan-India Shipping Applied'
@@ -158,7 +159,7 @@ export default function CartDrawer() {
               </p>
               <button 
                 onClick={() => setIsCartOpen(false)}
-                className="px-6 py-3 bg-black text-white font-bold tracking-widest rounded-lg hover:bg-black/90 transition-colors cursor-pointer font-label-caps text-xs"
+                className="px-6 py-3 bg-primary text-white font-bold tracking-widest rounded-lg hover:bg-primary-container transition-colors cursor-pointer font-label-caps text-xs"
               >
                 CONTINUE SHOPPING
               </button>
@@ -244,7 +245,7 @@ export default function CartDrawer() {
                 onClick={() => setIsDiscountsOpen(!isDiscountsOpen)}
               >
                 <span className="text-sm font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-base text-accent-gold">local_offer</span>
+                  <Icon name="local_offer" size="sm" className="text-accent-gold" />
                   Offers & Coupons
                 </span>
                 <span className="text-xl font-light text-on-surface-variant group-hover:text-on-surface transition-transform duration-300" style={{ transform: isDiscountsOpen ? 'rotate(45deg)' : 'rotate(0deg)' }}>+</span>
@@ -275,7 +276,7 @@ export default function CartDrawer() {
                 {appliedCoupon && (
                   <div className="mb-4 flex justify-between items-center bg-green-50 border border-green-200 px-3 py-2 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-green-700">check_circle</span>
+                      <Icon name="check_circle" size="sm" className="text-green-700" />
                       <div>
                         <span className="text-xs font-bold text-green-800">{appliedCoupon.code}</span>
                         <span className="text-xs text-green-700 ml-1 font-medium">(₹{appliedCoupon.discountAmount} saved)</span>

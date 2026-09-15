@@ -10,6 +10,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
+import Icon from '@/components/Icon';
 import orderConfirmedAnimation from '../../../public/animations/One Click Order.json';
 import confettiAnimation from '../../../public/animations/Confetti.json';
 
@@ -321,13 +322,13 @@ export default function CheckoutPage() {
               </Link>
             </div>
             <p className="text-xs text-on-surface-variant mb-8 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[14px]">lock</span>
+              <Icon name="lock" size="sm" />
               Encrypted &amp; secure checkout
             </p>
 
             {error && (
               <div className="mb-6 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 w-full flex items-start gap-2">
-                <span className="material-symbols-outlined text-[18px] flex-none">error</span>
+                <Icon name="error" size="md" className="flex-none" />
                 <span>{error}</span>
               </div>
             )}
@@ -370,7 +371,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="mb-4 flex items-center gap-2 text-[11px] font-medium text-on-surface-variant bg-surface-container/60 border border-outline-variant/30 rounded-lg px-3 py-2 w-fit">
-                <span className="material-symbols-outlined text-[15px] text-primary">local_shipping</span>
+                <Icon name="local_shipping" size="sm" className="text-primary" />
                 Estimated delivery: <span className="text-on-surface font-bold">{deliveryEstimate}</span>
               </div>
 
@@ -549,21 +550,21 @@ export default function CheckoutPage() {
                         : 'border-outline/20 text-on-surface-variant hover:border-outline'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-xl">{method.icon}</span>
+                    <Icon name={method.icon} size="md" />
                     {method.label}
                   </button>
                 ))}
               </div>
 
               <div className="flex items-center gap-2 mt-4 text-[11px] text-on-surface-variant">
-                <span className="material-symbols-outlined text-[14px]">verified_user</span>
+                <Icon name="verified_user" size="sm" />
                 Payments are secured and encrypted &middot; powered by Razorpay
               </div>
             </div>
 
               <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-4 border-t border-outline-variant/30 mt-2 pt-6">
                 <Link href="/shop" className="text-sm text-primary hover:underline flex items-center justify-center sm:justify-start gap-1">
-                  <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+                  <Icon name="chevron_left" size="sm" />
                   Return to shop
                 </Link>
                 <button
@@ -573,12 +574,12 @@ export default function CheckoutPage() {
                 >
                   {loading ? (
                     <>
-                      <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+                      <Icon name="progress_activity" size="sm" className="animate-spin" />
                       PROCESSING...
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-[16px]">lock</span>
+                      <Icon name="lock" size="sm" />
                       {`PAY INR ${finalTotal}`}
                     </>
                   )}
@@ -706,7 +707,7 @@ export default function CheckoutPage() {
                 {couponError && <p className="text-xs text-error mt-1">{couponError}</p>}
                 {appliedCoupon && (
                   <div className="flex items-center gap-1.5 text-xs text-green-700 mt-1 font-medium">
-                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                    <Icon name="check_circle" size="sm" />
                     <span>Coupon <strong>{appliedCoupon.code}</strong> applied — you saved INR {appliedCoupon.discountAmount}!</span>
                   </div>
                 )}
@@ -715,7 +716,7 @@ export default function CheckoutPage() {
                 {availableCoupons.length > 0 && !appliedCoupon && (
                   <div className="pt-3 space-y-2">
                     <p className="text-[10px] font-label-caps tracking-widest text-on-surface-variant uppercase font-bold flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm text-accent-gold">local_offer</span>
+                      <Icon name="local_offer" size="sm" className="text-accent-gold" />
                       AVAILABLE OFFERS
                     </p>
                     <div className="space-y-2">
@@ -787,15 +788,15 @@ export default function CheckoutPage() {
             {/* Trust Badges */}
             <div className="pt-2 flex flex-wrap items-center gap-2 text-on-surface-variant justify-center lg:justify-start">
               <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
-                <span className="material-symbols-outlined text-[14px] text-primary">lock</span>
+                <Icon name="lock" size="sm" className="text-primary" />
                 Secure checkout
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
-                <span className="material-symbols-outlined text-[14px] text-primary">verified</span>
+                <Icon name="verified" size="sm" className="text-primary" />
                 Quality guaranteed
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
-                <span className="material-symbols-outlined text-[14px] text-primary">replay</span>
+                <Icon name="replay" size="sm" className="text-primary" />
                 Easy 7-day returns
               </div>
             </div>

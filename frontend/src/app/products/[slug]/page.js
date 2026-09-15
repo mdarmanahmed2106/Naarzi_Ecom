@@ -8,6 +8,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { productsApi, reviewsApi } from '@/lib/api';
+import Icon from '@/components/Icon';
 
 export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
@@ -180,9 +181,7 @@ export default function ProductDetailPage({ params }) {
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
         <div className="flex-1 flex flex-col items-center justify-center py-40 p-8 text-center">
-          <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4">
-            warning
-          </span>
+          <Icon name="warning" size="xl" className="text-on-surface-variant/40 mb-4" />
           <h2 className="font-display-lg text-2xl mb-4 text-on-surface">Product Not Found</h2>
           <p className="font-body-md text-on-surface-variant mb-6">
             The product you are looking for does not exist or has been removed.
@@ -390,7 +389,7 @@ export default function ProductDetailPage({ params }) {
                     aria-label="Decrease quantity" 
                     className="w-10 h-14 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[20px]">remove</span>
+                    <Icon name="remove" size="md" />
                   </button>
                   <span className="w-6 md:w-8 text-center font-body-md text-sm text-on-surface select-none">
                     {quantity}
@@ -400,7 +399,7 @@ export default function ProductDetailPage({ params }) {
                     aria-label="Increase quantity" 
                     className="w-10 h-14 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors focus:outline-none cursor-pointer"
                   >
-                    <span className="material-symbols-outlined text-[20px]">add</span>
+                    <Icon name="add" size="md" />
                   </button>
                 </div>
 
@@ -410,7 +409,7 @@ export default function ProductDetailPage({ params }) {
                   disabled={!selectedSize || isOutOfStock}
                   className="flex-1 h-14 bg-primary text-on-primary font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer font-bold"
                 >
-                  <span className="material-symbols-outlined text-sm hidden sm:block">shopping_bag</span>
+                  <Icon name="shopping_bag" size="sm" className="hidden sm:block" />
                   {!selectedSize
                     ? 'SELECT A SIZE'
                     : isOutOfStock
@@ -431,12 +430,12 @@ export default function ProductDetailPage({ params }) {
                   {isWishlistPopping && (
                     <span className="absolute inset-0 rounded-xl bg-primary/25 animate-pulse-ring pointer-events-none" />
                   )}
-                  <span 
-                    className={`material-symbols-outlined text-2xl transition-transform duration-200 ${isWishlistPopping ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1' : ''}`} 
+                  <Icon
+                    name="favorite"
+                    size="lg"
+                    className={`transition-transform duration-200 ${isWishlistPopping ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1' : ''}`}
                     style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
-                  >
-                    favorite
-                  </span>
+                  />
                 </button>
               </div>
 
@@ -449,9 +448,7 @@ export default function ProductDetailPage({ params }) {
                     className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
                   >
                     <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">DETAILS</span>
-                    <span className={`material-symbols-outlined text-on-surface-variant transition-transform duration-300 ${detailsOpen ? 'rotate-180' : ''}`}>
-                      expand_more
-                    </span>
+                    <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${detailsOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {detailsOpen && (
                     <div className="pb-5 transition-all duration-300">
@@ -477,9 +474,7 @@ export default function ProductDetailPage({ params }) {
                     className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
                   >
                     <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">SHIPPING</span>
-                    <span className={`material-symbols-outlined text-on-surface-variant transition-transform duration-300 ${shippingOpen ? 'rotate-180' : ''}`}>
-                      expand_more
-                    </span>
+                    <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${shippingOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {shippingOpen && (
                     <div className="pb-5 transition-all duration-300">
@@ -497,9 +492,7 @@ export default function ProductDetailPage({ params }) {
                     className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
                   >
                     <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">RETURNS</span>
-                    <span className={`material-symbols-outlined text-on-surface-variant transition-transform duration-300 ${returnsOpen ? 'rotate-180' : ''}`}>
-                      expand_more
-                    </span>
+                    <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${returnsOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {returnsOpen && (
                     <div className="pb-5 transition-all duration-300">
@@ -542,16 +535,16 @@ export default function ProductDetailPage({ params }) {
                     </label>
                     <div className="flex gap-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <span
+                        <Icon
                           key={star}
-                          className={`material-symbols-outlined cursor-pointer text-2xl transition-colors ${
+                          name="star"
+                          size="lg"
+                          className={`cursor-pointer transition-colors ${
                             rating >= star ? 'text-secondary fill-1' : 'text-on-surface-variant/40'
                           }`}
                           onClick={() => setRating(star)}
                           style={{ fontVariationSettings: rating >= star ? "'FILL' 1" : "'FILL' 0" }}
-                        >
-                          star
-                        </span>
+                        />
                       ))}
                     </div>
                   </div>
@@ -605,9 +598,7 @@ export default function ProductDetailPage({ params }) {
               
               {reviews.length === 0 ? (
                 <div className="text-center py-12 bg-surface-container/20 rounded-xl">
-                  <span className="material-symbols-outlined text-3xl text-on-surface-variant/40 mb-3 block">
-                    rate_review
-                  </span>
+                  <Icon name="rate_review" size="xl" className="text-on-surface-variant/40 mb-3 block" />
                   <p className="font-body-md text-on-surface-variant text-sm">
                     No reviews for this product yet.
                   </p>
@@ -619,15 +610,13 @@ export default function ProductDetailPage({ params }) {
                       <div className="flex justify-between items-center">
                         <div className="flex gap-0.5">
                           {[1, 2, 3, 4, 5].map((star) => (
-                            <span
+                            <Icon
                               key={star}
-                              className={`material-symbols-outlined text-sm ${
-                                rev.rating >= star ? 'text-secondary fill-1' : 'text-on-surface-variant/20'
-                              }`}
+                              name="star"
+                              size="sm"
+                              className={rev.rating >= star ? 'text-secondary fill-1' : 'text-on-surface-variant/20'}
                               style={{ fontVariationSettings: rev.rating >= star ? "'FILL' 1" : "'FILL' 0" }}
-                            >
-                              star
-                            </span>
+                            />
                           ))}
                         </div>
                         <span className="text-[10px] font-label-caps text-on-surface-variant">
@@ -657,10 +646,10 @@ export default function ProductDetailPage({ params }) {
                 <h2 className="font-headline-md text-2xl md:text-3xl text-primary font-bold">You May Also Like</h2>
                 <div className="hidden md:flex gap-4">
                   <button className="w-12 h-12 rounded-full border border-outline-variant/40 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors cursor-pointer bg-transparent">
-                    <span className="material-symbols-outlined">arrow_back</span>
+                    <Icon name="arrow_back" size="lg" />
                   </button>
                   <button className="w-12 h-12 rounded-full border border-outline-variant/40 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors cursor-pointer bg-transparent">
-                    <span className="material-symbols-outlined">arrow_forward</span>
+                    <Icon name="arrow_forward" size="lg" />
                   </button>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { authApi } from '@/lib/api';
 import Link from 'next/link';
+import Icon from '@/components/Icon';
 
 export default function AuthModal() {
   const { isAuthOpen, setIsAuthOpen, setUser } = useApp();
@@ -80,7 +81,7 @@ export default function AuthModal() {
           onClick={() => setIsAuthOpen(false)} 
           className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors cursor-pointer z-10 bg-surface/80 md:bg-transparent p-1 md:p-0 rounded-full"
         >
-          <span className="material-symbols-outlined text-2xl block">close</span>
+          <Icon name="close" size="lg" className="block" />
         </button>
 
         {/* Top/Left panel - image banner */}

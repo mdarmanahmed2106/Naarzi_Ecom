@@ -6,6 +6,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { productsApi, categoriesApi } from '@/lib/api';
 import { useApp } from '@/context/AppContext';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 
 function FilterSection({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -16,9 +17,7 @@ function FilterSection({ title, children, defaultOpen = true }) {
         onClick={() => setOpen(!open)}
       >
         {title}
-        <span className="material-symbols-outlined text-lg text-on-surface-variant">
-          {open ? 'remove' : 'add'}
-        </span>
+        <Icon name={open ? 'remove' : 'add'} size="md" className="text-on-surface-variant" />
       </button>
       {open && <div className="mt-5 space-y-3 font-body-md text-sm">{children}</div>}
     </div>
@@ -61,7 +60,7 @@ function ProductCard({ product }) {
               className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30 z-20"
               title="Quick Add to Bag"
             >
-              <span className="material-symbols-outlined text-lg font-bold">shopping_bag</span>
+              <Icon name="shopping_bag" size="md" className="font-bold" />
             </button>
             
             {/* Wishlist Icon with Heart Pop Animation */}
@@ -88,12 +87,12 @@ function ProductCard({ product }) {
               {isPopping && (
                 <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
               )}
-              <span 
-                className={`material-symbols-outlined text-[18px] transition-transform duration-200 ${isPopping ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+              <Icon
+                name="favorite"
+                size="md"
+                className={`transition-transform duration-200 ${isPopping ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
                 style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
-              >
-                favorite
-              </span>
+              />
             </button>
 
             {/* Tags floating */}
@@ -306,7 +305,7 @@ function ShopContent() {
                 className="ml-4 p-2 rounded-full hover:bg-surface-container transition-colors text-on-surface-variant flex items-center justify-center"
                 title="Clear search"
               >
-                <span className="material-symbols-outlined text-lg">close</span>
+                <Icon name="close" size="md" />
               </button>
             )}
           </div>
@@ -326,7 +325,7 @@ function ShopContent() {
             onClick={() => setIsMobileFilterOpen(true)}
             className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full shadow-lg font-label-caps text-xs tracking-widest font-bold"
           >
-            <span className="material-symbols-outlined text-sm">tune</span>
+            <Icon name="tune" size="sm" />
             FILTERS
           </button>
         </div>
@@ -339,7 +338,7 @@ function ShopContent() {
             <div className="flex items-center justify-between mb-8 pb-4 border-b border-outline-variant/30">
               <h2 className="font-display-lg text-2xl font-bold">Filters</h2>
               <button onClick={() => setIsMobileFilterOpen(false)} className="text-on-surface-variant hover:text-primary">
-                <span className="material-symbols-outlined">close</span>
+                <Icon name="close" size="lg" />
               </button>
             </div>
           )}
@@ -470,7 +469,7 @@ function ShopContent() {
             </div>
           ) : (
             <div className="py-20 text-center bg-surface-container-low rounded-xl border border-outline-variant/30 mt-4">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4 block">search_off</span>
+              <Icon name="search_off" size="xl" className="text-on-surface-variant/40 mb-4 block" />
               <h2 className="font-display-lg text-2xl mb-2 text-on-surface">No results found</h2>
               <p className="font-body-md text-on-surface-variant mb-6">Try adjusting your filters.</p>
               <button 

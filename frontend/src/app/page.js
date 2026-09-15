@@ -10,6 +10,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { productsApi, categoriesApi } from '@/lib/api';
+import Icon from '@/components/Icon';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -420,9 +421,7 @@ function HomePageContent() {
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-20 bg-surface rounded-xl p-8 max-w-md mx-auto border border-outline-variant/30">
-              <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-4 block">
-                search_off
-              </span>
+              <Icon name="search_off" size="xl" className="text-on-surface-variant/40 mb-4 block" />
               <p className="font-body-md text-on-surface-variant">
                 We couldn't find any products matching those criteria.
               </p>
@@ -438,7 +437,7 @@ function HomePageContent() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
               {products.map((product) => {
                 const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
                 const price = hasDiscount ? product.discountedPrice : product.price;
@@ -474,7 +473,7 @@ function HomePageContent() {
                             className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30"
                             title="Quick Add to Bag"
                           >
-                            <span className="material-symbols-outlined text-lg font-bold">shopping_bag</span>
+                            <Icon name="shopping_bag" size="md" className="font-bold" />
                           </button>
                           
                           {/* Wishlist Icon with Heart Pop Animation */}
@@ -501,12 +500,12 @@ function HomePageContent() {
                             {poppingWishlistId === product._id && (
                               <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
                             )}
-                            <span 
-                              className={`material-symbols-outlined text-[18px] transition-transform duration-200 ${poppingWishlistId === product._id ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                            <Icon
+                              name="favorite"
+                              size="md"
+                              className={`transition-transform duration-200 ${poppingWishlistId === product._id ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
                               style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
-                            >
-                              favorite
-                            </span>
+                            />
                           </button>
 
                           {/* Tags floating */}
@@ -636,7 +635,7 @@ function HomePageContent() {
                   className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-85 transition-opacity font-bold"
                 >
                   {editsData[activeEditIdx]?.ctaText || 'EXPLORE COLLECTION'}
-                  <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                  <Icon name="arrow_forward" size="sm" />
                 </Link>
               </div>
             </div>
@@ -715,7 +714,7 @@ function HomePageContent() {
               className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-80 transition-opacity font-bold"
             >
               EXPLORE THE LAUNCH CAPSULE
-              <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              <Icon name="arrow_forward" size="sm" />
             </Link>
           </div>
         </div>
@@ -776,13 +775,13 @@ function HomePageContent() {
                 onClick={() => handleScrollReview('left')}
                 className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
               >
-                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                <Icon name="arrow_back" size="md" />
               </button>
               <button 
                 onClick={() => handleScrollReview('right')}
                 className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
               >
-                <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                <Icon name="arrow_forward" size="md" />
               </button>
             </div>
           </div>
@@ -821,7 +820,7 @@ function HomePageContent() {
                   {/* Stars */}
                   <div className="flex text-amber-500 gap-0.5">
                     {[...Array(rev.rating)].map((_, i) => (
-                      <span key={i} className="material-symbols-outlined text-base fill-1" style={{ fontVariationSettings: '"FILL" 1' }}>star</span>
+                      <Icon key={i} name="star" size="sm" className="fill-1" style={{ fontVariationSettings: '"FILL" 1' }} />
                     ))}
                   </div>
                   <p className="font-body-md text-sm text-on-surface-variant italic leading-relaxed">
@@ -831,7 +830,7 @@ function HomePageContent() {
                 <div className="mt-6 border-t border-outline-variant/10 pt-4 flex justify-between items-center">
                   <span className="font-label-caps text-[10px] text-on-surface font-bold">{rev.author}</span>
                   <span className="text-[10px] text-green-600 font-label-caps tracking-wider flex items-center gap-1 font-bold">
-                    <span className="material-symbols-outlined text-xs">verified</span> VERIFIED CUSTOMER
+                    <Icon name="verified" size="sm" /> VERIFIED CUSTOMER
                   </span>
                 </div>
               </div>
@@ -857,9 +856,7 @@ function HomePageContent() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    photo_camera
-                  </span>
+                  <Icon name="photo_camera" size="xl" className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
               </div>
             ))}
