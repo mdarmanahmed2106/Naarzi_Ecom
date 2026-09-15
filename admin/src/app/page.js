@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi } from '@/lib/api';
+import { exportRowsAsCsv } from '@/lib/csv';
 
 function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, markAllAsRead, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -1102,6 +1103,80 @@ export default function AdminDashboardPage() {
     c.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const CSV_EXPORT_CONFIG = {
+    products: {
+      filename: 'products',
+      rows: () => filteredProducts,
+      columns: [
+        { label: 'Name', value: (p) => p.name },
+        { label: 'Category', value: (p) => p.category?.name || '' },
+        { label: 'Price', value: (p) => p.price },
+        { label: 'Discounted Price', value: (p) => p.discountedPrice ?? '' },
+        { label: 'Stock', value: (p) => p.stock ?? 0 },
+        { label: 'Featured', value: (p) => (p.isFeatured ? 'Yes' : 'No') },
+        { label: 'Best Seller', value: (p) => (p.isBestSeller ? 'Yes' : 'No') },
+        { label: 'On Sale', value: (p) => (p.isOnSale ? 'Yes' : 'No') },
+        { label: 'Created At', value: (p) => new Date(p.createdAt).toLocaleDateString() },
+      ],
+    },
+    inventory: {
+      filename: 'products',
+      rows: () => filteredProducts,
+      columns: [
+        { label: 'Name', value: (p) => p.name },
+        { label: 'Category', value: (p) => p.category?.name || '' },
+        { label: 'Price', value: (p) => p.price },
+        { label: 'Discounted Price', value: (p) => p.discountedPrice ?? '' },
+        { label: 'Stock', value: (p) => p.stock ?? 0 },
+        { label: 'Featured', value: (p) => (p.isFeatured ? 'Yes' : 'No') },
+        { label: 'Best Seller', value: (p) => (p.isBestSeller ? 'Yes' : 'No') },
+        { label: 'On Sale', value: (p) => (p.isOnSale ? 'Yes' : 'No') },
+        { label: 'Created At', value: (p) => new Date(p.createdAt).toLocaleDateString() },
+      ],
+    },
+    orders: {
+      filename: 'orders',
+      rows: () => filteredOrders,
+      columns: [
+        { label: 'Order ID', value: (o) => o._id },
+        { label: 'Customer Name', value: (o) => o.user?.name || 'Guest User' },
+        { label: 'Customer Email', value: (o) => o.user?.email || '' },
+        { label: 'Date', value: (o) => new Date(o.createdAt).toLocaleDateString() },
+        { label: 'Total Amount', value: (o) => o.totalAmount },
+        { label: 'Discount Amount', value: (o) => o.discountAmount ?? 0 },
+        { label: 'Shipping Cost', value: (o) => o.shippingCost ?? 0 },
+        { label: 'Coupon Code', value: (o) => o.couponCode || '' },
+        { label: 'Payment Status', value: (o) => o.paymentStatus },
+        { label: 'Order Status', value: (o) => o.orderStatus },
+        { label: 'Refund Status', value: (o) => o.refundStatus || '' },
+        { label: 'Street', value: (o) => o.shippingAddress?.street || '' },
+        { label: 'City', value: (o) => o.shippingAddress?.city || '' },
+        { label: 'State', value: (o) => o.shippingAddress?.state || '' },
+        { label: 'Postal Code', value: (o) => o.shippingAddress?.postalCode || '' },
+        { label: 'Country', value: (o) => o.shippingAddress?.country || '' },
+        { label: 'Phone', value: (o) => o.shippingAddress?.phone || '' },
+      ],
+    },
+    customers: {
+      filename: 'customers',
+      rows: () => filteredCustomers,
+      columns: [
+        { label: 'Name', value: (c) => c.name },
+        { label: 'Email', value: (c) => c.email },
+        { label: 'Signup Date', value: (c) => new Date(c.createdAt).toLocaleDateString() },
+        { label: 'Order Count', value: (c) => c.orderCount || 0 },
+      ],
+    },
+  };
+
+  const handleExportCsv = () => {
+    const config = CSV_EXPORT_CONFIG[activeTab];
+    if (!config) return;
+    const rows = config.rows();
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    exportRowsAsCsv(`${config.filename}-${dateStamp}.csv`, config.columns, rows);
+  };
+
   const logout = async () => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/logout`, {
@@ -1253,8 +1328,18 @@ export default function AdminDashboardPage() {
             <h1 className="font-display-lg text-4xl text-primary font-bold">Dashboard</h1>
           </div>
           
+          <div className="flex items-center gap-3">
+          {(activeTab === 'products' || activeTab === 'inventory' || activeTab === 'orders' || activeTab === 'customers') && (
+            <button
+              onClick={handleExportCsv}
+              className="px-6 py-3.5 bg-transparent border border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary font-label-caps text-xs tracking-widest rounded-xl transition-colors flex items-center gap-2 cursor-pointer font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">download</span>
+              EXPORT CSV
+            </button>
+          )}
           {(activeTab === 'products' || activeTab === 'inventory') ? (
-            <button 
+            <button
               onClick={openAddModal}
               className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
             >
@@ -1286,6 +1371,7 @@ export default function AdminDashboardPage() {
               ADD NEW COUPON
             </button>
           ) : null}
+          </div>
         </div>
 
         {/* Feedback Messages */}
