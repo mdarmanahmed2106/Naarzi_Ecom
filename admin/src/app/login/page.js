@@ -48,7 +48,7 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col justify-center items-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-outline-variant/30 p-8">
+      <div className="max-w-md w-full bg-white rounded-3xl border border-outline-variant/30 p-8">
         <div className="text-center mb-8">
           <h1 className="font-display-lg text-3xl font-bold text-primary mb-2">Admin Portal</h1>
           <p className="text-sm text-on-surface-variant">Sign in to manage the store</p>

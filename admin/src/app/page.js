@@ -10,7 +10,7 @@ import { exportRowsAsCsv } from '@/lib/csv';
 function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, markAllAsRead, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-10 lg:px-16 shadow-sm">
+    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-10 lg:px-16">
       <div className="w-full flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/" className="flex flex-col items-start justify-center hover:opacity-85 transition-opacity">
@@ -42,7 +42,7 @@ function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, mar
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-surface border border-outline-variant/30 shadow-lg rounded-xl z-50 flex flex-col p-2">
+                <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-surface border border-outline-variant/30 rounded-xl z-50 flex flex-col p-2">
                   <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/20 mb-2">
                     <span className="font-label-caps text-xs tracking-wider text-on-surface font-bold">NOTIFICATIONS</span>
                     {unreadCount > 0 && (
@@ -1341,7 +1341,7 @@ export default function AdminDashboardPage() {
           {(activeTab === 'products' || activeTab === 'inventory') ? (
             <button
               onClick={openAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               ADD NEW PRODUCT
@@ -1349,7 +1349,7 @@ export default function AdminDashboardPage() {
           ) : activeTab === 'categories' ? (
             <button
               onClick={openCategoryAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               ADD NEW CATEGORY
@@ -1357,7 +1357,7 @@ export default function AdminDashboardPage() {
           ) : activeTab === 'banners' ? (
             <button 
               onClick={openBannerAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               ADD NEW BANNER
@@ -1365,7 +1365,7 @@ export default function AdminDashboardPage() {
           ) : activeTab === 'coupons' ? (
             <button 
               onClick={openCouponAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold"
+              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               ADD NEW COUPON
@@ -1376,7 +1376,7 @@ export default function AdminDashboardPage() {
 
         {/* Feedback Messages */}
         {successMsg && (
-          <div className="mb-8 p-4 bg-green-50 text-green-700 text-sm rounded-xl border border-green-200 flex justify-between items-center shadow-sm">
+          <div className="mb-8 p-4 bg-green-50 text-green-700 text-sm rounded-xl border border-green-200 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-lg">check_circle</span>
               {successMsg}
@@ -1385,7 +1385,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
         {errorMsg && (
-          <div className="mb-8 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 flex justify-between items-center shadow-sm">
+          <div className="mb-8 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 flex justify-between items-center">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-lg">error</span>
               {errorMsg}
@@ -1397,7 +1397,7 @@ export default function AdminDashboardPage() {
         {/* Stats Grid - 5 Columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-gutter mb-12">
           {/* Card 1 */}
-          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL PRODUCTS</span>
               <span className="font-display-lg text-3xl font-bold text-primary">{totalProducts}</span>
@@ -1407,7 +1407,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           {/* Card 2 */}
-          <div className={`border rounded-2xl p-6 shadow-sm flex items-center justify-between transition-all ${
+          <div className={`border rounded-2xl p-6 flex items-center justify-between transition-all ${
             lowStockAlertCount > 0 ? 'bg-red-50/50 border-red-200' : 'bg-white border-outline-variant/30'
           }`}>
             <div className="space-y-1">
@@ -1423,7 +1423,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           {/* Card 3 */}
-          <div className={`border rounded-2xl p-6 shadow-sm flex items-center justify-between transition-all ${
+          <div className={`border rounded-2xl p-6 flex items-center justify-between transition-all ${
             pendingOrdersCount > 0 ? 'bg-amber-50/50 border-amber-200 font-bold' : 'bg-white border-outline-variant/30'
           }`}>
             <div className="space-y-1">
@@ -1439,7 +1439,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           {/* Card 4 */}
-          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL ORDERS</span>
               <span className="font-display-lg text-3xl font-bold text-primary">{totalOrdersCount}</span>
@@ -1449,7 +1449,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
           {/* Card 5 */}
-          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 shadow-sm flex items-center justify-between">
+          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
             <div className="space-y-1">
               <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL REVENUE</span>
               <span className="font-display-lg text-2xl font-bold text-primary">
@@ -1578,13 +1578,13 @@ export default function AdminDashboardPage() {
           (activeTab === 'reviews' && filteredReviews.length === 0) ||
           (activeTab === 'customers' && filteredCustomers.length === 0)
         ) ? (
-          <div className="py-24 text-center bg-white rounded-2xl border border-outline-variant/30 shadow-sm">
+          <div className="py-24 text-center bg-white rounded-2xl border border-outline-variant/30">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant/40 mb-3 block">inventory_2</span>
             <p className="font-body-md text-on-surface-variant text-sm">No items match your search or filter settings.</p>
           </div>
         ) : activeTab === 'products' ? (
           /* Products Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -1605,7 +1605,7 @@ export default function AdminDashboardPage() {
                           <img 
                             src={p.images?.[0] || p.colors?.[0]?.images?.[0] || '/placeholder.png'} 
                             alt={p.name} 
-                            className="w-12 h-14 object-cover rounded-lg bg-surface-container shadow-sm border border-outline-variant/25"
+                            className="w-12 h-14 object-cover rounded-lg bg-surface-container border border-outline-variant/25"
                           />
                           <div>
                             <span className="font-semibold text-on-surface block leading-tight">{p.name}</span>
@@ -1665,7 +1665,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'inventory' ? (
           /* Inventory Management Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -1746,7 +1746,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'orders' ? (
           /* Orders Management Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -1830,7 +1830,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'categories' ? (
           /* Categories Management Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -1851,7 +1851,7 @@ export default function AdminDashboardPage() {
                           <img
                             src={cat.image || 'https://placehold.co/100x100?text=No+Image'}
                             alt={cat.name}
-                            className="w-12 h-12 object-cover rounded-lg bg-surface-container border border-outline-variant/25 shadow-sm"
+                            className="w-12 h-12 object-cover rounded-lg bg-surface-container border border-outline-variant/25"
                           />
                         </td>
                         <td className="py-4 px-6 font-semibold text-on-surface font-sans">
@@ -1886,7 +1886,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'reviews' ? (
           /* Reviews Moderation Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden animate-fade-in">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -1950,7 +1950,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'customers' ? (
           /* Customers Directory Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden animate-fade-in">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -1984,7 +1984,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'banners' ? (
           /* Banners Tab Table */
-          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm animate-fade-in">
+          <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden animate-fade-in">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
@@ -2024,7 +2024,7 @@ export default function AdminDashboardPage() {
           <div className="space-y-6 animate-fade-in">
             {/* Quick Metrics */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 flex items-center gap-4">
                 <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-none">
                   <span className="material-symbols-outlined text-2xl">local_offer</span>
                 </div>
@@ -2036,7 +2036,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 flex items-center gap-4">
                 <div className="w-11 h-11 rounded-xl bg-accent-gold/15 text-accent-gold flex items-center justify-center flex-none">
                   <span className="material-symbols-outlined text-2xl">redeem</span>
                 </div>
@@ -2048,7 +2048,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 shadow-xs flex items-center gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-outline-variant/30 flex items-center gap-4">
                 <div className="w-11 h-11 rounded-xl bg-green-50 text-green-700 flex items-center justify-center flex-none border border-green-200">
                   <span className="material-symbols-outlined text-2xl">star</span>
                 </div>
@@ -2064,7 +2064,7 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Coupons Table */}
-            <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm">
+            <div className="bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse text-sm">
                   <thead>
@@ -2189,7 +2189,7 @@ export default function AdminDashboardPage() {
         ) : activeTab === 'marketing' ? (
           <div className="space-y-12 animate-fade-in">
             {/* Abandoned Carts Section */}
-            <div className="bg-white border border-outline-variant/30 rounded-3xl p-8 shadow-sm">
+            <div className="bg-white border border-outline-variant/30 rounded-3xl p-8">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <div>
                   <h3 className="text-xl font-display-md text-on-surface font-bold">Abandoned Carts</h3>
@@ -2276,7 +2276,7 @@ export default function AdminDashboardPage() {
             {/* Wishlist Insights Section */}
             <div className="grid md:grid-cols-2 gap-8">
               {/* Top Products */}
-              <div className="bg-white border border-outline-variant/30 rounded-3xl p-8 shadow-sm">
+              <div className="bg-white border border-outline-variant/30 rounded-3xl p-8">
                 <h3 className="text-xl font-display-md text-on-surface font-bold mb-6">Most Wishlisted Products</h3>
                 <div className="space-y-4">
                   {wishlistInsights.length === 0 ? (
@@ -2303,7 +2303,7 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Wishlist Customers */}
-              <div className="bg-white border border-outline-variant/30 rounded-3xl p-8 shadow-sm">
+              <div className="bg-white border border-outline-variant/30 rounded-3xl p-8">
                 <h3 className="text-xl font-display-md text-on-surface font-bold mb-6">Customers with Wishlists</h3>
                 <div className="space-y-4">
                   {wishlistCustomers.length === 0 ? (
@@ -2333,7 +2333,7 @@ export default function AdminDashboardPage() {
           </div>
         ) : activeTab === 'settings' ? (
           <div className="animate-fade-in max-w-2xl">
-            <form onSubmit={handleSaveSettings} className="bg-white border border-outline-variant/30 rounded-3xl p-8 shadow-sm space-y-8">
+            <form onSubmit={handleSaveSettings} className="bg-white border border-outline-variant/30 rounded-3xl p-8 space-y-8">
               <div>
                 <h3 className="text-xl font-display-md text-on-surface font-bold">Shipping</h3>
                 <p className="text-on-surface-variant text-sm mt-1">Controls the free-shipping threshold shown in the storefront cart.</p>
@@ -2371,7 +2371,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="submit"
                   disabled={savingSettings}
-                  className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-md flex items-center gap-2 cursor-pointer font-bold disabled:opacity-50"
+                  className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold disabled:opacity-50"
                 >
                   {savingSettings ? 'SAVING...' : 'SAVE SETTINGS'}
                 </button>
@@ -2386,7 +2386,7 @@ export default function AdminDashboardPage() {
       {/* Stock Edit Modal */}
       {isStockModalOpen && stockEditProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-surface rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative">
+          <div className="bg-surface rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative">
             <div className="flex justify-between items-center p-6 border-b border-outline-variant/30 sticky top-0 bg-surface z-10">
               <h2 className="font-display-lg text-2xl font-bold text-on-surface">Edit Stock: {stockEditProduct.name}</h2>
               <button onClick={closeStockEditModal} className="text-on-surface-variant hover:text-error transition-colors">
@@ -2396,9 +2396,9 @@ export default function AdminDashboardPage() {
             
             <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-surface-container/20">
               {stockEditColors.length > 0 ? stockEditColors.map((color, cIdx) => (
-                <div key={cIdx} className="bg-white p-5 rounded-xl border border-outline-variant/30 shadow-sm">
+                <div key={cIdx} className="bg-white p-5 rounded-xl border border-outline-variant/30">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-5 h-5 rounded-full border shadow-inner" style={{ backgroundColor: color.hexCode }}></div>
+                    <div className="w-5 h-5 rounded-full border" style={{ backgroundColor: color.hexCode }}></div>
                     <h3 className="font-bold text-on-surface text-base">{color.name}</h3>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -2425,7 +2425,7 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
-            <div className="p-6 border-t border-outline-variant/30 sticky bottom-0 bg-surface flex justify-end gap-3 z-10 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
+            <div className="p-6 border-t border-outline-variant/30 sticky bottom-0 bg-surface flex justify-end gap-3 z-10">
               <button
                 type="button"
                 onClick={closeStockEditModal}
@@ -2435,7 +2435,7 @@ export default function AdminDashboardPage() {
               </button>
               <button
                 onClick={handleSaveStock}
-                className="px-6 py-2.5 rounded-full bg-primary text-white text-sm font-label-caps tracking-widest font-bold hover:bg-primary/90 transition-colors shadow-md"
+                className="px-6 py-2.5 rounded-full bg-primary text-white text-sm font-label-caps tracking-widest font-bold hover:bg-primary/90 transition-colors"
               >
                 SAVE STOCK
               </button>
@@ -2447,7 +2447,7 @@ export default function AdminDashboardPage() {
       {/* Product Add / Edit Modal */}
       {isFormModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-2xl bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto my-8 animate-slide-in">
+          <div className="relative w-full max-w-2xl bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto my-8 animate-slide-in">
             {/* Title */}
             <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
               <h2 className="font-display-lg text-2xl text-primary font-bold">
@@ -2503,7 +2503,7 @@ export default function AdminDashboardPage() {
                           className="fixed inset-0 z-40"
                           onClick={() => setIsCategoryDropdownOpen(false)}
                         ></div>
-                        <div className="absolute z-50 w-full mt-2 bg-surface border border-outline-variant/40 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] max-h-60 overflow-y-auto">
+                        <div className="absolute z-50 w-full mt-2 bg-surface border border-outline-variant/40 rounded-xl max-h-60 overflow-y-auto">
                           {categories.map((c) => (
                             <div 
                               key={c._id}
@@ -2747,7 +2747,7 @@ export default function AdminDashboardPage() {
       {/* Order Detail Modal */}
       {isOrderModalOpen && selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-3xl bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto my-8 animate-slide-in text-sm font-body-md text-on-surface">
+          <div className="relative w-full max-w-3xl bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto my-8 animate-slide-in text-sm font-body-md text-on-surface">
             {/* Title */}
             <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
               <div>
@@ -2953,7 +2953,7 @@ export default function AdminDashboardPage() {
       {/* Category Add / Edit Modal */}
       {isCategoryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
             {/* Title */}
             <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
               <h2 className="font-display-lg text-xl text-primary font-bold">
@@ -3049,7 +3049,7 @@ export default function AdminDashboardPage() {
       {/* Banner Add Modal */}
       {isBannerModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+          <div className="relative w-full max-w-md bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
             {/* Title */}
             <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
               <h2 className="font-display-lg text-xl text-primary font-bold">Add New Banner</h2>
@@ -3121,7 +3121,7 @@ export default function AdminDashboardPage() {
       {/* Coupon Add Modal */}
       {isCouponModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-lg bg-white border border-outline-variant/30 rounded-2xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
+          <div className="relative w-full max-w-lg bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto animate-slide-in text-sm text-on-surface">
             {/* Title */}
             <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
               <div>

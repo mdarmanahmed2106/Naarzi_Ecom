@@ -1,6 +1,6 @@
 const Razorpay = require('razorpay');
 
-const isMock = process.env.RAZORPAY_KEY_ID === 'rzp_test_mockkeyid123';
+const isMock = !process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID === 'rzp_test_mockkeyid123';
 
 let razorpayInstance;
 

@@ -176,7 +176,7 @@ exports.getProducts = async (req, res, next) => {
 exports.getFilters = async (req, res, next) => {
   try {
     const products = await Product.find().select('colors');
-    
+
     const colorMap = new Map();
     const sizeSet = new Set();
 
@@ -318,7 +318,7 @@ exports.getNewArrivals = async (req, res, next) => {
 exports.createProduct = async (req, res, next) => {
   try {
     console.log('Incoming product payload:', JSON.stringify(req.body, null, 2));
-    
+
     // Check if category exists
     const categoryExists = await Category.findById(req.body.category);
     if (!categoryExists) {
@@ -420,17 +420,17 @@ exports.getSearchSuggestions = async (req, res, next) => {
     }
 
     const regex = new RegExp('^' + q, 'i');
-    
+
     // Find tags that match
     const products = await Product.find({
       $or: [
         { tags: regex },
-        { name: { $regex: q, $options: 'i' } } 
+        { name: { $regex: q, $options: 'i' } }
       ]
     }, 'name tags').limit(50);
 
     const words = new Set();
-    
+
     products.forEach(p => {
       p.tags.forEach(t => {
         if (regex.test(t)) words.add(t.toLowerCase());

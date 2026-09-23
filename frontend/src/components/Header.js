@@ -275,7 +275,7 @@ export default function Header() {
                 
                 {activeMegaMenu === 'apparel' && (
                   <div className="fixed left-0 top-20 w-full bg-surface shadow-xl border-t border-outline-variant/30 z-40">
-                    <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop grid grid-cols-4 gap-12 py-10">
+                    <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop grid grid-cols-3 gap-12 py-10">
                       <div>
                         <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Clothing</h4>
                         <ul className="space-y-3 text-sm text-on-surface-variant">
@@ -306,19 +306,6 @@ export default function Header() {
                             </Link>
                           </li>
                         </ul>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <Link href="/shop?category=knitwear" onClick={() => setActiveMegaMenu(null)} className="relative rounded-lg overflow-hidden group">
-                          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3pAvrBBot7wDb-k_B5z0L-qaAozsKQsK8uo9Kz4QCK4TzSF_0iQRTClaKS4lF3lT7ZArRzxdaMbzt6vLVKEW_httHrEiFkzsljgbUoeHHoqv5TVFQ1BC4XbOSW9Gwv34L1EG4RxzCdc-W8t0qBjZHCpm0w5y6u_hdAo7rOGVOPbRsBy1-A10dj_EmSax-hlJvvYpWOlHcpsDTR0U2jdoRV4NcBxwHRRsSqnnjbvHTWHXxg6vBt_-JtA" className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" alt="Knitwear" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
-                          <span className="absolute bottom-4 left-4 text-white font-label-caps tracking-widest text-sm font-bold">KNITWEAR</span>
-                        </Link>
-                        <Link href="/shop?tag=resort" onClick={() => setActiveMegaMenu(null)} className="relative rounded-lg overflow-hidden group">
-                          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw" className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500" alt="Resort Looks" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
-                          <span className="absolute bottom-4 left-4 text-white font-label-caps tracking-widest text-sm font-bold">RESORT LOOKS</span>
-                        </Link>
                       </div>
                     </div>
                   </div>

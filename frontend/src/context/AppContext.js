@@ -11,7 +11,7 @@ export function AppProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState('login'); 
+  const [authModalTab, setAuthModalTab] = useState('login');
   const [wishlistItems, setWishlistItems] = useState([]);
   const [wishlistLoading, setWishlistLoading] = useState(true);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -60,14 +60,14 @@ export function AppProvider({ children }) {
   useEffect(() => {
     async function syncCartWithServer() {
       if (!user || hasSyncedRef.current) return;
-      hasSyncedRef.current = true; 
-      
+      hasSyncedRef.current = true;
+
       const localCart = localStorage.getItem('naarzi_cart');
       let itemsToSync = [];
       if (localCart) {
         try {
           itemsToSync = JSON.parse(localCart);
-        } catch (e) {}
+        } catch (e) { }
       }
 
       try {
@@ -300,7 +300,7 @@ export function AppProvider({ children }) {
       (item.product.discountedPrice !== undefined && item.product.discountedPrice !== null
         ? item.product.discountedPrice
         : item.product.price) *
-        item.quantity,
+      item.quantity,
     0
   );
 

@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary').v2;
 
-const isMock = process.env.CLOUDINARY_CLOUD_NAME === 'mock_cloud_name';
+const isMock = !process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME === 'mock_cloud_name';
 
 if (!isMock) {
   cloudinary.config({

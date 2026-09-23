@@ -31,7 +31,7 @@ function HomePageContent() {
   const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen, wishlistItems = [], addToWishlist, removeFromWishlist, user, setIsAuthOpen, setAuthModalTab } = useApp();
   const shouldReduceMotion = useReducedMotion();
   const [poppingWishlistId, setPoppingWishlistId] = useState(null);
-  
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
@@ -133,7 +133,7 @@ function HomePageContent() {
         if (searchVal) {
           params.search = searchVal;
         }
-        
+
         const response = await productsApi.getAll(params);
         if (response.success) {
           setProducts(response.data);
@@ -286,60 +286,75 @@ function HomePageContent() {
             src="/hero_image.png"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/30 to-transparent"></div>
+          <div
+            className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
+            style={{
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            }}
+          />
         </div>
-        
+
         <div className="relative z-10 w-full max-w-container-max mx-auto px-6 md:px-margin-desktop">
-          <motion.div 
-            className="max-w-xl mt-32 md:mt-0"
+          <motion.div
+            className="max-w-xl mt-20 md:mt-0 md:-translate-y-8"
             initial="hidden"
             animate="visible"
             variants={heroContainerVariants}
           >
-            <motion.span 
+            <motion.div variants={heroChildVariants} className="w-10 h-[2px] bg-[var(--color-secondary)] mb-3" />
+            <motion.span
               variants={heroChildVariants}
-              className="font-label-caps text-xs text-primary tracking-widest block mb-4"
+              className="font-label-caps text-xs text-primary tracking-widest block mb-3"
             >
               LAUNCH CAPSULE
             </motion.span>
-            <motion.h1 
+            <motion.h1
               variants={heroChildVariants}
-              className="font-display-lg text-4xl md:text-6xl text-on-surface mb-6 leading-tight font-bold"
+              className="font-display-lg text-4xl md:text-6xl text-on-surface mb-4 md:mb-5 leading-tight font-bold"
             >
-              Expression,<br />Not Just Fashion
+              <span className="italic font-serif text-primary">Expression</span>,<br />Not Just Fashion
             </motion.h1>
-            <motion.p 
+            <motion.p
               variants={heroChildVariants}
-              className="font-body-lg text-base md:text-lg text-on-surface-variant mb-8 max-w-md"
+              className="font-body-lg text-base md:text-lg text-on-surface-variant mb-6 max-w-md"
             >
               Wear Your Colour.<br />Feel the Vibe.
             </motion.p>
-            <motion.div 
+            <motion.div
               variants={heroChildVariants}
-              className="flex flex-col sm:flex-row gap-4"
+              className="flex flex-col sm:flex-row items-center gap-4"
             >
-              <button 
-                onClick={() => handleTagFilter('new arrival')}
-                className="px-8 py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-sm cursor-pointer font-bold"
+              <button
+                onClick={() => handleTagFilter('new-arrival')}
+                className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-bold active:scale-[0.98]"
               >
                 Shop New Arrivals
               </button>
-              <button 
-                onClick={() => {
-                  setSelectedCategory('');
-                  setSelectedTag('');
-                }}
-                className="px-8 py-4 bg-transparent border border-outline text-on-surface font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container-highest transition-colors cursor-pointer font-bold"
+              <button
+                onClick={() => handleTagFilter('sale')}
+                className="w-full sm:w-auto px-8 py-3.5 bg-transparent border border-primary/40 hover:border-primary text-primary hover:bg-primary/5 font-label-caps text-xs tracking-widest rounded-xl transition-all cursor-pointer font-bold active:scale-[0.98]"
               >
-                Explore All
+                Shop Sale
               </button>
             </motion.div>
           </motion.div>
         </div>
+
+        {/* Subtle Scroll Cue */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: shouldReduceMotion ? 0.6 : [0.4, 1, 0.4] }}
+          transition={shouldReduceMotion ? { duration: 0.4 } : { duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-2"
+        >
+          <span className="font-label-caps text-[10px] text-on-surface-variant tracking-widest">SCROLL</span>
+          <div className="w-[1px] h-8 bg-on-surface-variant/40" />
+        </motion.div>
       </section>
 
       {/* Category Slider/Grid with Scroll Triggered Fade-in */}
       <div className="relative z-10 -mt-8 md:-mt-10 rounded-t-[32px] md:rounded-t-[40px] bg-surface shadow-[0_-12px_40px_rgba(107,34,51,0.04)] w-full">
-        <motion.section 
+        <motion.section
           className="py-20 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full"
           initial="hidden"
           whileInView="visible"
@@ -351,14 +366,14 @@ function HomePageContent() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {paloAltoCategories.map((item) => (
-              <div 
+              <div
                 key={item.id}
                 onClick={item.action}
                 className="group relative h-[450px] md:h-[500px] rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-[0_12px_35px_rgba(107,34,51,0.06)] transition-all duration-300"
               >
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
+                <img
+                  src={item.image}
+                  alt={item.name}
                   className="w-full h-full object-cover category-tile-image"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:via-black/35 transition-all duration-300"></div>
@@ -379,492 +394,478 @@ function HomePageContent() {
         </motion.section>
 
 
-      {/* Main Product Feed & Filtering */}
-      <section className="py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
-        <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
-          
-          {/* Controls Bar */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 pb-6 border-b border-outline-variant/30">
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => handleCategoryFilter('')}
-                className={`px-5 py-2.5 rounded-full text-xs font-label-caps tracking-widest transition-colors cursor-pointer font-bold ${
-                  !selectedCategory
-                    ? 'bg-primary text-white'
-                    : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant'
-                }`}
+        {/* Main Product Feed & Filtering */}
+        <section className="py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
+          <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
+
+            {/* Section Header: Title & Functional CTA Button */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10 pb-6 border-b border-outline-variant/30">
+              <div>
+                <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold block mb-1 uppercase">
+                  CURATED SELECTION
+                </span>
+                <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold tracking-tight">
+                  Trending this <span className="italic font-serif text-primary font-normal">Season</span>
+                </h2>
+              </div>
+              <Link
+                href="/shop?tag=trending"
+                className="group px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white text-xs font-label-caps tracking-widest rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 inline-flex items-center gap-2 whitespace-nowrap cursor-pointer active:scale-95"
               >
-                ALL
-              </button>
-              {categories.map(c => (
+                <span>SHOP ALL TRENDING</span>
+                <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 text-white" />
+              </Link>
+            </div>
+
+            {/* Products Grid */}
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
+                <p className="font-body-md text-on-surface-variant mt-4">Loading collection...</p>
+              </div>
+            ) : products.length === 0 ? (
+              <div className="text-center py-20 bg-surface rounded-xl p-8 max-w-md mx-auto border border-outline-variant/30">
+                <Icon name="search_off" size="xl" className="text-on-surface-variant/40 mb-4 block" />
+                <p className="font-body-md text-on-surface-variant">
+                  We couldn't find any products matching those criteria.
+                </p>
                 <button
-                  key={c._id}
-                  onClick={() => handleCategoryFilter(c.slug)}
-                  className={`px-5 py-2.5 rounded-full text-xs font-label-caps tracking-widest transition-colors cursor-pointer font-bold ${
-                    selectedCategory === c.slug
-                      ? 'bg-primary text-white'
-                      : 'bg-surface-container hover:bg-surface-container-high text-on-surface-variant'
-                  }`}
+                  onClick={() => {
+                    setSelectedCategory('');
+                    setSelectedTag('');
+                    setSearchVal('');
+                  }}
+                  className="mt-6 px-6 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors cursor-pointer font-bold"
                 >
-                  {c.name.toUpperCase()}
+                  RESET FILTERS
                 </button>
-              ))}
-            </div>
-          </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
+                {products.map((product) => {
+                  const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
+                  const price = hasDiscount ? product.discountedPrice : product.price;
+                  const originalPrice = product.price;
+                  const isWishlisted = wishlistItems.some(item => item._id === product._id);
 
-          {/* Products Grid */}
-          {loading ? (
-            <div className="text-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
-              <p className="font-body-md text-on-surface-variant mt-4">Loading collection...</p>
-            </div>
-          ) : products.length === 0 ? (
-            <div className="text-center py-20 bg-surface rounded-xl p-8 max-w-md mx-auto border border-outline-variant/30">
-              <Icon name="search_off" size="xl" className="text-on-surface-variant/40 mb-4 block" />
-              <p className="font-body-md text-on-surface-variant">
-                We couldn't find any products matching those criteria.
-              </p>
-              <button 
-                onClick={() => {
-                  setSelectedCategory('');
-                  setSelectedTag('');
-                  setSearchVal('');
-                }}
-                className="mt-6 px-6 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors cursor-pointer font-bold"
-              >
-                RESET FILTERS
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
-              {products.map((product) => {
-                const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
-                const price = hasDiscount ? product.discountedPrice : product.price;
-                const originalPrice = product.price;
-                const isWishlisted = wishlistItems.some(item => item._id === product._id);
-
-                return (
-                  <div key={product._id} className="group cursor-pointer">
-                    <Link href={`/products/${product.slug}`}>
-                      <div>
-                        {/* Image Frame */}
-                        <div className="w-full aspect-[3/4] bg-surface-container rounded-xl overflow-hidden mb-4 relative shadow-sm transition-all duration-300 group-hover:shadow-[0_8px_30px_rgba(107,34,51,0.05)] product-crossfade-container">
-                          {/* Stacked product images for crossfade */}
-                          <img 
-                            src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover product-image-primary"
-                          />
-                          <img 
-                            src={product.colors?.[0]?.images?.[1] || product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'} 
-                            alt={`${product.name} alternate`} 
-                            className="absolute inset-0 w-full h-full object-cover product-image-secondary"
-                          />
-                          
-                          {/* Quick-add bag icon */}
-                          <button 
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setQuickBuyProduct(product);
-                              setIsQuickBuyOpen(true);
-                            }}
-                            className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30"
-                            title="Quick Add to Bag"
-                          >
-                            <Icon name="shopping_bag" size="md" className="font-bold" />
-                          </button>
-                          
-                          {/* Wishlist Icon with Heart Pop Animation */}
-                          <button
-                            onClick={async (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              if (!user) {
-                                setAuthModalTab('login');
-                                setIsAuthOpen(true);
-                                return;
-                              }
-                              setPoppingWishlistId(product._id);
-                              setTimeout(() => setPoppingWishlistId(null), 500);
-                              if (isWishlisted) {
-                                await removeFromWishlist(product._id, product.name);
-                              } else {
-                                await addToWishlist(product._id, product.name);
-                              }
-                            }}
-                            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
-                            title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                          >
-                            {poppingWishlistId === product._id && (
-                              <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
-                            )}
-                            <Icon
-                              name="favorite"
-                              size="md"
-                              className={`transition-transform duration-200 ${poppingWishlistId === product._id ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
-                              style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+                  return (
+                    <div key={product._id} className="group cursor-pointer">
+                      <Link href={`/products/${product.slug}`}>
+                        <div>
+                          {/* Image Frame */}
+                          <div className="w-full aspect-[3/4] bg-surface-container rounded-xl overflow-hidden mb-4 relative shadow-sm transition-all duration-300 group-hover:shadow-[0_8px_30px_rgba(107,34,51,0.05)] product-crossfade-container">
+                            {/* Stacked product images for crossfade */}
+                            <img
+                              src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'}
+                              alt={product.name}
+                              className="w-full h-full object-cover product-image-primary"
                             />
-                          </button>
+                            <img
+                              src={product.colors?.[0]?.images?.[1] || product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'}
+                              alt={`${product.name} alternate`}
+                              className="absolute inset-0 w-full h-full object-cover product-image-secondary"
+                            />
 
-                          {/* Tags floating */}
-                          {product.isOnSale && (
-                            <span className="absolute top-4 left-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
-                              <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
-                                <span>SALE</span>
-                                <span>SALE</span>
-                                <span>SALE</span>
-                              </div>
-                            </span>
-                          )}
-                          {!product.isOnSale && product.tags && product.tags.length > 0 && (
-                            <span className="absolute top-4 left-4 bg-surface/90 text-primary text-[8px] font-label-caps tracking-widest px-2.5 py-1.5 rounded shadow-sm font-bold z-10">
-                              {product.tags[0].toUpperCase()}
-                            </span>
-                          )}
-                        </div>
+                            {/* Quick-add bag icon */}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setQuickBuyProduct(product);
+                                setIsQuickBuyOpen(true);
+                              }}
+                              className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30"
+                              title="Quick Add to Bag"
+                            >
+                              <Icon name="shopping_bag" size="md" className="font-bold" />
+                            </button>
 
-                        {/* Text Metadata */}
-                        <div className="space-y-1 px-1">
-                          <h3 className="font-headline-sm text-base text-on-surface group-hover:text-primary transition-colors line-clamp-1">
-                            {product.name}
-                          </h3>
-                          <div className="flex gap-2 items-center">
-                            {hasDiscount ? (
-                              <>
-                                <span className="font-body-md text-sm text-primary font-medium">
-                                  INR {price}
-                                </span>
-                                <span className="font-body-md text-xs text-on-surface-variant line-through opacity-70">
-                                  INR {originalPrice}
-                                </span>
-                              </>
-                            ) : (
-                              <span className="font-body-md text-sm text-on-surface-variant">
-                                INR {price}
+                            {/* Wishlist Icon with Heart Pop Animation */}
+                            <button
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!user) {
+                                  setAuthModalTab('login');
+                                  setIsAuthOpen(true);
+                                  return;
+                                }
+                                setPoppingWishlistId(product._id);
+                                setTimeout(() => setPoppingWishlistId(null), 500);
+                                if (isWishlisted) {
+                                  await removeFromWishlist(product._id, product.name);
+                                } else {
+                                  await addToWishlist(product._id, product.name);
+                                }
+                              }}
+                              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
+                              title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                            >
+                              {poppingWishlistId === product._id && (
+                                <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
+                              )}
+                              <Icon
+                                name="favorite"
+                                size="md"
+                                className={`transition-transform duration-200 ${poppingWishlistId === product._id ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
+                                style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
+                              />
+                            </button>
+
+                            {/* Tags floating */}
+                            {product.isOnSale && (
+                              <span className="absolute top-4 left-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                                <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
+                                  <span>SALE</span>
+                                  <span>SALE</span>
+                                  <span>SALE</span>
+                                </div>
+                              </span>
+                            )}
+                            {!product.isOnSale && product.tags && product.tags.length > 0 && (
+                              <span className="absolute top-4 left-4 bg-surface/90 text-primary text-[8px] font-label-caps tracking-widest px-2.5 py-1.5 rounded shadow-sm font-bold z-10">
+                                {product.tags[0].toUpperCase()}
                               </span>
                             )}
                           </div>
+
+                          {/* Text Metadata */}
+                          <div className="space-y-1 px-1">
+                            <h3 className="font-headline-sm text-base text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                              {product.name}
+                            </h3>
+                            <div className="flex gap-2 items-center">
+                              {hasDiscount ? (
+                                <>
+                                  <span className="font-body-md text-sm text-primary font-medium">
+                                    INR {price}
+                                  </span>
+                                  <span className="font-body-md text-xs text-on-surface-variant line-through opacity-70">
+                                    INR {originalPrice}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="font-body-md text-sm text-on-surface-variant">
+                                  INR {price}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-        </div>
-      </section>
-
-      {/* "The Launch Capsule" Tab Switching Section */}
-      <motion.section 
-        className="py-24 bg-surface-container-low border-t border-b border-outline-variant/20 w-full"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-        variants={scrollFadeInVariants}
-      >
-        <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">LAUNCH CAPSULE</span>
-            <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold mb-4">Design That Speaks</h2>
-            <p className="font-body-md text-on-surface-variant text-sm">
-              Contemporary, colour-led ready-to-wear crafted for spontaneous days and inspired moments. Effortless silhouettes that celebrate personal expression.
-            </p>
-          </div>
-
-          {/* Tab buttons */}
-          <div className="flex justify-center gap-6 md:gap-10 border-b border-outline-variant/30 pb-4 mb-12 overflow-x-auto scrollbar-hide">
-            {editsData.map((edit, idx) => (
-              <button
-                key={edit.id}
-                onClick={() => setActiveEditIdx(idx)}
-                className="relative pb-2 font-label-caps text-xs tracking-wider cursor-pointer font-bold whitespace-nowrap"
-              >
-                <span className={`transition-colors duration-200 ${
-                  activeEditIdx === idx ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-                }`}>
-                  {edit.name.toUpperCase()}
-                </span>
-                
-                {/* layoutId underline */}
-                {activeEditIdx === idx && !shouldReduceMotion && (
-                  <motion.span 
-                    layoutId="activeTabUnderlineEdits"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
-                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                  />
-                )}
-                {activeEditIdx === idx && shouldReduceMotion && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary" />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content Crossfade layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[450px]">
-            <div className="lg:col-span-5 space-y-6">
-              <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
-                {editsData[activeEditIdx]?.eyebrow || 'LAUNCH CAPSULE'}
-              </span>
-              
-              <div className="relative min-h-[150px]">
-                {editsData.map((edit, idx) => (
-                  <div 
-                    key={edit.id}
-                    className={`transition-all duration-500 absolute inset-0 ${
-                      activeEditIdx === idx ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-2 z-0 pointer-events-none'
-                    }`}
-                  >
-                    <h3 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-4 font-bold leading-tight">
-                      {edit.title}
-                    </h3>
-                    <p className="font-body-lg text-on-surface-variant leading-relaxed">
-                      {edit.desc}
-                    </p>
-                  </div>
-                ))}
+                      </Link>
+                    </div>
+                  );
+                })}
               </div>
+            )}
 
-              <div className="pt-6">
-                <Link 
-                  href={editsData[activeEditIdx]?.link || '/shop'}
-                  className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-85 transition-opacity font-bold"
+          </div>
+        </section>
+
+        {/* "The Launch Capsule" Tab Switching Section */}
+        <motion.section
+          className="py-24 bg-surface-container-low border-t border-b border-outline-variant/20 w-full"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
+          variants={scrollFadeInVariants}
+        >
+          <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
+            <div className="text-center max-w-xl mx-auto mb-12">
+              <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">LAUNCH CAPSULE</span>
+              <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold mb-4">Design That Speaks</h2>
+              <p className="font-body-md text-on-surface-variant text-sm">
+                Contemporary, colour-led ready-to-wear crafted for spontaneous days and inspired moments. Effortless silhouettes that celebrate personal expression.
+              </p>
+            </div>
+
+            {/* Tab buttons */}
+            <div className="flex justify-center gap-6 md:gap-10 border-b border-outline-variant/30 pb-4 mb-12 overflow-x-auto scrollbar-hide">
+              {editsData.map((edit, idx) => (
+                <button
+                  key={edit.id}
+                  onClick={() => setActiveEditIdx(idx)}
+                  className="relative pb-2 font-label-caps text-xs tracking-wider cursor-pointer font-bold whitespace-nowrap"
                 >
-                  {editsData[activeEditIdx]?.ctaText || 'EXPLORE COLLECTION'}
-                  <Icon name="arrow_forward" size="sm" />
-                </Link>
-              </div>
+                  <span className={`transition-colors duration-200 ${activeEditIdx === idx ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+                    }`}>
+                    {edit.name.toUpperCase()}
+                  </span>
+
+                  {/* layoutId underline */}
+                  {activeEditIdx === idx && !shouldReduceMotion && (
+                    <motion.span
+                      layoutId="activeTabUnderlineEdits"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  {activeEditIdx === idx && shouldReduceMotion && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary" />
+                  )}
+                </button>
+              ))}
             </div>
 
-            {/* Crossfading images */}
-            <div className="lg:col-span-7">
-              <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md bg-surface-container border border-outline-variant/20">
-                {editsData.map((edit, idx) => (
-                  <img 
-                    key={edit.id}
-                    src={edit.img} 
-                    alt={edit.name} 
-                    className={`w-full h-full object-cover transition-opacity duration-500 absolute inset-0 ${
-                      activeEditIdx === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                    }`}
-                  />
-                ))}
-                <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 z-20">
-                  <span className="font-label-caps text-[9px] tracking-widest text-white uppercase font-bold">
-                    NOT FASHION. EXPRESSION.
-                  </span>
+            {/* Tab Content Crossfade layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[450px]">
+              <div className="lg:col-span-5 space-y-6">
+                <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
+                  {editsData[activeEditIdx]?.eyebrow || 'LAUNCH CAPSULE'}
+                </span>
+
+                <div className="relative min-h-[150px]">
+                  {editsData.map((edit, idx) => (
+                    <div
+                      key={edit.id}
+                      className={`transition-all duration-500 absolute inset-0 ${activeEditIdx === idx ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-2 z-0 pointer-events-none'
+                        }`}
+                    >
+                      <h3 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-4 font-bold leading-tight">
+                        {edit.title}
+                      </h3>
+                      <p className="font-body-lg text-on-surface-variant leading-relaxed">
+                        {edit.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-6">
+                  <Link
+                    href={editsData[activeEditIdx]?.link || '/shop'}
+                    className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-85 transition-opacity font-bold"
+                  >
+                    {editsData[activeEditIdx]?.ctaText || 'EXPLORE COLLECTION'}
+                    <Icon name="arrow_forward" size="sm" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Crossfading images */}
+              <div className="lg:col-span-7">
+                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md bg-surface-container border border-outline-variant/20">
+                  {editsData.map((edit, idx) => (
+                    <img
+                      key={edit.id}
+                      src={edit.img}
+                      alt={edit.name}
+                      className={`w-full h-full object-cover transition-opacity duration-500 absolute inset-0 ${activeEditIdx === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                        }`}
+                    />
+                  ))}
+                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 z-20">
+                    <span className="font-label-caps text-[9px] tracking-widest text-white uppercase font-bold">
+                      NOT FASHION. EXPRESSION.
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </motion.section>
+        </motion.section>
 
-      {/* The Naarzi Story & Founder Manifesto Section */}
-      <motion.section 
-        className="py-24 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-        variants={scrollFadeInVariants}
-      >
-        <div className="lg:col-span-6 space-y-6">
-          <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
-            THE NAARZI STORY
-          </span>
-          <h2 className="font-display-lg text-3xl md:text-5xl text-on-surface leading-tight font-bold">
-            “Beauty Where Others Saw Waste”
-          </h2>
-          <p className="font-headline-sm text-base md:text-lg text-primary font-medium italic">
-            Turning simple fabrics into vibrant stories.
-          </p>
-          <p className="font-body-lg text-on-surface-variant leading-relaxed">
-            Naarzi was born from a singular belief: that art lives in the overlooked. We don’t chase transient fashion seasons — we design for pure, unapologetic self-expression. Every garment is colour-led, thoughtfully crafted, and cut for effortless confidence. Wear the vibe. Feel the colour.
-          </p>
-
-          {/* 3 Brand Pillars */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-outline-variant/30">
-            <div className="space-y-1">
-              <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">01 · COLOUR FIRST</span>
-              <p className="font-body-md text-xs text-on-surface-variant leading-normal">
-                Mood-defining palettes that speak before you do.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">02 · THOUGHTFUL DESIGN</span>
-              <p className="font-body-md text-xs text-on-surface-variant leading-normal">
-                Fluid, relaxed cuts crafted for everyday confidence.
-              </p>
-            </div>
-            <div className="space-y-1">
-              <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">03 · LIMITED DROPS</span>
-              <p className="font-body-md text-xs text-on-surface-variant leading-normal">
-                Small, intentional capsules made to be cherished.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-4">
-            <Link 
-              href="/shop?tag=new arrival"
-              className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-80 transition-opacity font-bold"
-            >
-              EXPLORE THE LAUNCH CAPSULE
-              <Icon name="arrow_forward" size="sm" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Visual Editorial Composition */}
-        <div className="lg:col-span-6 grid grid-cols-2 gap-4 items-center">
-          <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container">
-            <img 
-              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop" 
-              className="w-full h-full object-cover" 
-              alt="Naarzi Colour-Led Ready-to-Wear" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-            <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
-              COLOUR FIRST · 2026
+        {/* The Naarzi Story & Founder Manifesto Section */}
+        <motion.section
+          className="py-24 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
+          variants={scrollFadeInVariants}
+        >
+          <div className="lg:col-span-6 space-y-6">
+            <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
+              THE NAARZI STORY
             </span>
+            <h2 className="font-display-lg text-3xl md:text-5xl text-on-surface leading-tight font-bold">
+              “Beauty Where Others Saw Waste”
+            </h2>
+            <p className="font-headline-sm text-base md:text-lg text-primary font-medium italic">
+              Turning simple fabrics into vibrant stories.
+            </p>
+            <p className="font-body-lg text-on-surface-variant leading-relaxed">
+              Naarzi was born from a singular belief: that art lives in the overlooked. We don’t chase transient fashion seasons — we design for pure, unapologetic self-expression. Every garment is colour-led, thoughtfully crafted, and cut for effortless confidence. Wear the vibe. Feel the colour.
+            </p>
+
+            {/* 3 Brand Pillars */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-outline-variant/30">
+              <div className="space-y-1">
+                <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">01 · COLOUR FIRST</span>
+                <p className="font-body-md text-xs text-on-surface-variant leading-normal">
+                  Mood-defining palettes that speak before you do.
+                </p>
+              </div>
+              <div className="space-y-1">
+                <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">02 · THOUGHTFUL DESIGN</span>
+                <p className="font-body-md text-xs text-on-surface-variant leading-normal">
+                  Fluid, relaxed cuts crafted for everyday confidence.
+                </p>
+              </div>
+              <div className="space-y-1">
+                <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">03 · LIMITED DROPS</span>
+                <p className="font-body-md text-xs text-on-surface-variant leading-normal">
+                  Small, intentional capsules made to be cherished.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-4">
+              <Link
+                href="/shop?tag=new arrival"
+                className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-80 transition-opacity font-bold"
+              >
+                EXPLORE THE LAUNCH CAPSULE
+                <Icon name="arrow_forward" size="sm" />
+              </Link>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container mt-6">
-              <img 
-                src="https://images.unsplash.com/photo-1617922001439-4a2e6562f328?q=80&w=1000&auto=format&fit=crop" 
-                className="w-full h-full object-cover" 
-                alt="Naarzi Atelier and Thoughtful Design" 
+          {/* Visual Editorial Composition */}
+          <div className="lg:col-span-6 grid grid-cols-2 gap-4 items-center">
+            <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container">
+              <img
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop"
+                className="w-full h-full object-cover"
+                alt="Naarzi Colour-Led Ready-to-Wear"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
               <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
-                ART FROM THE OVERLOOKED
+                COLOUR FIRST · 2026
               </span>
             </div>
 
-            <div className="bg-surface-container-high/60 border border-outline-variant/30 rounded-xl p-4 text-center">
-              <p className="font-display-md text-xs sm:text-sm text-primary font-bold italic">
-                “A friend who inspires, not a brand that shouts.”
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Reviews Carousel testimonial section */}
-      <motion.section 
-        className="py-16 bg-surface-container-low/30 border-t border-outline-variant/20 w-full"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-        variants={scrollFadeInVariants}
-      >
-        <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">GUEST DIARIES</span>
-              <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Reviews & Testimonials</h2>
-            </div>
-            
-            <div className="flex gap-2">
-              <button 
-                onClick={() => handleScrollReview('left')}
-                className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
-              >
-                <Icon name="arrow_back" size="md" />
-              </button>
-              <button 
-                onClick={() => handleScrollReview('right')}
-                className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
-              >
-                <Icon name="arrow_forward" size="md" />
-              </button>
-            </div>
-          </div>
-
-          <div 
-            ref={reviewsRef}
-            className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4"
-          >
-            {[
-              {
-                text: "Absolutely stunning fabric. The linen trousers drape beautifully and feel incredibly soft.",
-                author: "Emily R.",
-                rating: 5
-              },
-              {
-                text: "Naarzi has become my go-to for resort wear. Simple, elegant, and timeless silhouettes.",
-                author: "Sophia M.",
-                rating: 5
-              },
-              {
-                text: "The quality of the organic cotton ribbed tanks is unmatched. Soft texture with structure.",
-                author: "Alisha K.",
-                rating: 5
-              },
-              {
-                text: "Breathtaking color palette! The Wine slip dress fits like a dream. Highly recommend.",
-                author: "Carla L.",
-                rating: 5
-              }
-            ].map((rev, idx) => (
-              <div 
-                key={idx}
-                className="min-w-[300px] md:min-w-[350px] max-w-[350px] snap-start bg-white border border-outline-variant/20 rounded-xl p-6 shadow-sm flex flex-col justify-between"
-              >
-                <div className="space-y-4">
-                  {/* Stars */}
-                  <div className="flex text-amber-500 gap-0.5">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Icon key={i} name="star" size="sm" className="fill-1" style={{ fontVariationSettings: '"FILL" 1' }} />
-                    ))}
-                  </div>
-                  <p className="font-body-md text-sm text-on-surface-variant italic leading-relaxed">
-                    "{rev.text}"
-                  </p>
-                </div>
-                <div className="mt-6 border-t border-outline-variant/10 pt-4 flex justify-between items-center">
-                  <span className="font-label-caps text-[10px] text-on-surface font-bold">{rev.author}</span>
-                  <span className="text-[10px] text-green-600 font-label-caps tracking-wider flex items-center gap-1 font-bold">
-                    <Icon name="verified" size="sm" /> VERIFIED CUSTOMER
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
-      {/* Instagram Gallery infinite loop marquee ticker */}
-      <section className="py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
-        <div className="text-center max-w-xl mx-auto mb-10">
-          <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">#NAARZILIFE</span>
-          <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Instagram Gallery</h2>
-        </div>
-
-        <div className="w-full relative overflow-hidden py-4">
-          <div className="flex gap-4 w-max instagram-marquee-track">
-            {instaMarqueeImages.map((img, idx) => (
-              <div key={idx} className="w-48 h-48 md:w-64 md:h-64 rounded-xl overflow-hidden shadow-sm relative group cursor-pointer border border-outline-variant/10">
-                <img 
-                  src={img} 
-                  alt={`Instagram photo ${idx}`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            <div className="space-y-4">
+              <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container mt-6">
+                <img
+                  src="https://images.unsplash.com/photo-1617922001439-4a2e6562f328?q=80&w=1000&auto=format&fit=crop"
+                  className="w-full h-full object-cover"
+                  alt="Naarzi Atelier and Thoughtful Design"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                  <Icon name="photo_camera" size="xl" className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
+                  ART FROM THE OVERLOOKED
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      <Footer />
+              <div className="bg-surface-container-high/60 border border-outline-variant/30 rounded-xl p-4 text-center">
+                <p className="font-display-md text-xs sm:text-sm text-primary font-bold italic">
+                  “A friend who inspires, not a brand that shouts.”
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Reviews Carousel testimonial section */}
+        <motion.section
+          className="py-16 bg-surface-container-low/30 border-t border-outline-variant/20 w-full"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
+          variants={scrollFadeInVariants}
+        >
+          <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">GUEST DIARIES</span>
+                <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Reviews & Testimonials</h2>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleScrollReview('left')}
+                  className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
+                >
+                  <Icon name="arrow_back" size="md" />
+                </button>
+                <button
+                  onClick={() => handleScrollReview('right')}
+                  className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
+                >
+                  <Icon name="arrow_forward" size="md" />
+                </button>
+              </div>
+            </div>
+
+            <div
+              ref={reviewsRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4"
+            >
+              {[
+                {
+                  text: "Absolutely stunning fabric. The linen trousers drape beautifully and feel incredibly soft.",
+                  author: "Emily R.",
+                  rating: 5
+                },
+                {
+                  text: "Naarzi has become my go-to for resort wear. Simple, elegant, and timeless silhouettes.",
+                  author: "Sophia M.",
+                  rating: 5
+                },
+                {
+                  text: "The quality of the organic cotton ribbed tanks is unmatched. Soft texture with structure.",
+                  author: "Alisha K.",
+                  rating: 5
+                },
+                {
+                  text: "Breathtaking color palette! The Wine slip dress fits like a dream. Highly recommend.",
+                  author: "Carla L.",
+                  rating: 5
+                }
+              ].map((rev, idx) => (
+                <div
+                  key={idx}
+                  className="min-w-[300px] md:min-w-[350px] max-w-[350px] snap-start bg-white border border-outline-variant/20 rounded-xl p-6 shadow-sm flex flex-col justify-between"
+                >
+                  <div className="space-y-4">
+                    {/* Stars */}
+                    <div className="flex text-amber-500 gap-0.5">
+                      {[...Array(rev.rating)].map((_, i) => (
+                        <Icon key={i} name="star" size="sm" className="fill-1" style={{ fontVariationSettings: '"FILL" 1' }} />
+                      ))}
+                    </div>
+                    <p className="font-body-md text-sm text-on-surface-variant italic leading-relaxed">
+                      "{rev.text}"
+                    </p>
+                  </div>
+                  <div className="mt-6 border-t border-outline-variant/10 pt-4 flex justify-between items-center">
+                    <span className="font-label-caps text-[10px] text-on-surface font-bold">{rev.author}</span>
+                    <span className="text-[10px] text-green-600 font-label-caps tracking-wider flex items-center gap-1 font-bold">
+                      <Icon name="verified" size="sm" /> VERIFIED CUSTOMER
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Instagram Gallery infinite loop marquee ticker */}
+        <section className="py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">#NAARZILIFE</span>
+            <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Instagram Gallery</h2>
+          </div>
+
+          <div className="w-full relative overflow-hidden py-4">
+            <div className="flex gap-4 w-max instagram-marquee-track">
+              {instaMarqueeImages.map((img, idx) => (
+                <div key={idx} className="w-48 h-48 md:w-64 md:h-64 rounded-xl overflow-hidden shadow-sm relative group cursor-pointer border border-outline-variant/10">
+                  <img
+                    src={img}
+                    alt={`Instagram photo ${idx}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
+                    <Icon name="photo_camera" size="xl" className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <Footer />
 
       </div> {/* Closing the relative z-10 sticky cover wrapper */}
 
