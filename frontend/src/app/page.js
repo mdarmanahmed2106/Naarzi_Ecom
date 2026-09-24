@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
+import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
 import ProductCard from '@/components/ProductCard';
 
@@ -34,9 +35,6 @@ function HomePageContent() {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
-  const [selectedTag, setSelectedTag] = useState(searchParams.get('tag') || '');
-  const [searchVal, setSearchVal] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Trending Carousel Drag Scroll State
@@ -94,12 +92,6 @@ function HomePageContent() {
   // Duplicate images for seamless marquee looping
   const instaMarqueeImages = [...instaImages, ...instaImages];
 
-  // Sync category and tag with URL query params
-  useEffect(() => {
-    setSelectedCategory(searchParams.get('category') || '');
-    setSelectedTag(searchParams.get('tag') || '');
-  }, [searchParams]);
-
   // Load Categories
   useEffect(() => {
     async function loadCategories() {
@@ -115,28 +107,14 @@ function HomePageContent() {
     loadCategories();
   }, []);
 
-  // Load Products based on filters
+  // Load Curated Homepage Products (Independent of home URL filters)
   useEffect(() => {
     async function loadProducts() {
       setLoading(true);
       try {
-        const params = {};
-        if (selectedCategory) {
-          const catObj = categories.find(c => c.slug === selectedCategory || c.name === selectedCategory);
-          if (catObj) {
-            params.category = catObj._id;
-          }
-        }
-        if (selectedTag) {
-          params.tag = selectedTag;
-        }
-        if (searchVal) {
-          params.search = searchVal;
-        }
-
-        const response = await productsApi.getAll(params);
+        const response = await productsApi.getAll({ limit: 6 });
         if (response.success) {
-          setProducts(response.data);
+          setProducts(response.data || []);
         }
       } catch (err) {
         console.error('Failed to load products:', err);
@@ -145,27 +123,7 @@ function HomePageContent() {
       }
     }
     loadProducts();
-  }, [selectedCategory, selectedTag, searchVal, categories]);
-
-  const handleCategoryFilter = (slug) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (slug) {
-      params.set('category', slug);
-    } else {
-      params.delete('category');
-    }
-    router.push(`/?${params.toString()}`, { scroll: false });
-  };
-
-  const handleTagFilter = (tag) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (tag) {
-      params.set('tag', tag);
-    } else {
-      params.delete('tag');
-    }
-    router.push(`/?${params.toString()}`, { scroll: false });
-  };
+  }, []);
 
   // Drag Scroll mouse handlers
   const handleMouseDown = (e) => {
@@ -324,18 +282,18 @@ function HomePageContent() {
               variants={heroChildVariants}
               className="flex flex-col sm:flex-row items-center gap-4"
             >
-              <button
-                onClick={() => handleTagFilter('new-arrival')}
-                className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-bold active:scale-[0.98]"
+              <Link
+                href="/shop?tag=new-arrival"
+                className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-bold active:scale-[0.98] text-center"
               >
                 Shop New Arrivals
-              </button>
-              <button
-                onClick={() => handleTagFilter('sale')}
-                className="w-full sm:w-auto px-8 py-3.5 bg-transparent border border-primary/40 hover:border-primary text-primary hover:bg-primary/5 font-label-caps text-xs tracking-widest rounded-xl transition-all cursor-pointer font-bold active:scale-[0.98]"
+              </Link>
+              <Link
+                href="/shop?tag=sale"
+                className="w-full sm:w-auto px-8 py-3.5 bg-transparent border border-primary/40 hover:border-primary text-primary hover:bg-primary/5 font-label-caps text-xs tracking-widest rounded-xl transition-all cursor-pointer font-bold active:scale-[0.98] text-center"
               >
                 Shop Sale
-              </button>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
@@ -422,23 +380,6 @@ function HomePageContent() {
               <div className="text-center py-20">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
                 <p className="font-body-md text-on-surface-variant mt-4">Loading collection...</p>
-              </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-20 bg-surface rounded-xl p-8 max-w-md mx-auto border border-outline-variant/30">
-                <Icon name="search_off" size="xl" className="text-on-surface-variant/40 mb-4 block" />
-                <p className="font-body-md text-on-surface-variant">
-                  We couldn't find any products matching those criteria.
-                </p>
-                <button
-                  onClick={() => {
-                    setSelectedCategory('');
-                    setSelectedTag('');
-                    setSearchVal('');
-                  }}
-                  className="mt-6 px-6 py-3 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors cursor-pointer font-bold"
-                >
-                  RESET FILTERS
-                </button>
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
