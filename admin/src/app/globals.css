@@ -1,41 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #4e0b1e;
-  --color-primary-container: #6b2233;
+  --color-primary: #8f4d5c;
+  --color-primary-container: #a65e6f;
   --color-on-primary: #ffffff;
-  --color-on-primary-container: #ed899b;
-  --color-secondary: #765a1e;
-  --color-secondary-container: #fed88f;
-  --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #795c20;
-  --color-tertiary: #1b253f;
-  --color-tertiary-container: #313b56;
+  --color-on-primary-container: #ffdbe2;
+  --color-secondary: #f7f2e7;
+  --color-secondary-container: #ebe2d3;
+  --color-on-secondary: #2c251e;
+  --color-on-secondary-container: #493f33;
+  --color-tertiary: #2e384d;
+  --color-tertiary-container: #44506b;
   --color-on-tertiary: #ffffff;
-  --color-on-tertiary-container: #9ba5c5;
-  --color-surface: #fff9ed;
-  --color-surface-dim: #dfd9cf;
-  --color-surface-bright: #fff9ed;
-  --color-surface-container: #f3ede2;
-  --color-surface-container-low: #f9f3e8;
-  --color-surface-container-high: #ede8dd;
+  --color-on-tertiary-container: #b8c4e0;
+  --color-surface: #fdfbf7;
+  --color-surface-dim: #e4dfd6;
+  --color-surface-bright: #fffff8;
+  --color-surface-container: #f4eee5;
+  --color-surface-container-low: #f9f5ee;
+  --color-surface-container-high: #eee8de;
   --color-surface-container-highest: #e8e2d7;
   --color-surface-container-lowest: #ffffff;
-  --color-on-surface: #1d1c15;
-  --color-on-surface-variant: #544244;
-  --color-outline: #867274;
-  --color-outline-variant: #d9c1c3;
-  --color-background: #fff9ed;
-  --color-on-background: #1d1c15;
+  --color-on-surface: #1e191b;
+  --color-on-surface-variant: #5c4a4e;
+  --color-outline: #8e787d;
+  --color-outline-variant: #dfcfd3;
+  --color-background: #fdfbf7;
+  --color-on-background: #1e191b;
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
 
   /* Accent colors used loosely across the app outside the core Material palette */
-  --color-sale: #e55b5b;
+  --color-sale: #d94f4f;
   --color-accent-gold: #c5a059;
-  --color-first-order-badge: #fff0e8;
+  --color-first-order-badge: #fbf0ea;
 
   /* Spacing and margins matching design guidelines */
   --spacing-margin-desktop: 64px;
