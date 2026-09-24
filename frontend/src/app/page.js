@@ -9,8 +9,8 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
-import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
+import ProductCard from '@/components/ProductCard';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -442,120 +442,9 @@ function HomePageContent() {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
-                {products.map((product) => {
-                  const hasDiscount = product.discountedPrice !== undefined && product.discountedPrice !== null;
-                  const price = hasDiscount ? product.discountedPrice : product.price;
-                  const originalPrice = product.price;
-                  const isWishlisted = wishlistItems.some(item => item._id === product._id);
-
-                  return (
-                    <div key={product._id} className="group cursor-pointer">
-                      <Link href={`/products/${product.slug}`}>
-                        <div>
-                          {/* Image Frame */}
-                          <div className="w-full aspect-[3/4] bg-surface-container rounded-xl overflow-hidden mb-4 relative shadow-sm transition-all duration-300 group-hover:shadow-[0_8px_30px_rgba(107,34,51,0.05)] product-crossfade-container">
-                            {/* Stacked product images for crossfade */}
-                            <img
-                              src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'}
-                              alt={product.name}
-                              className="w-full h-full object-cover product-image-primary"
-                            />
-                            <img
-                              src={product.colors?.[0]?.images?.[1] || product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'}
-                              alt={`${product.name} alternate`}
-                              className="absolute inset-0 w-full h-full object-cover product-image-secondary"
-                            />
-
-                            {/* Quick-add bag icon */}
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setQuickBuyProduct(product);
-                                setIsQuickBuyOpen(true);
-                              }}
-                              className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30"
-                              title="Quick Add to Bag"
-                            >
-                              <Icon name="shopping_bag" size="md" className="font-bold" />
-                            </button>
-
-                            {/* Wishlist Icon with Heart Pop Animation */}
-                            <button
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (!user) {
-                                  setAuthModalTab('login');
-                                  setIsAuthOpen(true);
-                                  return;
-                                }
-                                setPoppingWishlistId(product._id);
-                                setTimeout(() => setPoppingWishlistId(null), 500);
-                                if (isWishlisted) {
-                                  await removeFromWishlist(product._id, product.name);
-                                } else {
-                                  await addToWishlist(product._id, product.name);
-                                }
-                              }}
-                              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center shadow-sm hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
-                              title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                            >
-                              {poppingWishlistId === product._id && (
-                                <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />
-                              )}
-                              <Icon
-                                name="favorite"
-                                size="md"
-                                className={`transition-transform duration-200 ${poppingWishlistId === product._id ? 'animate-heart-pop text-primary' : ''} ${isWishlisted ? 'fill-1 text-primary' : 'text-on-surface-variant hover:text-primary'}`}
-                                style={{ fontVariationSettings: isWishlisted ? "'FILL' 1" : "'FILL' 0" }}
-                              />
-                            </button>
-
-                            {/* Tags floating */}
-                            {product.isOnSale && (
-                              <span className="absolute top-4 left-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
-                                <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
-                                  <span>SALE</span>
-                                  <span>SALE</span>
-                                  <span>SALE</span>
-                                </div>
-                              </span>
-                            )}
-                            {!product.isOnSale && product.tags && product.tags.length > 0 && (
-                              <span className="absolute top-4 left-4 bg-surface/90 text-primary text-[8px] font-label-caps tracking-widest px-2.5 py-1.5 rounded shadow-sm font-bold z-10">
-                                {product.tags[0].toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Text Metadata */}
-                          <div className="space-y-1 px-1">
-                            <h3 className="font-headline-sm text-base text-on-surface group-hover:text-primary transition-colors line-clamp-1">
-                              {product.name}
-                            </h3>
-                            <div className="flex gap-2 items-center">
-                              {hasDiscount ? (
-                                <>
-                                  <span className="font-body-md text-sm text-primary font-medium">
-                                    INR {price}
-                                  </span>
-                                  <span className="font-body-md text-xs text-on-surface-variant line-through opacity-70">
-                                    INR {originalPrice}
-                                  </span>
-                                </>
-                              ) : (
-                                <span className="font-body-md text-sm text-on-surface-variant">
-                                  INR {price}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  );
-                })}
+                {products.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
               </div>
             )}
 

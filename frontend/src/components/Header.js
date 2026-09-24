@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
-import { promoBannersApi, productsApi } from '@/lib/api';
+import { promoBannersApi, productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
 
 export default function Header() {
@@ -20,6 +20,7 @@ export default function Header() {
   } = useApp();
 
   const [banners, setBanners] = useState([]);
+  const [navCategories, setNavCategories] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState(null);
   const [mobileApparelOpen, setMobileApparelOpen] = useState(false);
@@ -58,7 +59,18 @@ export default function Header() {
         console.error('Failed to fetch banners', err);
       }
     }
+    async function fetchNavCategories() {
+      try {
+        const res = await categoriesApi.getAll();
+        if (res.success) {
+          setNavCategories(res.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to load categories for nav:', err);
+      }
+    }
     fetchBanners();
+    fetchNavCategories();
   }, []);
 
   useEffect(() => {
@@ -279,10 +291,25 @@ export default function Header() {
                       <div>
                         <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Clothing</h4>
                         <ul className="space-y-3 text-sm text-on-surface-variant">
-                          <li><Link href="/shop?category=tops" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Tops</Link></li>
-                          <li><Link href="/shop?category=bottoms" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Bottoms</Link></li>
-                          <li><Link href="/shop?category=dresses" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Dresses</Link></li>
-                          <li><Link href="/shop?category=outerwear" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Outerwear</Link></li>
+                          {navCategories.length > 0 ? (
+                            navCategories.map((cat) => (
+                              <li key={cat._id}>
+                                <Link
+                                  href={`/shop?category=${cat.slug}`}
+                                  onClick={() => setActiveMegaMenu(null)}
+                                  className="hover:text-primary transition-colors block"
+                                >
+                                  {cat.name}
+                                </Link>
+                              </li>
+                            ))
+                          ) : (
+                            <>
+                              <li className="h-4 w-20 bg-surface-container rounded animate-pulse" />
+                              <li className="h-4 w-24 bg-surface-container rounded animate-pulse" />
+                              <li className="h-4 w-16 bg-surface-container rounded animate-pulse" />
+                            </>
+                          )}
                         </ul>
                       </div>
 
@@ -481,10 +508,24 @@ export default function Header() {
               </div>
               <div className={`overflow-hidden transition-all duration-300 ${mobileApparelOpen ? 'max-h-[500px] mt-4' : 'max-h-0'}`}>
                 <ul className="space-y-4 pl-4 text-sm text-on-surface-variant font-medium">
-                  <li><Link href="/shop?category=tops" onClick={() => setIsMobileMenuOpen(false)}>Tops</Link></li>
-                  <li><Link href="/shop?category=bottoms" onClick={() => setIsMobileMenuOpen(false)}>Bottoms</Link></li>
-                  <li><Link href="/shop?category=dresses" onClick={() => setIsMobileMenuOpen(false)}>Dresses</Link></li>
-                  <li><Link href="/shop?category=outerwear" onClick={() => setIsMobileMenuOpen(false)}>Outerwear</Link></li>
+                  {navCategories.length > 0 ? (
+                    navCategories.map((cat) => (
+                      <li key={cat._id}>
+                        <Link
+                          href={`/shop?category=${cat.slug}`}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className="hover:text-primary transition-colors block"
+                        >
+                          {cat.name}
+                        </Link>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="h-4 w-20 bg-surface-container rounded animate-pulse" />
+                      <li className="h-4 w-24 bg-surface-container rounded animate-pulse" />
+                    </>
+                  )}
                   <li><Link href="/shop?tag=trending" onClick={() => setIsMobileMenuOpen(false)}>Trending</Link></li>
                   <li><Link href="/shop?category=apparel" onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-primary">Shop All Apparel</Link></li>
                 </ul>

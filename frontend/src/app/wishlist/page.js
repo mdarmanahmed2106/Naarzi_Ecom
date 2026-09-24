@@ -99,26 +99,35 @@ export default function WishlistPage() {
                     </div>
 
                     {/* Metadata details */}
-                    <div className="space-y-1 px-1">
-                      <h3 className="font-headline-sm text-base text-on-surface group-hover:text-primary transition-colors line-clamp-1">
+                    <div className="space-y-1 px-0.5">
+                      <h3 className="font-bold text-[15px] leading-snug text-on-surface group-hover:text-primary transition-colors line-clamp-1">
                         {product.name}
                       </h3>
-                      <div className="flex gap-2 items-center">
-                        {hasDiscount ? (
-                          <>
-                            <span className="font-body-md text-sm text-primary font-medium">
-                              INR {price}
-                            </span>
-                            <span className="font-body-md text-xs text-on-surface-variant line-through opacity-70">
-                              INR {product.price}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="font-body-md text-sm text-on-surface-variant">
-                            INR {price}
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-on-surface">
+                          INR {price}
+                        </span>
+                        {hasDiscount && (
+                          <span className="text-xs text-on-surface-variant line-through opacity-70 font-normal">
+                            INR {product.price}
                           </span>
                         )}
                       </div>
+                      {product.colors && product.colors.length > 0 && (
+                        <div className="flex items-center gap-1.5 pt-1">
+                          {product.colors.map((color, idx) => {
+                            const hex = color.hexCode || color.hex || (typeof color === 'string' ? color : '#1d1c15');
+                            return (
+                              <span
+                                key={idx}
+                                title={color.name || `Color ${idx + 1}`}
+                                className="w-5 h-2.5 rounded-[3px] border border-black/25 dark:border-white/30 inline-block"
+                                style={{ backgroundColor: hex }}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </Link>
 

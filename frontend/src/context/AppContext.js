@@ -17,7 +17,7 @@ export function AppProvider({ children }) {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false);
   const [quickBuyProduct, setQuickBuyProduct] = useState(null);
-  const [settings, setSettings] = useState({ freeShippingThreshold: 0, shippingCost: 0 });
+  const [settings, setSettings] = useState({ freeShippingThreshold: 999, shippingCost: 99 });
   const quantityDebounceRef = useRef(null);
   const hasSyncedRef = useRef(false);
 
@@ -26,14 +26,14 @@ export function AppProvider({ children }) {
     async function loadSettings() {
       try {
         const response = await settingsApi.get();
-        if (response.success && response.data) {
+        if (response?.success && response?.data) {
           setSettings({
-            freeShippingThreshold: response.data.freeShippingThreshold ?? 0,
-            shippingCost: response.data.shippingCost ?? 0,
+            freeShippingThreshold: response.data.freeShippingThreshold ?? 999,
+            shippingCost: response.data.shippingCost ?? 99,
           });
         }
       } catch (err) {
-        console.error('Failed to load store settings:', err);
+        console.warn('Backend server not yet ready, using default store settings.');
       }
     }
     loadSettings();
