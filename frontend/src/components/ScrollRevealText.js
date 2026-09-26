@@ -6,24 +6,20 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion
 import Icon from '@/components/Icon';
 
 function Word({ word, progress, range, shouldReduceMotion }) {
+  // Smoothly transitions from faint ghost (0.15) to solid dark (1.0)
   const opacity = useTransform(progress, range, [0.15, 1]);
 
   if (shouldReduceMotion) {
-    return <span className="inline-block mr-[0.28em] my-[0.05em] text-[#130f12]">{word}</span>;
+    return <span className="inline-block mr-[0.25em] my-[0.05em] text-[#130f12] font-bold">{word}</span>;
   }
 
   return (
-    <span className="relative inline-block mr-[0.28em] my-[0.05em]">
-      {/* Ghost background word for layout clarity */}
-      <span className="opacity-15 text-[#130f12] select-none pointer-events-none">{word}</span>
-      {/* Animated progressive reveal word */}
-      <motion.span
-        style={{ opacity }}
-        className="absolute inset-0 text-[#130f12] select-text font-medium"
-      >
-        {word}
-      </motion.span>
-    </span>
+    <motion.span
+      style={{ opacity }}
+      className="inline-block mr-[0.25em] my-[0.05em] text-[#130f12] font-bold"
+    >
+      {word}
+    </motion.span>
   );
 }
 
@@ -35,7 +31,7 @@ export default function ScrollRevealText({
   const containerRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
 
-  // Track scroll through the sticky pinned container (start start -> end end)
+  // Track scroll position through the sticky container
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
@@ -44,10 +40,10 @@ export default function ScrollRevealText({
   const words = text.split(" ");
   const totalWords = words.length;
 
-  // Reveal words progressively across 5% to 85% of sticky scroll distance
-  const revealStart = 0.05;
-  const revealEnd = 0.85;
-  const revealSpan = revealEnd - revealStart;
+  // Reveal range: All words start 100% faint (0.0 to 0.08), then reveal progressively up to 0.88
+  const revealStart = 0.08;
+  const revealEnd = 0.88;
+  const step = (revealEnd - revealStart) / totalWords;
 
   return (
     <section
@@ -59,7 +55,7 @@ export default function ScrollRevealText({
         <div className="max-w-4xl mx-auto w-full flex flex-col items-center text-center">
           
           {/* Top 3 Diamond / Sparkle Motif */}
-          <div className="flex items-center justify-center gap-3 mb-8 sm:mb-10 text-primary select-none" aria-hidden="true">
+          <div className="flex items-center justify-center gap-3 mb-8 sm:mb-10 text-[#130f12] select-none" aria-hidden="true">
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z" />
             </svg>
@@ -72,10 +68,10 @@ export default function ScrollRevealText({
           </div>
 
           {/* Reveal Manifesto Text */}
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[40px] leading-[1.35] sm:leading-[1.4] md:leading-[1.48] font-serif tracking-tight text-[#130f12] text-center mb-10 md:mb-12 max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[42px] leading-[1.35] sm:leading-[1.4] md:leading-[1.42] font-sans tracking-tight text-[#130f12] text-center mb-10 md:mb-12 max-w-3xl">
             {words.map((word, i) => {
-              const start = revealStart + (i / totalWords) * revealSpan;
-              const end = Math.min(1, start + 1.5 * (revealSpan / totalWords));
+              const start = revealStart + i * step;
+              const end = start + step * 0.95;
               return (
                 <Word
                   key={i}
