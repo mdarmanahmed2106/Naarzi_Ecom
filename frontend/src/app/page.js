@@ -382,28 +382,6 @@ function HomePageContent() {
                   <span>SHOP ALL TRENDING</span>
                   <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 text-white" />
                 </Link>
-                
-                {/* Desktop Carousel Header Navigation Arrows */}
-                <div className="hidden md:flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleScrollTrending('left')}
-                    className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white shadow-xs"
-                    title="Previous"
-                    aria-label="Previous Products"
-                  >
-                    <Icon name="chevron_left" size="md" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleScrollTrending('right')}
-                    className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white shadow-xs"
-                    title="Next"
-                    aria-label="Next Products"
-                  >
-                    <Icon name="chevron_right" size="md" />
-                  </button>
-                </div>
               </div>
             </div>
 
