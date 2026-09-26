@@ -42,6 +42,7 @@ const STORIES_DATA = [
 
 export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
+  const textTrackRef = useRef(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -51,20 +52,19 @@ export default function ScrollStorytellingSection() {
 
       // Desktop & Large Screens (>= 1024px)
       mm.add('(min-width: 1024px)', () => {
-        const textBlocks = gsap.utils.toArray('.story-text-block');
         const cards = gsap.utils.toArray('.story-card');
         const count = cards.length;
 
         if (count <= 1) return;
 
-        // Set initial positions: Text 0 visible, Cards 1..N starting below viewport
-        gsap.set(textBlocks, { autoAlpha: 0, y: 35 });
-        gsap.set(textBlocks[0], { autoAlpha: 1, y: 0 });
-
+        // Card 0 starts in place, Cards 1..N start below viewport
         gsap.set(cards, { yPercent: 120, scale: 1 });
         gsap.set(cards[0], { yPercent: 0, scale: 1 });
 
-        // Timeline linked to scroll without pin: true to avoid DOM tampering in React
+        // Left text track starts at position 0
+        gsap.set(textTrackRef.current, { yPercent: 0 });
+
+        // Timeline linked to scroll without pin: true to keep React DOM pure
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
@@ -75,43 +75,41 @@ export default function ScrollStorytellingSection() {
           }
         });
 
-        // Sequence through cards 1, 2, 3...
+        // Total vertical scroll translation for left track: -(count - 1) * (100 / count) %
+        const totalTextShift = -((count - 1) / count) * 100;
+
+        // Animate left text track continuously upward
+        tl.to(
+          textTrackRef.current,
+          {
+            yPercent: totalTextShift,
+            ease: 'none',
+            duration: count - 1
+          },
+          0
+        );
+
+        // Animate each subsequent card upward to overlap the deck in sync
         for (let i = 1; i < count; i++) {
-          const stepLabel = `step-${i}`;
-          tl.addLabel(stepLabel);
-
-          // 1. Crossfade left-side text block
-          tl.to(
-            textBlocks[i - 1],
-            { autoAlpha: 0, y: -25, duration: 0.55, ease: 'power2.inOut' },
-            stepLabel
-          );
-          tl.to(
-            textBlocks[i],
-            { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' },
-            `${stepLabel}+=0.15`
-          );
-
-          // 2. Next card slides smoothly upward and stacks over the previous card
+          const startTime = i - 1;
           tl.to(
             cards[i],
             {
               yPercent: 0,
-              scale: 1,
-              duration: 1,
-              ease: 'power2.out'
+              ease: 'power1.inOut',
+              duration: 1
             },
-            stepLabel
+            startTime
           );
         }
 
         // Buffer pause at the end
-        tl.to({}, { duration: 0.25 });
+        tl.to({}, { duration: 0.3 });
       });
 
       // Mobile / Compact Layout (< 1024px)
       mm.add('(max-width: 1023px)', () => {
-        gsap.set('.story-text-block', { autoAlpha: 1, y: 0 });
+        gsap.set(textTrackRef.current, { yPercent: 0 });
         gsap.set('.story-card', { yPercent: 0, scale: 1 });
       });
     }, containerRef);
@@ -125,39 +123,45 @@ export default function ScrollStorytellingSection() {
       className="relative w-full h-[320vh] lg:h-[320vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
       aria-label="Storytelling Lookbook Collection"
     >
-      {/* DESKTOP PINNED VIEWPORT (>= 1024px) - Uses CSS sticky to lock cleanly without DOM manipulation */}
+      {/* DESKTOP PINNED VIEWPORT (>= 1024px) - Continuous synchronized vertical scroll */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
         
-        {/* Left Column: Bold Headline & CTA Button */}
-        <div className="relative w-1/2 min-h-[380px] flex items-center">
-          {STORIES_DATA.map((story) => (
-            <div
-              key={story.id}
-              className="story-text-block absolute inset-0 flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10"
-            >
-              {/* Optional Top Mini Tag */}
-              {story.topTag && (
-                <span className="inline-block px-3.5 py-1.5 bg-black text-white text-[10px] font-label-caps tracking-[0.2em] font-bold uppercase rounded-[4px]">
-                  {story.topTag}
-                </span>
-              )}
+        {/* Left Column: Continuously Scrolling Text Viewport Window */}
+        <div className="relative w-1/2 h-[68vh] max-h-[540px] overflow-hidden flex flex-col justify-start">
+          <div
+            ref={textTrackRef}
+            className="w-full flex flex-col will-change-transform"
+            style={{ height: `${STORIES_DATA.length * 100}%` }}
+          >
+            {STORIES_DATA.map((story) => (
+              <div
+                key={story.id}
+                className="w-full h-[68vh] max-h-[540px] flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10 select-none"
+              >
+                {/* Top Mini Tag */}
+                {story.topTag && (
+                  <span className="inline-block px-3.5 py-1.5 bg-black text-white text-[10px] font-label-caps tracking-[0.2em] font-bold uppercase rounded-[4px]">
+                    {story.topTag}
+                  </span>
+                )}
 
-              {/* Bold Statement Title */}
-              <h3 className="text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
-                {story.title}
-              </h3>
+                {/* Bold Statement Title */}
+                <h3 className="text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
+                  {story.title}
+                </h3>
 
-              {/* Bottom CTA Button */}
-              <div className="pt-2">
-                <Link
-                  href={story.link}
-                  className="inline-flex items-center justify-center px-7 py-3.5 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
-                >
-                  {story.ctaText}
-                </Link>
+                {/* Bottom CTA Button */}
+                <div className="pt-2">
+                  <Link
+                    href={story.link}
+                    className="inline-flex items-center justify-center px-7 py-3.5 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                  >
+                    {story.ctaText}
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Right Column: Rounded Overlapping Image Cards */}
