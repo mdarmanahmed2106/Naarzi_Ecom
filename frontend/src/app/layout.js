@@ -1,4 +1,4 @@
-import { Playfair_Display, Source_Sans_3 } from "next/font/google";
+import { Playfair_Display, Source_Sans_3, Bodoni_Moda } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
 import "./globals.css";
 
@@ -12,9 +12,14 @@ const sourceSans3 = Source_Sans_3({
   variable: "--font-source-sans-3",
 });
 
+const bodoniModa = Bodoni_Moda({
+  subsets: ["latin"],
+  variable: "--font-bodoni-moda",
+});
+
 export const metadata = {
   title: "Naarzi | Own The Moment",
-  };
+};
 
 import QuickBuyDrawer from "@/components/QuickBuyDrawer";
 
@@ -22,7 +27,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${playfairDisplay.variable} ${sourceSans3.variable} h-full antialiased overflow-x-clip`}
+      className={`${playfairDisplay.variable} ${sourceSans3.variable} ${bodoniModa.variable} h-full antialiased overflow-x-clip`}
     >
       <head>
         <link

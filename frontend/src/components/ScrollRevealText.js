@@ -29,13 +29,13 @@ function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
   );
 
   if (shouldReduceMotion) {
-    return <span className="inline-block mr-[0.24em] my-[0.02em] text-[#130f12] font-bold">{word}</span>;
+    return <span className="inline-block mr-[0.24em] my-[0.02em] text-[#130f12] font-semibold">{word}</span>;
   }
 
   return (
     <motion.span
       style={{ opacity, y }}
-      className="inline-block mr-[0.24em] my-[0.02em] font-bold text-[#130f12] will-change-transform"
+      className="inline-block mr-[0.24em] my-[0.02em] font-semibold text-[#130f12] will-change-transform"
     >
       {word}
     </motion.span>
@@ -60,7 +60,6 @@ export default function ScrollRevealText({
   const totalWords = words.length;
 
   // Reveal timeline bounds: 0.05 to 0.65
-  // Words strictly reveal in left-to-right sequence and all words remain 100% solid through 0.65-1.0
   const revealStart = 0.05;
   const revealEnd = 0.65;
   const step = (revealEnd - revealStart) / totalWords;
@@ -76,11 +75,11 @@ export default function ScrollRevealText({
         <div className="max-w-4xl mx-auto w-full flex flex-col items-center text-center my-auto">
           
           {/* Top 3 Diamond Sparkles (Palo Alto Style) */}
-          <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8 text-[#130f12] select-none" aria-hidden="true">
+          <div className="flex items-center justify-center gap-3.5 mb-6 sm:mb-8 text-[#130f12] select-none" aria-hidden="true">
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
             </svg>
-            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
             </svg>
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -88,8 +87,11 @@ export default function ScrollRevealText({
             </svg>
           </div>
 
-          {/* Reveal Manifesto Statement */}
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] xl:text-[34px] leading-[1.38] sm:leading-[1.42] md:leading-[1.46] font-sans font-bold tracking-tight text-[#130f12] text-center mb-8 sm:mb-10 max-w-3xl mx-auto">
+          {/* Reveal Manifesto Statement in Bodoni Moda Serif Typography */}
+          <h2
+            style={{ fontFamily: 'var(--font-bodoni-moda), "Bodoni Moda", serif' }}
+            className="text-xl sm:text-2xl md:text-3xl lg:text-[34px] xl:text-[36px] leading-[1.36] sm:leading-[1.4] md:leading-[1.44] tracking-normal text-[#130f12] text-center mb-8 sm:mb-10 max-w-3xl mx-auto"
+          >
             {words.map((word, i) => {
               const start = revealStart + i * step;
               const end = start + step;
@@ -106,12 +108,12 @@ export default function ScrollRevealText({
             })}
           </h2>
 
-          {/* Bottom Primary CTA Button */}
+          {/* Bottom CTA Button: Transparent outline until hovered */}
           {ctaText && (
             <div>
               <Link
                 href={ctaLink}
-                className="inline-flex items-center justify-center px-8 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-lg transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95"
+                className="inline-flex items-center justify-center px-8 py-3.5 bg-transparent border border-[#130f12]/80 text-[#130f12] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] hover:text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-lg transition-all duration-300 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95"
               >
                 {ctaText}
               </Link>
