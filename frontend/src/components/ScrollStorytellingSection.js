@@ -7,34 +7,30 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion
 const STORIES_DATA = [
   {
     id: 'story-1',
-    topTag: 'NEW ARRIVALS',
-    title: 'Designed to empower you to express your unique sense of style with confidence.',
-    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-    ctaText: 'SHOP OUR COLLECTION',
-    link: '/shop'
-  },
-  {
-    id: 'story-2',
-    topTag: 'LOOKBOOK 2026',
-    title: 'Stand out wherever you go. Our latest lookbook has dropped and is ready to shop.',
-    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
-    ctaText: 'VIEW LOOKBOOK',
+    topTag: 'SIGNATURE SETS',
+    title: 'Artistic colour-blocks and relaxed tailoring crafted for effortless confidence.',
+    img: '/hero_image.png',
+    type: 'image',
+    ctaText: 'SHOP CO-ORD SETS',
     link: '/shop?tag=new-arrival'
   },
   {
-    id: 'story-3',
-    topTag: 'SIGNATURE PIECES',
-    title: 'Discover timeless pieces and chic ensembles to elevate your world.',
-    img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
-    ctaText: 'SHOP BESTSELLERS',
+    id: 'story-2',
+    topTag: 'COLOUR FIRST · 2026',
+    title: 'Turning simple fabrics into vibrant stories with colour-led design that moves with you.',
+    video: 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-a-pink-and-purple-neon-lit-room-41662-large.mp4',
+    poster: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
+    type: 'video',
+    ctaText: 'EXPLORE THE CAPSULE',
     link: '/shop?tag=trending'
   },
   {
-    id: 'story-4',
-    topTag: 'COLOUR FIRST',
-    title: 'Contemporary, colour-led ready-to-wear crafted for spontaneous days and inspired moments.',
-    img: '/hero_image.png',
-    ctaText: 'EXPLORE FULL CAPSULE',
+    id: 'story-3',
+    topTag: 'LIMITED EDITION',
+    title: 'Fluid contemporary cuts meeting timeless Indian artisanal craft for inspired moments.',
+    img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
+    type: 'image',
+    ctaText: 'SHOP BESTSELLERS',
     link: '/shop?category=apparel'
   }
 ];
@@ -43,61 +39,48 @@ export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
 
-  // Scroll timeline linked to the sticky stage
+  // Scroll timeline linked to the sticky stage (3 stories)
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end']
   });
 
-  // Continuous Left-Side Text Track: 0% -> -75%
+  // Continuous Left-Side Text Track: 0% -> -33.33% -> -66.66%
   const textTrackY = useTransform(
     scrollYProgress,
-    [0, 0.32, 0.65, 0.95],
-    ['0%', '-25%', '-50%', '-75%']
+    [0, 0.48, 0.95],
+    ['0%', '-33.333%', '-66.666%']
   );
 
-  // Continuous Right-Side Photo Columns that glide up and lock/sit on arrival:
-  // Card 1 starts right below Card 0 (108%), glides up with Text 2, and clamps at 0% to sit on Card 0
+  // Card 1 (Video) starts below Card 0 (108%), glides up and locks/sits at 0%
   const card1Y = useTransform(
     scrollYProgress,
-    [0, 0.32, 1],
+    [0, 0.48, 1],
     ['108%', '0%', '0%']
   );
   const card0Scale = useTransform(
     scrollYProgress,
-    [0, 0.32, 0.65, 0.95],
-    [1, 0.96, 0.92, 0.88]
+    [0, 0.48, 0.95],
+    [1, 0.96, 0.92]
   );
 
   // Card 2 starts at 216%, glides to 108% at step 1, then to 0% at step 2, clamping at 0%
   const card2Y = useTransform(
     scrollYProgress,
-    [0, 0.32, 0.65, 1],
+    [0, 0.48, 0.95, 1],
     ['216%', '108%', '0%', '0%']
   );
   const card1Scale = useTransform(
     scrollYProgress,
-    [0, 0.32, 0.65, 0.95],
-    [1, 1, 0.96, 0.92]
-  );
-
-  // Card 3 starts at 324%, glides to 216% -> 108% -> 0%, clamping at 0%
-  const card3Y = useTransform(
-    scrollYProgress,
-    [0, 0.32, 0.65, 0.95, 1],
-    ['324%', '216%', '108%', '0%', '0%']
-  );
-  const card2Scale = useTransform(
-    scrollYProgress,
-    [0, 0.32, 0.65, 0.95],
-    [1, 1, 1, 0.96]
+    [0, 0.48, 0.95],
+    [1, 1, 0.96]
   );
 
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-[360vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
-      aria-label="Storytelling Lookbook Collection"
+      className="relative w-full h-[280vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
+      aria-label="Naarzi Storytelling Capsule"
     >
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
@@ -129,7 +112,7 @@ export default function ScrollStorytellingSection() {
                 <div className="pt-2">
                   <Link
                     href={story.link}
-                    className="inline-flex items-center justify-center px-7 py-3.5 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center justify-center px-7 py-3.5 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-2xs hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
                   >
                     {story.ctaText}
                   </Link>
@@ -139,12 +122,12 @@ export default function ScrollStorytellingSection() {
           </motion.div>
         </div>
 
-        {/* Right Column: Continuous Stream of Photos that Lock & Overlap on Center Alignment */}
+        {/* Right Column: Continuous Stream of Photos/Video that Lock & Overlap with Clean Minimal Borders (No Heavy Shadows) */}
         <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center overflow-visible">
-          {/* Card 0: Base Card */}
+          {/* Card 0: Base Card (Image) */}
           <motion.div
             style={{ scale: shouldReduceMotion ? 1 : card0Scale, zIndex: 10 }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[0].img}
@@ -154,51 +137,37 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 1: Glides up continuously and locks on top of Card 0 */}
+          {/* Card 1: Glides up continuously and locks on top of Card 0 (Autoplay Loop Video) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card1Y,
               scale: shouldReduceMotion ? 1 : card1Scale,
               zIndex: 20
             }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-2xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
-            <img
-              src={STORIES_DATA[1].img}
-              alt={STORIES_DATA[1].title}
+            <video
+              src={STORIES_DATA[1].video}
+              poster={STORIES_DATA[1].poster}
+              autoPlay
+              loop
+              muted
+              playsInline
               className="w-full h-full object-cover"
-              loading="lazy"
             />
           </motion.div>
 
-          {/* Card 2: Glides up continuously and locks on top of Card 1 */}
+          {/* Card 2: Glides up continuously and locks on top of Card 1 (Image) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card2Y,
-              scale: shouldReduceMotion ? 1 : card2Scale,
               zIndex: 30
             }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-2xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[2].img}
               alt={STORIES_DATA[2].title}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </motion.div>
-
-          {/* Card 3: Glides up continuously and locks on top of Card 2 */}
-          <motion.div
-            style={{
-              y: shouldReduceMotion ? 0 : card3Y,
-              zIndex: 40
-            }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-2xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
-          >
-            <img
-              src={STORIES_DATA[3].img}
-              alt={STORIES_DATA[3].title}
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -210,14 +179,26 @@ export default function ScrollStorytellingSection() {
       <div className="lg:hidden relative h-auto py-16 px-6 sm:px-10 space-y-16 max-w-xl mx-auto">
         {STORIES_DATA.map((story) => (
           <div key={story.id} className="space-y-6">
-            {/* Mobile Image */}
-            <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden shadow-lg border border-black/5 bg-[#eae2d5]">
-              <img
-                src={story.img}
-                alt={story.title}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+            {/* Mobile Visual (Image or Video) */}
+            <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-black/10 bg-[#eae2d5]">
+              {story.type === 'video' ? (
+                <video
+                  src={story.video}
+                  poster={story.poster}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src={story.img}
+                  alt={story.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              )}
             </div>
 
             {/* Mobile Text & CTA */}
