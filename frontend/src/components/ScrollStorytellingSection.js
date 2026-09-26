@@ -52,7 +52,7 @@ export default function ScrollStorytellingSection() {
     ['0%', '-33.333%', '-66.666%']
   );
 
-  // Card 1 (Video) starts below Card 0 (108%), glides up and locks/sits at 0%
+  // Card 1 (Video) starts below Card 0 (108%), glides up from the bottom and locks/sits at 0%
   const card1Y = useTransform(
     scrollYProgress,
     [0, 0.48, 1],
@@ -85,8 +85,8 @@ export default function ScrollStorytellingSection() {
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
         
-        {/* Left Column: Continuously Scrolling Text Window */}
-        <div className="relative w-1/2 h-[68vh] max-h-[540px] overflow-hidden flex flex-col justify-start">
+        {/* Left Column: Full-Height Continuous Text Track (Visible Rising from Bottom) */}
+        <div className="relative w-1/2 h-screen overflow-hidden flex flex-col justify-start">
           <motion.div
             style={{ y: shouldReduceMotion ? 0 : textTrackY }}
             className="w-full flex flex-col will-change-transform"
@@ -94,7 +94,7 @@ export default function ScrollStorytellingSection() {
             {STORIES_DATA.map((story) => (
               <div
                 key={story.id}
-                className="w-full h-[68vh] max-h-[540px] flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10 select-none flex-shrink-0"
+                className="w-full h-screen flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10 select-none flex-shrink-0"
               >
                 {/* Top Mini Tag */}
                 {story.topTag && (
@@ -122,7 +122,7 @@ export default function ScrollStorytellingSection() {
           </motion.div>
         </div>
 
-        {/* Right Column: Continuous Stream of Photos/Video that Lock & Overlap with Clean Minimal Borders (No Heavy Shadows) */}
+        {/* Right Column: Continuous Stream of Photos/Video that Lock & Overlap */}
         <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center overflow-visible">
           {/* Card 0: Base Card (Image) */}
           <motion.div
@@ -137,7 +137,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 1: Glides up continuously and locks on top of Card 0 (Autoplay Loop Video) */}
+          {/* Card 1: Glides up continuously from bottom and locks on top of Card 0 (Video) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card1Y,
@@ -157,7 +157,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 2: Glides up continuously and locks on top of Card 1 (Image) */}
+          {/* Card 2: Glides up continuously from bottom and locks on top of Card 1 (Image) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card2Y,
