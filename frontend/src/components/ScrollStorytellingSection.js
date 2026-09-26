@@ -18,7 +18,7 @@ const STORIES_DATA = [
     id: 'story-2',
     topTag: 'COLOUR FIRST · 2026',
     title: 'Turning simple fabrics into vibrant stories with colour-led design that moves with you.',
-    video: 'https://assets.mixkit.co/videos/preview/mixkit-fashion-model-in-a-pink-and-purple-neon-lit-room-41662-large.mp4',
+    video: '/ZAINUL0001.MP4',
     poster: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
     type: 'video',
     ctaText: 'EXPLORE THE CAPSULE',
