@@ -37,11 +37,28 @@ function HomePageContent() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Trending Carousel Drag Scroll State
+  // Trending Carousel Drag Scroll State & Boundary Visibility
   const carouselRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const updateScrollButtons = () => {
+    if (carouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    updateScrollButtons();
+    const handleResize = () => updateScrollButtons();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [products]);
 
   // Reviews Carousel State & Ref
   const reviewsRef = useRef(null);
@@ -138,6 +155,7 @@ function HomePageContent() {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    updateScrollButtons();
   };
 
   const handleMouseMove = (e) => {
@@ -146,6 +164,7 @@ function HomePageContent() {
     const x = e.pageX - carouselRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
     carouselRef.current.scrollLeft = scrollLeft - walk;
+    updateScrollButtons();
   };
 
   // Trending Carousel smooth scroll trigger
@@ -399,18 +418,21 @@ function HomePageContent() {
             ) : (
               <div className="relative group/carousel">
                 {/* Left Floating Arrow */}
-                <button
-                  type="button"
-                  onClick={() => handleScrollTrending('left')}
-                  className="absolute -left-3 top-1/3 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-on-surface shadow-lg hover:bg-white hover:scale-110 transition-all flex items-center justify-center z-20 cursor-pointer border border-outline-variant/30 hidden md:flex opacity-0 group-hover/carousel:opacity-100 transition-opacity"
-                  aria-label="Previous Products"
-                >
-                  <Icon name="chevron_left" size="md" />
-                </button>
+                {canScrollLeft && (
+                  <button
+                    type="button"
+                    onClick={() => handleScrollTrending('left')}
+                    className="absolute -left-3 top-1/3 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-on-surface shadow-lg hover:bg-white hover:scale-110 transition-all flex items-center justify-center z-20 cursor-pointer border border-outline-variant/30 hidden md:flex opacity-0 group-hover/carousel:opacity-100 transition-opacity"
+                    aria-label="Previous Products"
+                  >
+                    <Icon name="chevron_left" size="md" />
+                  </button>
+                )}
 
                 {/* Single Row Horizontal Scroll Container */}
                 <div
                   ref={carouselRef}
+                  onScroll={updateScrollButtons}
                   onMouseDown={handleMouseDown}
                   onMouseLeave={handleMouseLeave}
                   onMouseUp={handleMouseUp}
@@ -427,14 +449,16 @@ function HomePageContent() {
                 </div>
 
                 {/* Right Floating Arrow */}
-                <button
-                  type="button"
-                  onClick={() => handleScrollTrending('right')}
-                  className="absolute -right-3 top-1/3 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-on-surface shadow-lg hover:bg-white hover:scale-110 transition-all flex items-center justify-center z-20 cursor-pointer border border-outline-variant/30 hidden md:flex opacity-0 group-hover/carousel:opacity-100 transition-opacity"
-                  aria-label="Next Products"
-                >
-                  <Icon name="chevron_right" size="md" />
-                </button>
+                {canScrollRight && (
+                  <button
+                    type="button"
+                    onClick={() => handleScrollTrending('right')}
+                    className="absolute -right-3 top-1/3 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-on-surface shadow-lg hover:bg-white hover:scale-110 transition-all flex items-center justify-center z-20 cursor-pointer border border-outline-variant/30 hidden md:flex opacity-0 group-hover/carousel:opacity-100 transition-opacity"
+                    aria-label="Next Products"
+                  >
+                    <Icon name="chevron_right" size="md" />
+                  </button>
+                )}
               </div>
             )}
 
