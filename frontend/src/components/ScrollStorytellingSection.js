@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
@@ -37,7 +37,19 @@ const STORIES_DATA = [
 
 export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
+  const desktopVideoRef = useRef(null);
+  const mobileVideoRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
+
+  // Ensure autoplay video plays reliably across all browsers
+  useEffect(() => {
+    if (desktopVideoRef.current) {
+      desktopVideoRef.current.play().catch(() => {});
+    }
+    if (mobileVideoRef.current) {
+      mobileVideoRef.current.play().catch(() => {});
+    }
+  }, []);
 
   // Scroll timeline linked to the sticky stage (3 stories)
   const { scrollYProgress } = useScroll({
@@ -85,7 +97,7 @@ export default function ScrollStorytellingSection() {
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
         
-        {/* Left Column: Full-Height Continuous Text Track (Visible Rising from Bottom) */}
+        {/* Left Column: Full-Height Continuous Text Track */}
         <div className="relative w-1/2 h-screen overflow-hidden flex flex-col justify-start">
           <motion.div
             style={{ y: shouldReduceMotion ? 0 : textTrackY }}
@@ -122,7 +134,7 @@ export default function ScrollStorytellingSection() {
           </motion.div>
         </div>
 
-        {/* Right Column: Continuous Stream of Photos/Video with Clean Separation Gap as they Approach */}
+        {/* Right Column: Visual Stream with Card 2 as Autoplaying Fashion Video */}
         <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center overflow-visible">
           {/* Card 0: Base Card (Image) */}
           <motion.div
@@ -137,7 +149,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 1: Glides up from below with clean gap (120%) and locks on top of Card 0 (Video) */}
+          {/* Card 1: 2nd Slide is a Live Fashion Video */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card1Y,
@@ -147,17 +159,19 @@ export default function ScrollStorytellingSection() {
             className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <video
+              ref={desktopVideoRef}
               src={STORIES_DATA[1].video}
               poster={STORIES_DATA[1].poster}
               autoPlay
               loop
               muted
               playsInline
+              preload="auto"
               className="w-full h-full object-cover"
             />
           </motion.div>
 
-          {/* Card 2: Glides up from below with clean gap (240% -> 120% -> 0%) and locks on top of Card 1 (Image) */}
+          {/* Card 2: 3rd Slide (Image) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card2Y,
@@ -177,18 +191,20 @@ export default function ScrollStorytellingSection() {
 
       {/* MOBILE / TABLET FLOW (< 1024px) */}
       <div className="lg:hidden relative h-auto py-16 px-6 sm:px-10 space-y-16 max-w-xl mx-auto">
-        {STORIES_DATA.map((story) => (
+        {STORIES_DATA.map((story, idx) => (
           <div key={story.id} className="space-y-6">
             {/* Mobile Visual (Image or Video) */}
             <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-black/10 bg-[#eae2d5]">
-              {story.type === 'video' ? (
+              {idx === 1 ? (
                 <video
+                  ref={mobileVideoRef}
                   src={story.video}
                   poster={story.poster}
                   autoPlay
                   loop
                   muted
                   playsInline
+                  preload="auto"
                   className="w-full h-full object-cover"
                 />
               ) : (
