@@ -4,59 +4,44 @@ import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Icon from '@/components/Icon';
 
 const STORIES_DATA = [
   {
-    id: 'coord-sets',
-    tag: '01 / 04',
-    eyebrow: 'SIGNATURE PIECE · ₹5,999',
-    title: 'Two-Tone Statement Sets',
-    desc: 'Designed with playful contrast notch collars, relaxed modern tailoring, and breathable all-day comfort. Featuring our signature Pink & Yellow and White & Pinky colourblocks.',
-    img: '/hero_image.png',
-    badge: 'COLOUR FIRST · 2026',
-    ctaText: 'SHOP CO-ORD SETS',
-    link: '/shop?tag=new-arrival'
-  },
-  {
-    id: 'kurti-sets',
-    tag: '02 / 04',
-    eyebrow: '9 CURATED DESIGNS · ₹4,999',
-    title: 'Artistic Everyday Silhouettes',
-    desc: 'A contemporary reimagining of effortless Indian designer ready-to-wear. Fluid cuts meet thoughtful artisanal accents for versatile dressing from creative studio mornings to evening gatherings.',
-    img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
-    badge: 'ARTISANAL SILHOUETTE',
-    ctaText: 'SHOP KURTI SETS',
-    link: '/shop?category=apparel'
-  },
-  {
-    id: 'colour-first',
-    tag: '03 / 04',
-    eyebrow: 'LAUNCH CAPSULE · EXPRESSION',
-    title: 'Wear Your Colour. Feel the Vibe.',
-    desc: 'Intentional palettes crafted to elevate your mood. Turning simple fabrics into vibrant stories with colour-led design that celebrates self-expression. Not fashion. Expression.',
-    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
-    badge: 'NOT FASHION. EXPRESSION.',
-    ctaText: 'EXPLORE FULL CAPSULE',
+    id: 'story-1',
+    topTag: 'NEW ARRIVALS',
+    title: 'Designed to empower you to express your unique sense of style with confidence.',
+    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
+    ctaText: 'SHOP OUR COLLECTION',
     link: '/shop'
   },
   {
-    id: 'atelier-craft',
-    tag: '04 / 04',
-    eyebrow: 'LIMITED RUN · CRAFT ATELIER',
-    title: 'Art from the Overlooked',
-    desc: 'Each piece is cut with intention, honoring timeless craft traditions while embracing contemporary effortless wearability. A friend who inspires, not a brand that shouts.',
-    img: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-    badge: 'TIMELESS LUXURY',
-    ctaText: 'VIEW THE ATELIER',
+    id: 'story-2',
+    topTag: 'LOOKBOOK 2026',
+    title: 'Stand out wherever you go. Our latest lookbook has dropped and is ready to shop.',
+    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
+    ctaText: 'VIEW LOOKBOOK',
+    link: '/shop?tag=new-arrival'
+  },
+  {
+    id: 'story-3',
+    topTag: 'SIGNATURE PIECES',
+    title: 'Discover timeless pieces and chic ensembles to elevate your world.',
+    img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
+    ctaText: 'SHOP BESTSELLERS',
     link: '/shop?tag=trending'
+  },
+  {
+    id: 'story-4',
+    topTag: 'COLOUR FIRST',
+    title: 'Contemporary, colour-led ready-to-wear crafted for spontaneous days and inspired moments.',
+    img: '/hero_image.png',
+    ctaText: 'EXPLORE FULL CAPSULE',
+    link: '/shop?category=apparel'
   }
 ];
 
 export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
-  const textContainerRef = useRef(null);
-  const cardsContainerRef = useRef(null);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -64,7 +49,7 @@ export default function ScrollStorytellingSection() {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      // Desktop & Tablet Pinned Animation (>= 1024px)
+      // Desktop & Large Screens (>= 1024px)
       mm.add('(min-width: 1024px)', () => {
         const textBlocks = gsap.utils.toArray('.story-text-block');
         const cards = gsap.utils.toArray('.story-card');
@@ -72,21 +57,19 @@ export default function ScrollStorytellingSection() {
 
         if (count <= 1) return;
 
-        // Set initial positions:
-        // Text 0 visible, others hidden and shifted down
-        gsap.set(textBlocks, { autoAlpha: 0, y: 30 });
+        // Set initial positions: Text 0 visible, Cards 1..N starting below viewport
+        gsap.set(textBlocks, { autoAlpha: 0, y: 35 });
         gsap.set(textBlocks[0], { autoAlpha: 1, y: 0 });
 
-        // Card 0 active and in place, Cards 1..N starting below viewport
-        gsap.set(cards, { yPercent: 120, scale: 1, transformOrigin: 'center top' });
+        gsap.set(cards, { yPercent: 120, scale: 1 });
         gsap.set(cards[0], { yPercent: 0, scale: 1 });
 
-        // Master Scrubbed Timeline
+        // Timeline with scrub linked directly to scroll
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top top',
-            end: () => `+=${(count - 0.5) * 120}%`,
+            end: () => `+=${(count - 0.4) * 110}%`,
             pin: true,
             scrub: 1,
             anticipatePin: 1,
@@ -94,41 +77,24 @@ export default function ScrollStorytellingSection() {
           }
         });
 
-        // Sequence through each subsequent slide (1 -> 2 -> 3...)
+        // Sequence through cards 1, 2, 3...
         for (let i = 1; i < count; i++) {
           const stepLabel = `step-${i}`;
           tl.addLabel(stepLabel);
 
-          // 1. Crossfade left text
+          // 1. Crossfade left-side text block
           tl.to(
             textBlocks[i - 1],
-            { autoAlpha: 0, y: -25, duration: 0.6, ease: 'power2.inOut' },
+            { autoAlpha: 0, y: -25, duration: 0.55, ease: 'power2.inOut' },
             stepLabel
           );
           tl.to(
             textBlocks[i],
-            { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' },
-            `${stepLabel}+=0.2`
+            { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' },
+            `${stepLabel}+=0.15`
           );
 
-          // 2. Scale down previous cards subtly to create a physical stacked deck feel
-          for (let j = 0; j < i; j++) {
-            const scaleTarget = 1 - (i - j) * 0.045;
-            const yOffset = -(i - j) * 12;
-            tl.to(
-              cards[j],
-              {
-                scale: scaleTarget,
-                y: yOffset,
-                filter: `brightness(${1 - (i - j) * 0.08})`,
-                duration: 0.9,
-                ease: 'power2.inOut'
-              },
-              stepLabel
-            );
-          }
-
-          // 3. Slide next card upward to overlap the deck
+          // 2. Next card slides smoothly upward and stacks over the previous card
           tl.to(
             cards[i],
             {
@@ -141,15 +107,14 @@ export default function ScrollStorytellingSection() {
           );
         }
 
-        // Slight resting pause at the end of the timeline before unpinning
-        tl.to({}, { duration: 0.4 });
+        // Resting buffer before unpinning
+        tl.to({}, { duration: 0.3 });
       });
 
       // Mobile / Compact Layout (< 1024px)
       mm.add('(max-width: 1023px)', () => {
-        // Natural mobile flow: ensure all text blocks and cards are visible and stacked
         gsap.set('.story-text-block', { autoAlpha: 1, y: 0 });
-        gsap.set('.story-card', { yPercent: 0, scale: 1, filter: 'none' });
+        gsap.set('.story-card', { yPercent: 0, scale: 1 });
       });
     }, containerRef);
 
@@ -159,66 +124,51 @@ export default function ScrollStorytellingSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full bg-[#fdfbf7] border-t border-b border-outline-variant/20 overflow-hidden"
-      aria-label="Storytelling Capsule Collection"
+      className="relative w-full bg-[#FAF5EE] border-t border-b border-[#e8dfd2] overflow-hidden"
+      aria-label="Storytelling Lookbook Collection"
     >
-      {/* DESKTOP PINNED EXPERIENCE (>= 1024px) */}
-      <div className="hidden lg:flex h-screen w-full max-w-container-max mx-auto px-margin-desktop items-center justify-between gap-16 xl:gap-24">
+      {/* DESKTOP PINNED SECTION (>= 1024px) */}
+      <div className="hidden lg:flex h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20">
         
-        {/* Left Column: Synchronized Story Text Blocks */}
-        <div ref={textContainerRef} className="relative w-1/2 min-h-[420px] flex items-center">
-          {STORIES_DATA.map((story, idx) => (
+        {/* Left Column: Bold Headline & CTA Button */}
+        <div className="relative w-1/2 min-h-[380px] flex items-center">
+          {STORIES_DATA.map((story) => (
             <div
               key={story.id}
-              className="story-text-block absolute inset-0 flex flex-col justify-center space-y-6"
+              className="story-text-block absolute inset-0 flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10"
             >
-              {/* Capsule Tag & Eyebrow */}
-              <div className="flex items-center gap-3">
-                <span className="px-2.5 py-1 rounded bg-primary/10 text-primary font-mono text-xs font-bold tracking-wider">
-                  {story.tag}
+              {/* Optional Top Mini Tag */}
+              {story.topTag && (
+                <span className="inline-block px-3.5 py-1.5 bg-black text-white text-[10px] font-label-caps tracking-[0.2em] font-bold uppercase rounded-[4px]">
+                  {story.topTag}
                 </span>
-                <span className="font-label-caps text-xs text-primary font-bold tracking-[0.2em] uppercase">
-                  {story.eyebrow}
-                </span>
-              </div>
+              )}
 
-              {/* Title */}
-              <h3
-                style={{ fontFamily: 'var(--font-bodoni-moda), var(--font-playfair-display), serif' }}
-                className="text-4xl xl:text-5xl text-[#1e191b] font-bold leading-[1.18] tracking-tight"
-              >
+              {/* Bold Statement Title (Matches Reference Image) */}
+              <h3 className="text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
                 {story.title}
               </h3>
 
-              {/* Description */}
-              <p className="font-body-lg text-on-surface-variant text-base xl:text-lg leading-relaxed max-w-xl">
-                {story.desc}
-              </p>
-
-              {/* CTA Button */}
-              <div className="pt-4">
+              {/* Bottom CTA Button */}
+              <div className="pt-2">
                 <Link
                   href={story.link}
-                  className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-xs tracking-[0.16em] uppercase font-bold rounded-xl transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer active:scale-95"
+                  className="inline-flex items-center justify-center px-7 py-3.5 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
                 >
-                  <span>{story.ctaText}</span>
-                  <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 text-white" />
+                  {story.ctaText}
                 </Link>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Right Column: Stacked Overlapping Visual Cards */}
-        <div
-          ref={cardsContainerRef}
-          className="relative w-1/2 h-[72vh] max-h-[640px] flex items-center justify-center"
-        >
+        {/* Right Column: Rounded Overlapping Image Cards */}
+        <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center">
           {STORIES_DATA.map((story, idx) => (
             <div
               key={story.id}
               style={{ zIndex: idx + 10 }}
-              className="story-card absolute inset-0 w-full h-full rounded-[32px] xl:rounded-[40px] overflow-hidden shadow-2xl border border-outline-variant/30 bg-surface-container-high select-none will-change-transform"
+              className="story-card absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
             >
               <img
                 src={story.img}
@@ -226,72 +176,41 @@ export default function ScrollStorytellingSection() {
                 className="w-full h-full object-cover"
                 loading={idx === 0 ? 'eager' : 'lazy'}
               />
-
-              {/* Aesthetic Dark Gradient & Badge */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-              
-              <div className="absolute top-6 left-6 bg-white/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-xs">
-                <span className="font-label-caps text-[10px] tracking-widest text-[#1e191b] font-bold uppercase">
-                  {story.tag}
-                </span>
-              </div>
-
-              <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between">
-                <span className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 text-white font-label-caps text-[10px] tracking-widest uppercase font-bold">
-                  {story.badge}
-                </span>
-              </div>
             </div>
           ))}
         </div>
       </div>
 
       {/* MOBILE / TABLET FLOW (< 1024px) */}
-      <div className="lg:hidden py-16 px-6 sm:px-10 space-y-16 max-w-2xl mx-auto">
-        {STORIES_DATA.map((story, idx) => (
+      <div className="lg:hidden py-16 px-6 sm:px-10 space-y-16 max-w-xl mx-auto">
+        {STORIES_DATA.map((story) => (
           <div key={story.id} className="space-y-6">
-            {/* Mobile Image Card */}
-            <div className="relative w-full aspect-[4/5] rounded-3xl overflow-hidden shadow-xl border border-outline-variant/30 bg-surface-container-high">
+            {/* Mobile Image */}
+            <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden shadow-lg border border-black/5 bg-[#eae2d5]">
               <img
                 src={story.img}
                 alt={story.title}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute top-4 left-4 bg-white/85 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-xs">
-                <span className="font-label-caps text-[10px] tracking-widest text-[#1e191b] font-bold">
-                  {story.tag}
-                </span>
-              </div>
-              <div className="absolute bottom-4 left-4">
-                <span className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-white font-label-caps text-[9px] tracking-widest uppercase font-bold">
-                  {story.badge}
-                </span>
-              </div>
             </div>
 
-            {/* Mobile Story Text */}
-            <div className="space-y-4">
-              <span className="font-label-caps text-[10px] text-primary font-bold tracking-widest block uppercase">
-                {story.eyebrow}
-              </span>
-              <h3
-                style={{ fontFamily: 'var(--font-bodoni-moda), var(--font-playfair-display), serif' }}
-                className="text-2xl sm:text-3xl text-on-surface font-bold leading-tight"
-              >
+            {/* Mobile Text & CTA */}
+            <div className="space-y-5">
+              {story.topTag && (
+                <span className="inline-block px-3 py-1 bg-black text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">
+                  {story.topTag}
+                </span>
+              )}
+              <h3 className="text-2xl sm:text-3xl text-[#111111] font-bold leading-snug tracking-tight">
                 {story.title}
               </h3>
-              <p className="font-body-md text-on-surface-variant text-sm sm:text-base leading-relaxed">
-                {story.desc}
-              </p>
-              <div className="pt-2">
+              <div className="pt-1">
                 <Link
                   href={story.link}
-                  className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary font-bold uppercase border-b-2 border-primary pb-1.5"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px]"
                 >
-                  <span>{story.ctaText}</span>
-                  <Icon name="arrow_forward" size="sm" />
+                  {story.ctaText}
                 </Link>
               </div>
             </div>
