@@ -12,6 +12,7 @@ import { useApp } from '@/context/AppContext';
 import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
 import ProductCard from '@/components/ProductCard';
+import ScrollRevealText from '@/components/ScrollRevealText';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -464,6 +465,9 @@ function HomePageContent() {
 
           </div>
         </section>
+
+        {/* Scroll-Driven Text Reveal Manifesto Section */}
+        <ScrollRevealText />
 
         {/* "The Launch Capsule" Tab Switching Section */}
         <motion.section
