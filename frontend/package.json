@@ -11,6 +11,7 @@
   "dependencies": {
     "firebase": "^12.17.1",
     "framer-motion": "^13.1.0",
+    "gsap": "^3.15.0",
     "lottie-react": "^3.1.0",
     "next": "16.3.0",
     "puppeteer": "^25.8.0",

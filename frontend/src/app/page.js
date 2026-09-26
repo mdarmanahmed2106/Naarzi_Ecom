@@ -13,6 +13,7 @@ import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
 import ProductCard from '@/components/ProductCard';
 import ScrollRevealText from '@/components/ScrollRevealText';
+import ScrollStorytellingSection from '@/components/ScrollStorytellingSection';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -63,41 +64,6 @@ function HomePageContent() {
 
   // Reviews Carousel State & Ref
   const reviewsRef = useRef(null);
-
-  // "The Edits" Tab Switch state
-  const [activeEditIdx, setActiveEditIdx] = useState(0);
-  const editsData = [
-    {
-      id: 'coord-sets',
-      name: 'Co-Ord Sets',
-      eyebrow: 'SIGNATURE PIECE · ₹5,999',
-      title: 'Two-Tone Statement Sets',
-      desc: 'Designed with playful contrast notch collars, relaxed modern tailoring, and breathable all-day comfort. Featuring our signature Pink & Yellow and White & Pinky colourblocks.',
-      img: '/hero_image.png',
-      ctaText: 'SHOP CO-ORD SETS',
-      link: '/shop?tag=new-arrival'
-    },
-    {
-      id: 'kurti-sets',
-      name: 'Short Kurti Sets',
-      eyebrow: '9 CURATED DESIGNS · ₹4,999',
-      title: 'Artistic Everyday Silhouettes',
-      desc: 'A contemporary reimagining of effortless Indian designer ready-to-wear. Fluid cuts meet thoughtful artisanal accents for versatile dressing from creative studio mornings to evening gatherings.',
-      img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
-      ctaText: 'SHOP KURTI SETS',
-      link: '/shop?category=apparel'
-    },
-    {
-      id: 'colour-first',
-      name: 'Colour First',
-      eyebrow: 'LAUNCH CAPSULE · EXPRESSION',
-      title: 'Wear Your Colour. Feel the Vibe.',
-      desc: 'Intentional palettes crafted to elevate your mood. Turning simple fabrics into vibrant stories with colour-led design that celebrates self-expression. Not fashion. Expression.',
-      img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
-      ctaText: 'EXPLORE FULL CAPSULE',
-      link: '/shop'
-    }
-  ];
 
   // Instagram ticker images
   const instaImages = [
@@ -469,108 +435,8 @@ function HomePageContent() {
         {/* Scroll-Driven Text Reveal Manifesto Section */}
         <ScrollRevealText />
 
-        {/* "The Launch Capsule" Tab Switching Section */}
-        <motion.section
-          className="py-24 bg-surface-container-low border-t border-b border-outline-variant/20 w-full"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-          variants={scrollFadeInVariants}
-        >
-          <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
-            <div className="text-center max-w-xl mx-auto mb-12">
-              <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">LAUNCH CAPSULE</span>
-              <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold mb-4">Design That Speaks</h2>
-              <p className="font-body-md text-on-surface-variant text-sm">
-                Contemporary, colour-led ready-to-wear crafted for spontaneous days and inspired moments. Effortless silhouettes that celebrate personal expression.
-              </p>
-            </div>
-
-            {/* Tab buttons */}
-            <div className="flex justify-center gap-6 md:gap-10 border-b border-outline-variant/30 pb-4 mb-12 overflow-x-auto scrollbar-hide">
-              {editsData.map((edit, idx) => (
-                <button
-                  key={edit.id}
-                  onClick={() => setActiveEditIdx(idx)}
-                  className="relative pb-2 font-label-caps text-xs tracking-wider cursor-pointer font-bold whitespace-nowrap"
-                >
-                  <span className={`transition-colors duration-200 ${activeEditIdx === idx ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-                    }`}>
-                    {edit.name.toUpperCase()}
-                  </span>
-
-                  {/* layoutId underline */}
-                  {activeEditIdx === idx && !shouldReduceMotion && (
-                    <motion.span
-                      layoutId="activeTabUnderlineEdits"
-                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                    />
-                  )}
-                  {activeEditIdx === idx && shouldReduceMotion && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary" />
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab Content Crossfade layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center min-h-[450px]">
-              <div className="lg:col-span-5 space-y-6">
-                <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
-                  {editsData[activeEditIdx]?.eyebrow || 'LAUNCH CAPSULE'}
-                </span>
-
-                <div className="relative min-h-[150px]">
-                  {editsData.map((edit, idx) => (
-                    <div
-                      key={edit.id}
-                      className={`transition-all duration-500 absolute inset-0 ${activeEditIdx === idx ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-2 z-0 pointer-events-none'
-                        }`}
-                    >
-                      <h3 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-4 font-bold leading-tight">
-                        {edit.title}
-                      </h3>
-                      <p className="font-body-lg text-on-surface-variant leading-relaxed">
-                        {edit.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="pt-6">
-                  <Link
-                    href={editsData[activeEditIdx]?.link || '/shop'}
-                    className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-85 transition-opacity font-bold"
-                  >
-                    {editsData[activeEditIdx]?.ctaText || 'EXPLORE COLLECTION'}
-                    <Icon name="arrow_forward" size="sm" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Crossfading images */}
-              <div className="lg:col-span-7">
-                <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md bg-surface-container border border-outline-variant/20">
-                  {editsData.map((edit, idx) => (
-                    <img
-                      key={edit.id}
-                      src={edit.img}
-                      alt={edit.name}
-                      className={`w-full h-full object-cover transition-opacity duration-500 absolute inset-0 ${activeEditIdx === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                        }`}
-                    />
-                  ))}
-                  <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 z-20">
-                    <span className="font-label-caps text-[9px] tracking-widest text-white uppercase font-bold">
-                      NOT FASHION. EXPRESSION.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
+        {/* Full-Screen Scroll-Driven Storytelling Section (GSAP Pin + Overlapping Card Deck) */}
+        <ScrollStorytellingSection />
 
         {/* The Naarzi Story & Founder Manifesto Section */}
         <motion.section
