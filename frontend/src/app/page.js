@@ -112,7 +112,7 @@ function HomePageContent() {
     async function loadProducts() {
       setLoading(true);
       try {
-        const response = await productsApi.getAll({ limit: 6 });
+        const response = await productsApi.getAll({ limit: 12 });
         if (response.success) {
           setProducts(response.data || []);
         }
@@ -146,6 +146,14 @@ function HomePageContent() {
     const x = e.pageX - carouselRef.current.offsetLeft;
     const walk = (x - startX) * 1.5;
     carouselRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  // Trending Carousel smooth scroll trigger
+  const handleScrollTrending = (direction) => {
+    if (carouselRef.current) {
+      const scrollAmt = direction === 'left' ? -340 : 340;
+      carouselRef.current.scrollBy({ left: scrollAmt, behavior: 'smooth' });
+    }
   };
 
   // Reviews smooth scroll trigger
@@ -352,12 +360,12 @@ function HomePageContent() {
         </motion.section>
 
 
-        {/* Main Product Feed & Filtering */}
+        {/* Main Product Feed & Trending Carousel (Single Row Alignment per Reference) */}
         <section className="py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
           <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
 
-            {/* Section Header: Title & Functional CTA Button */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10 pb-6 border-b border-outline-variant/30">
+            {/* Section Header: Title, CTA Button & Nav Controls */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 pb-6 border-b border-outline-variant/30">
               <div>
                 <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold block mb-1 uppercase">
                   CURATED SELECTION
@@ -366,26 +374,89 @@ function HomePageContent() {
                   Trending this <span className="italic font-serif text-primary font-normal">Season</span>
                 </h2>
               </div>
-              <Link
-                href="/shop?tag=trending"
-                className="group px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white text-xs font-label-caps tracking-widest rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 inline-flex items-center gap-2 whitespace-nowrap cursor-pointer active:scale-95"
-              >
-                <span>SHOP ALL TRENDING</span>
-                <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 text-white" />
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/shop?tag=trending"
+                  className="group px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white text-xs font-label-caps tracking-widest rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 inline-flex items-center gap-2 whitespace-nowrap cursor-pointer active:scale-95"
+                >
+                  <span>SHOP ALL TRENDING</span>
+                  <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 text-white" />
+                </Link>
+                
+                {/* Desktop Carousel Header Navigation Arrows */}
+                <div className="hidden md:flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleScrollTrending('left')}
+                    className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white shadow-xs"
+                    title="Previous"
+                    aria-label="Previous Products"
+                  >
+                    <Icon name="chevron_left" size="md" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleScrollTrending('right')}
+                    className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white shadow-xs"
+                    title="Next"
+                    aria-label="Next Products"
+                  >
+                    <Icon name="chevron_right" size="md" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            {/* Products Grid */}
+            {/* Single Row Horizontal Products Slider/Carousel */}
             {loading ? (
-              <div className="text-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
-                <p className="font-body-md text-on-surface-variant mt-4">Loading collection...</p>
+              <div className="flex gap-6 overflow-hidden py-6">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0">
+                    <div className="w-full aspect-[3/4] rounded-xl bg-surface-container animate-pulse mb-3" />
+                    <div className="h-4 w-3/4 rounded bg-surface-container animate-pulse mb-2" />
+                    <div className="h-4 w-1/3 rounded bg-surface-container animate-pulse" />
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
-                {products.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+              <div className="relative group/carousel">
+                {/* Left Floating Arrow */}
+                <button
+                  type="button"
+                  onClick={() => handleScrollTrending('left')}
+                  className="absolute -left-3 top-1/3 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-on-surface shadow-lg hover:bg-white hover:scale-110 transition-all flex items-center justify-center z-20 cursor-pointer border border-outline-variant/30 hidden md:flex opacity-0 group-hover/carousel:opacity-100 transition-opacity"
+                  aria-label="Previous Products"
+                >
+                  <Icon name="chevron_left" size="md" />
+                </button>
+
+                {/* Single Row Horizontal Scroll Container */}
+                <div
+                  ref={carouselRef}
+                  onMouseDown={handleMouseDown}
+                  onMouseLeave={handleMouseLeave}
+                  onMouseUp={handleMouseUp}
+                  onMouseMove={handleMouseMove}
+                  className="flex flex-nowrap gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-1 cursor-grab active:cursor-grabbing select-none"
+                >
+                  {products.map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] max-w-[320px] flex-shrink-0 snap-start"
+                    />
+                  ))}
+                </div>
+
+                {/* Right Floating Arrow */}
+                <button
+                  type="button"
+                  onClick={() => handleScrollTrending('right')}
+                  className="absolute -right-3 top-1/3 -translate-y-1/2 w-10 h-10 rounded-full bg-white text-on-surface shadow-lg hover:bg-white hover:scale-110 transition-all flex items-center justify-center z-20 cursor-pointer border border-outline-variant/30 hidden md:flex opacity-0 group-hover/carousel:opacity-100 transition-opacity"
+                  aria-label="Next Products"
+                >
+                  <Icon name="chevron_right" size="md" />
+                </button>
               </div>
             )}
 
