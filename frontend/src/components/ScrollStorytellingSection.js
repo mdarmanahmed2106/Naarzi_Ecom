@@ -64,15 +64,13 @@ export default function ScrollStorytellingSection() {
         gsap.set(cards, { yPercent: 120, scale: 1 });
         gsap.set(cards[0], { yPercent: 0, scale: 1 });
 
-        // Timeline with scrub linked directly to scroll
+        // Timeline linked to scroll without pin: true to avoid DOM tampering in React
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top top',
-            end: () => `+=${(count - 0.4) * 110}%`,
-            pin: true,
+            end: 'bottom bottom',
             scrub: 1,
-            anticipatePin: 1,
             invalidateOnRefresh: true
           }
         });
@@ -107,8 +105,8 @@ export default function ScrollStorytellingSection() {
           );
         }
 
-        // Resting buffer before unpinning
-        tl.to({}, { duration: 0.3 });
+        // Buffer pause at the end
+        tl.to({}, { duration: 0.25 });
       });
 
       // Mobile / Compact Layout (< 1024px)
@@ -124,11 +122,11 @@ export default function ScrollStorytellingSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full bg-[#FAF5EE] border-t border-b border-[#e8dfd2] overflow-hidden"
+      className="relative w-full h-[320vh] lg:h-[320vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
       aria-label="Storytelling Lookbook Collection"
     >
-      {/* DESKTOP PINNED SECTION (>= 1024px) */}
-      <div className="hidden lg:flex h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20">
+      {/* DESKTOP PINNED VIEWPORT (>= 1024px) - Uses CSS sticky to lock cleanly without DOM manipulation */}
+      <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
         
         {/* Left Column: Bold Headline & CTA Button */}
         <div className="relative w-1/2 min-h-[380px] flex items-center">
@@ -144,7 +142,7 @@ export default function ScrollStorytellingSection() {
                 </span>
               )}
 
-              {/* Bold Statement Title (Matches Reference Image) */}
+              {/* Bold Statement Title */}
               <h3 className="text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
                 {story.title}
               </h3>
@@ -182,7 +180,7 @@ export default function ScrollStorytellingSection() {
       </div>
 
       {/* MOBILE / TABLET FLOW (< 1024px) */}
-      <div className="lg:hidden py-16 px-6 sm:px-10 space-y-16 max-w-xl mx-auto">
+      <div className="lg:hidden relative h-auto py-16 px-6 sm:px-10 space-y-16 max-w-xl mx-auto">
         {STORIES_DATA.map((story) => (
           <div key={story.id} className="space-y-6">
             {/* Mobile Image */}
