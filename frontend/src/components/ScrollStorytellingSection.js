@@ -108,9 +108,9 @@ export default function ScrollStorytellingSection() {
                 key={story.id}
                 className="w-full h-screen flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10 select-none flex-shrink-0"
               >
-                {/* Top Mini Tag */}
+                {/* Top Mini Tag in Primary Dusty Rose */}
                 {story.topTag && (
-                  <span className="inline-block px-3.5 py-1.5 bg-black text-white text-[10px] font-label-caps tracking-[0.2em] font-bold uppercase rounded-[4px]">
+                  <span className="inline-block px-3.5 py-1.5 bg-[var(--color-primary)] text-white text-[10px] font-label-caps tracking-[0.2em] font-bold uppercase rounded-[4px] shadow-2xs">
                     {story.topTag}
                   </span>
                 )}
@@ -120,11 +120,11 @@ export default function ScrollStorytellingSection() {
                   {story.title}
                 </h3>
 
-                {/* Bottom CTA Button */}
+                {/* Bottom CTA Button in Primary Dusty Rose */}
                 <div className="pt-2">
                   <Link
                     href={story.link}
-                    className="inline-flex items-center justify-center px-7 py-3.5 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-2xs hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center justify-center px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
                   >
                     {story.ctaText}
                   </Link>
@@ -134,7 +134,7 @@ export default function ScrollStorytellingSection() {
           </motion.div>
         </div>
 
-        {/* Right Column: Visual Stream with Card 2 as Autoplaying Fashion Video */}
+        {/* Right Column: Continuous Stream of Photos/Video with Clean Separation Gap as they Approach */}
         <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center overflow-visible">
           {/* Card 0: Base Card (Image) */}
           <motion.div
@@ -149,7 +149,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 1: 2nd Slide is a Live Fashion Video */}
+          {/* Card 1: Glides up from below with clean gap (120%) and locks on top of Card 0 (Video) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card1Y,
@@ -171,7 +171,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 2: 3rd Slide (Image) */}
+          {/* Card 2: Glides up from below with clean gap (240% -> 120% -> 0%) and locks on top of Card 1 (Image) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card2Y,
@@ -220,7 +220,7 @@ export default function ScrollStorytellingSection() {
             {/* Mobile Text & CTA */}
             <div className="space-y-5">
               {story.topTag && (
-                <span className="inline-block px-3 py-1 bg-black text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">
+                <span className="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">
                   {story.topTag}
                 </span>
               )}
@@ -230,7 +230,7 @@ export default function ScrollStorytellingSection() {
               <div className="pt-1">
                 <Link
                   href={story.link}
-                  className="inline-flex items-center justify-center px-6 py-3 bg-[#111111] hover:bg-[#2b2b2b] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px]"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px]"
                 >
                   {story.ctaText}
                 </Link>
