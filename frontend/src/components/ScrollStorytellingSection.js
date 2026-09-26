@@ -52,11 +52,11 @@ export default function ScrollStorytellingSection() {
     ['0%', '-33.333%', '-66.666%']
   );
 
-  // Card 1 (Video) starts below Card 0 (108%), glides up from the bottom and locks/sits at 0%
+  // Card 1 (Video) starts below Card 0 with a clear gap (120%), glides up from the bottom and locks/sits at 0%
   const card1Y = useTransform(
     scrollYProgress,
     [0, 0.48, 1],
-    ['108%', '0%', '0%']
+    ['120%', '0%', '0%']
   );
   const card0Scale = useTransform(
     scrollYProgress,
@@ -64,11 +64,11 @@ export default function ScrollStorytellingSection() {
     [1, 0.96, 0.92]
   );
 
-  // Card 2 starts at 216%, glides to 108% at step 1, then to 0% at step 2, clamping at 0%
+  // Card 2 starts at 240%, glides to 120% at step 1, then to 0% at step 2, clamping at 0%
   const card2Y = useTransform(
     scrollYProgress,
     [0, 0.48, 0.95, 1],
-    ['216%', '108%', '0%', '0%']
+    ['240%', '120%', '0%', '0%']
   );
   const card1Scale = useTransform(
     scrollYProgress,
@@ -122,7 +122,7 @@ export default function ScrollStorytellingSection() {
           </motion.div>
         </div>
 
-        {/* Right Column: Continuous Stream of Photos/Video that Lock & Overlap */}
+        {/* Right Column: Continuous Stream of Photos/Video with Clean Separation Gap as they Approach */}
         <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center overflow-visible">
           {/* Card 0: Base Card (Image) */}
           <motion.div
@@ -137,7 +137,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 1: Glides up continuously from bottom and locks on top of Card 0 (Video) */}
+          {/* Card 1: Glides up from below with clean gap (120%) and locks on top of Card 0 (Video) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card1Y,
@@ -157,7 +157,7 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 2: Glides up continuously from bottom and locks on top of Card 1 (Image) */}
+          {/* Card 2: Glides up from below with clean gap (240% -> 120% -> 0%) and locks on top of Card 1 (Image) */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card2Y,
