@@ -43,70 +43,75 @@ export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
 
-  // Scroll timeline across 320vh
+  // Scroll timeline linked to the sticky stage
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end']
   });
 
-  // LEFT SIDE: Synchronized text transitions (no awkward bottom peeking)
-  // Story 0
-  const text0Opacity = useTransform(scrollYProgress, [0, 0.24, 0.32], [1, 1, 0]);
-  const text0Y = useTransform(scrollYProgress, [0, 0.24, 0.32], ['0px', '0px', '-24px']);
+  // Continuous Left-Side Text Track: 0% -> -75%
+  const textTrackY = useTransform(
+    scrollYProgress,
+    [0, 0.32, 0.65, 0.95],
+    ['0%', '-25%', '-50%', '-75%']
+  );
 
-  // Story 1
-  const text1Opacity = useTransform(scrollYProgress, [0.24, 0.32, 0.57, 0.65], [0, 1, 1, 0]);
-  const text1Y = useTransform(scrollYProgress, [0.24, 0.32, 0.57, 0.65], ['24px', '0px', '0px', '-24px']);
+  // Continuous Right-Side Photo Columns that glide up and lock/sit on arrival:
+  // Card 1 starts right below Card 0 (108%), glides up with Text 2, and clamps at 0% to sit on Card 0
+  const card1Y = useTransform(
+    scrollYProgress,
+    [0, 0.32, 1],
+    ['108%', '0%', '0%']
+  );
+  const card0Scale = useTransform(
+    scrollYProgress,
+    [0, 0.32, 0.65, 0.95],
+    [1, 0.96, 0.92, 0.88]
+  );
 
-  // Story 2
-  const text2Opacity = useTransform(scrollYProgress, [0.57, 0.65, 0.88, 0.94], [0, 1, 1, 0]);
-  const text2Y = useTransform(scrollYProgress, [0.57, 0.65, 0.88, 0.94], ['24px', '0px', '0px', '-24px']);
+  // Card 2 starts at 216%, glides to 108% at step 1, then to 0% at step 2, clamping at 0%
+  const card2Y = useTransform(
+    scrollYProgress,
+    [0, 0.32, 0.65, 1],
+    ['216%', '108%', '0%', '0%']
+  );
+  const card1Scale = useTransform(
+    scrollYProgress,
+    [0, 0.32, 0.65, 0.95],
+    [1, 1, 0.96, 0.92]
+  );
 
-  // Story 3
-  const text3Opacity = useTransform(scrollYProgress, [0.88, 0.94, 1], [0, 1, 1]);
-  const text3Y = useTransform(scrollYProgress, [0.88, 0.94, 1], ['24px', '0px', '0px']);
-
-  const textMotions = [
-    { opacity: text0Opacity, y: text0Y },
-    { opacity: text1Opacity, y: text1Y },
-    { opacity: text2Opacity, y: text2Y },
-    { opacity: text3Opacity, y: text3Y }
-  ];
-
-  // RIGHT SIDE: Upward card wipe transitions (cards start hidden with opacity 0 so they NEVER peek at the bottom)
-  // Card 1
-  const card1Y = useTransform(scrollYProgress, [0.22, 0.32], ['100%', '0%']);
-  const card1Opacity = useTransform(scrollYProgress, [0.22, 0.23, 1], [0, 1, 1]);
-
-  // Card 2
-  const card2Y = useTransform(scrollYProgress, [0.55, 0.65], ['100%', '0%']);
-  const card2Opacity = useTransform(scrollYProgress, [0.55, 0.56, 1], [0, 1, 1]);
-
-  // Card 3
-  const card3Y = useTransform(scrollYProgress, [0.86, 0.94], ['100%', '0%']);
-  const card3Opacity = useTransform(scrollYProgress, [0.86, 0.87, 1], [0, 1, 1]);
+  // Card 3 starts at 324%, glides to 216% -> 108% -> 0%, clamping at 0%
+  const card3Y = useTransform(
+    scrollYProgress,
+    [0, 0.32, 0.65, 0.95, 1],
+    ['324%', '216%', '108%', '0%', '0%']
+  );
+  const card2Scale = useTransform(
+    scrollYProgress,
+    [0, 0.32, 0.65, 0.95],
+    [1, 1, 1, 0.96]
+  );
 
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-[320vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
+      className="relative w-full h-[360vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
       aria-label="Storytelling Lookbook Collection"
     >
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
         
-        {/* Left Column: Clean Centered Text Container */}
-        <div className="relative w-1/2 h-[380px] flex items-center">
-          {STORIES_DATA.map((story, idx) => {
-            const motionProps = textMotions[idx];
-            return (
-              <motion.div
+        {/* Left Column: Continuously Scrolling Text Window */}
+        <div className="relative w-1/2 h-[68vh] max-h-[540px] overflow-hidden flex flex-col justify-start">
+          <motion.div
+            style={{ y: shouldReduceMotion ? 0 : textTrackY }}
+            className="w-full flex flex-col will-change-transform"
+          >
+            {STORIES_DATA.map((story) => (
+              <div
                 key={story.id}
-                style={{
-                  opacity: shouldReduceMotion ? (idx === 0 ? 1 : 0) : motionProps.opacity,
-                  y: shouldReduceMotion ? 0 : motionProps.y
-                }}
-                className="absolute inset-0 flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10 select-none pointer-events-auto"
+                className="w-full h-[68vh] max-h-[540px] flex flex-col justify-center items-start space-y-8 pr-6 xl:pr-10 select-none flex-shrink-0"
               >
                 {/* Top Mini Tag */}
                 {story.topTag && (
@@ -129,31 +134,34 @@ export default function ScrollStorytellingSection() {
                     {story.ctaText}
                   </Link>
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+            ))}
+          </motion.div>
         </div>
 
-        {/* Right Column: Clean Rounded Image Stage (No bottom peek or overflow) */}
-        <div className="relative w-1/2 h-[68vh] max-h-[540px] rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-xl border border-black/5 bg-[#eae2d5] select-none">
-          {/* Card 0: Base */}
-          <div className="absolute inset-0 w-full h-full">
+        {/* Right Column: Continuous Stream of Photos that Lock & Overlap on Center Alignment */}
+        <div className="relative w-1/2 h-[68vh] max-h-[540px] flex items-center justify-center overflow-visible">
+          {/* Card 0: Base Card */}
+          <motion.div
+            style={{ scale: shouldReduceMotion ? 1 : card0Scale, zIndex: 10 }}
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
+          >
             <img
               src={STORIES_DATA[0].img}
               alt={STORIES_DATA[0].title}
               className="w-full h-full object-cover"
               loading="eager"
             />
-          </div>
+          </motion.div>
 
-          {/* Card 1: Upward slide (hidden until ready) */}
+          {/* Card 1: Glides up continuously and locks on top of Card 0 */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card1Y,
-              opacity: shouldReduceMotion ? 1 : card1Opacity,
+              scale: shouldReduceMotion ? 1 : card1Scale,
               zIndex: 20
             }}
-            className="absolute inset-0 w-full h-full will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-2xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[1].img}
@@ -163,14 +171,14 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 2: Upward slide (hidden until ready) */}
+          {/* Card 2: Glides up continuously and locks on top of Card 1 */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card2Y,
-              opacity: shouldReduceMotion ? 1 : card2Opacity,
+              scale: shouldReduceMotion ? 1 : card2Scale,
               zIndex: 30
             }}
-            className="absolute inset-0 w-full h-full will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-2xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[2].img}
@@ -180,14 +188,13 @@ export default function ScrollStorytellingSection() {
             />
           </motion.div>
 
-          {/* Card 3: Upward slide (hidden until ready) */}
+          {/* Card 3: Glides up continuously and locks on top of Card 2 */}
           <motion.div
             style={{
               y: shouldReduceMotion ? 0 : card3Y,
-              opacity: shouldReduceMotion ? 1 : card3Opacity,
               zIndex: 40
             }}
-            className="absolute inset-0 w-full h-full will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden shadow-2xl border border-black/5 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[3].img}
