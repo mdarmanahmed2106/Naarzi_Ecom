@@ -1,31 +1,31 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
 /**
  * Word Component for Scroll Text Reveal
- * Maps:
- * - progress <= start: strictly opacity 0.16 (ghost preview)
+ * Maps strictly:
+ * - progress <= start: opacity 0.16 (ghost preview)
  * - progress from start to end: smooth transition to opacity 1.0 (solid black)
- * - progress >= end (and throughout the rest of scroll): permanently opacity 1.0 (solid black)
+ * - progress >= end: permanently opacity 1.0 (solid black)
  */
 function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
   const mid = (start + end) / 2;
 
-  // Opacity: Ghost (0.16) -> Solid Contrast (1.0) and stays 1.0 permanently once revealed
+  // Opacity: Ghost (0.16) -> Solid Contrast (1.0) and stays 1.0 permanently
   const opacity = useTransform(
     progress,
     [0, start, end, 1],
     [0.16, 0.16, 1, 1]
   );
 
-  // Natural subtle word lift on active front
+  // Subtle natural word lift on active reading front
   const y = useTransform(
     progress,
     [0, start, mid, end, 1],
-    [0, 0, -3, 0, 0]
+    [0, 0, -2.5, 0, 0]
   );
 
   if (shouldReduceMotion) {
@@ -43,7 +43,7 @@ function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
 }
 
 export default function ScrollRevealText({
-  text = "Born from a love of craftsmanship and modern femininity, our brand exists to create clothing that feels considered, wearable, and quietly bold. Every piece is designed with intention—balancing structure and softness, ease and elegance, so you feel confident without trying too hard.",
+  text = "Born from a love of craftsmanship and modern femininity, our brand exists to create clothing that feels considered, wearable, and quietly bold. Every piece is designed with intention — balancing structure and softness, ease and elegance, so you feel confident without trying too hard.",
   ctaText = "SHOP ALL PRODUCTS",
   ctaLink = "/shop"
 }) {
@@ -56,11 +56,11 @@ export default function ScrollRevealText({
     offset: ["start start", "end end"]
   });
 
-  const words = text.split(" ");
+  const words = useMemo(() => text.trim().split(/\s+/), [text]);
   const totalWords = words.length;
 
-  // All words reveal progressively between 0.05 and 0.65 of the scroll track.
-  // From 0.65 to 1.0 (final 35% of scroll), 100% of all words remain fully solid black.
+  // Reveal timeline bounds: 0.05 to 0.65
+  // Words strictly reveal in left-to-right sequence and all words remain 100% solid through 0.65-1.0
   const revealStart = 0.05;
   const revealEnd = 0.65;
   const step = (revealEnd - revealStart) / totalWords;
@@ -80,7 +80,7 @@ export default function ScrollRevealText({
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
             </svg>
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
             </svg>
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -88,14 +88,14 @@ export default function ScrollRevealText({
             </svg>
           </div>
 
-          {/* Reveal Manifesto Statement - scaled so entire paragraph fits with 100% full reveal */}
+          {/* Reveal Manifesto Statement */}
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] xl:text-[34px] leading-[1.38] sm:leading-[1.42] md:leading-[1.46] font-sans font-bold tracking-tight text-[#130f12] text-center mb-8 sm:mb-10 max-w-3xl mx-auto">
             {words.map((word, i) => {
               const start = revealStart + i * step;
               const end = start + step;
               return (
                 <RevealWord
-                  key={i}
+                  key={`${word}-${i}`}
                   word={word}
                   progress={scrollYProgress}
                   start={start}
