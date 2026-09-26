@@ -67,7 +67,7 @@ export default function ScrollRevealText({
   return (
     <section
       ref={containerRef}
-      className="relative h-[225vh] bg-[#fbf8f5] w-full border-y border-outline-variant/20"
+      className="relative h-[225vh] bg-[#fbf8f5] w-full border-t border-outline-variant/20"
       aria-label="Brand manifesto"
     >
       {/* Sticky viewport stage locked while scrolling, padded to clear sticky header */}

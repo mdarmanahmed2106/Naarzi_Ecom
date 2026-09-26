@@ -91,7 +91,7 @@ export default function ScrollStorytellingSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-[280vh] bg-[#FAF5EE] border-t border-b border-[#e8dfd2]"
+      className="relative w-full h-[280vh] bg-[#fbf8f5] border-b border-outline-variant/20"
       aria-label="Naarzi Storytelling Capsule"
     >
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
