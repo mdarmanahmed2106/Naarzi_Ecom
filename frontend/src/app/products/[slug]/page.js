@@ -8,6 +8,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { productsApi, reviewsApi } from '@/lib/api';
+import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 
 export default function ProductDetailPage({ params }) {
@@ -304,18 +305,18 @@ export default function ProductDetailPage({ params }) {
                 {hasDiscount ? (
                   <>
                     <span className="font-body-lg text-lg text-primary font-bold">
-                      INR {price}
+                      {formatCurrency(price)}
                     </span>
                     <span className="font-body-md text-sm text-on-surface-variant line-through opacity-70">
-                      INR {originalPrice}
+                      {formatCurrency(originalPrice)}
                     </span>
                     <span className="text-[10px] font-label-caps text-green-700 bg-green-50 px-2.5 py-1 rounded border border-green-200 uppercase tracking-widest font-bold">
-                      SAVE INR {originalPrice - price}
+                      SAVE {formatCurrency(originalPrice - price)}
                     </span>
                   </>
                 ) : (
                   <span className="font-body-lg text-lg text-on-surface font-semibold">
-                    INR {price}
+                    {formatCurrency(price)}
                   </span>
                 )}
               </div>
@@ -672,7 +673,7 @@ export default function ProductDetailPage({ params }) {
                             {p.name}
                           </h3>
                           <span className="font-body-md text-on-surface whitespace-nowrap font-medium">
-                            INR {currPrice}
+                            {formatCurrency(currPrice)}
                           </span>
                         </div>
                         <span className="font-label-caps text-xs text-on-surface-variant uppercase tracking-wider">

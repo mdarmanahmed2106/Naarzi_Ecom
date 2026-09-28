@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/context/AppContext';
 import { promoBannersApi, productsApi, categoriesApi } from '@/lib/api';
+import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 
 export default function Header() {
@@ -668,7 +669,7 @@ export default function Header() {
                           <div className="flex-1 min-w-0">
                             <p className="font-headline-sm text-sm text-on-surface group-hover:text-primary transition-colors line-clamp-1">{product.name}</p>
                             <p className="text-sm font-medium text-primary mt-1">
-                              INR {product.discountedPrice ?? product.price}
+                              {formatCurrency(product.discountedPrice ?? product.price)}
                             </p>
                           </div>
                           <Icon name="chevron_right" size="lg" className="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity" />

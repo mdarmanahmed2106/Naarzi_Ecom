@@ -101,7 +101,7 @@ exports.validateCoupon = async (req, res, next) => {
         const remaining = coupon.minOrderValue - calculationBase;
         return res.status(400).json({ 
           success: false, 
-          message: `Add INR ${remaining} more of qualifying items to use code ${coupon.code}`,
+          message: `Add ₹${remaining} more of qualifying items to use code ${coupon.code}`,
           minOrderValue: coupon.minOrderValue
         });
       }
@@ -111,7 +111,7 @@ exports.validateCoupon = async (req, res, next) => {
         const remaining = coupon.minOrderValue - cartTotal;
         return res.status(400).json({ 
           success: false, 
-          message: `Add INR ${remaining} more to your cart to use code ${coupon.code}`,
+          message: `Add ₹${remaining} more to your cart to use code ${coupon.code}`,
           minOrderValue: coupon.minOrderValue
         });
       }

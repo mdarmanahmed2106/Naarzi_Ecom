@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
 import Icon from '@/components/Icon';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function QuickBuyDrawer() {
   const {
@@ -99,7 +100,7 @@ export default function QuickBuyDrawer() {
               </div>
               <div>
                 <h2 className="font-display-md text-xl text-on-surface leading-tight mb-2">{product.name}</h2>
-                <div className="font-medium text-on-surface">INR {price?.toFixed(2)}</div>
+                <div className="font-medium text-on-surface">{formatCurrency(price, { decimals: 2 })}</div>
               </div>
             </div>
 
@@ -164,7 +165,7 @@ export default function QuickBuyDrawer() {
               disabled={isOutOfStock}
               className="w-full py-4 bg-primary text-white font-bold text-sm tracking-widest rounded flex justify-center items-center gap-2 hover:bg-primary-container transition-colors disabled:opacity-50"
             >
-              <span>ADD TO CART • INR {price?.toFixed(2)}</span>
+              <span>ADD TO CART • {formatCurrency(price, { decimals: 2 })}</span>
             </button>
             <div className="text-center">
               <Link 

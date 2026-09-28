@@ -44,10 +44,10 @@ export default function ScrollStorytellingSection() {
   // Ensure autoplay video plays reliably across all browsers
   useEffect(() => {
     if (desktopVideoRef.current) {
-      desktopVideoRef.current.play().catch(() => {});
+      desktopVideoRef.current.play().catch(() => { });
     }
     if (mobileVideoRef.current) {
-      mobileVideoRef.current.play().catch(() => {});
+      mobileVideoRef.current.play().catch(() => { });
     }
   }, []);
 
@@ -96,7 +96,7 @@ export default function ScrollStorytellingSection() {
     >
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
-        
+
         {/* Left Column: Full-Height Continuous Text Track */}
         <div className="relative w-1/2 h-screen overflow-hidden flex flex-col justify-start">
           <motion.div

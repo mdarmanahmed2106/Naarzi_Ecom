@@ -224,13 +224,13 @@ exports.createOrder = async (req, res, next) => {
         }
 
         if (coupon.minOrderValue && qualifyingTotal < coupon.minOrderValue) {
-          return res.status(400).json({ success: false, message: `Cart must contain at least INR ${coupon.minOrderValue} of eligible items` });
+          return res.status(400).json({ success: false, message: `Cart must contain at least ₹${coupon.minOrderValue} of eligible items` });
         }
 
         calculationBase = qualifyingTotal;
       } else {
         if (coupon.minOrderValue && totalAmount < coupon.minOrderValue) {
-          return res.status(400).json({ success: false, message: `Cart total must be at least INR ${coupon.minOrderValue} to use this coupon` });
+          return res.status(400).json({ success: false, message: `Cart total must be at least ₹${coupon.minOrderValue} to use this coupon` });
         }
       }
 
@@ -272,7 +272,7 @@ exports.createOrder = async (req, res, next) => {
     // Create Notification
     await Notification.create({
       title: 'New Order Received',
-      message: `Order #${order._id.toString().substring(0, 8)} placed for INR ${totalAmount}.`,
+      message: `Order #${order._id.toString().substring(0, 8)} placed for ₹${totalAmount}.`,
       type: 'NEW_ORDER',
       referenceId: order._id,
       referenceModel: 'Order'
@@ -492,7 +492,7 @@ exports.cancelOrder = async (req, res, next) => {
     if (wasAlreadyPaid) {
       await Notification.create({
         title: 'Refund Requested',
-        message: `Order #${order._id.toString().substring(0, 8)} requires a refund of INR ${order.totalAmount}.`,
+        message: `Order #${order._id.toString().substring(0, 8)} requires a refund of ₹${order.totalAmount}.`,
         type: 'REFUND_REQUESTED',
         referenceId: order._id,
         referenceModel: 'Order'

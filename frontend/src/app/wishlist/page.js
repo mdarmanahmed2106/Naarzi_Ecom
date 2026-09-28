@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
+import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 
 export default function WishlistPage() {
@@ -105,11 +106,11 @@ export default function WishlistPage() {
                       </h3>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-on-surface">
-                          INR {price}
+                          {formatCurrency(price)}
                         </span>
                         {hasDiscount && (
                           <span className="text-xs text-on-surface-variant line-through opacity-70 font-normal">
-                            INR {product.price}
+                            {formatCurrency(product.price)}
                           </span>
                         )}
                       </div>

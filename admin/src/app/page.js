@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi } from '@/lib/api';
 import { exportRowsAsCsv } from '@/lib/csv';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, markAllAsRead, setActiveTab }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -1622,11 +1623,11 @@ export default function AdminDashboardPage() {
                         <td className="py-4 px-6">
                           {hasDisc ? (
                             <div className="flex items-center gap-2">
-                              <span className="text-primary font-medium">INR {p.discountedPrice}</span>
-                              <span className="text-xs text-on-surface-variant line-through opacity-70">INR {p.price}</span>
+                              <span className="text-primary font-medium">{formatCurrency(p.discountedPrice)}</span>
+                              <span className="text-xs text-on-surface-variant line-through opacity-70">{formatCurrency(p.price)}</span>
                             </div>
                           ) : (
-                            <span className="text-on-surface font-medium">INR {p.price}</span>
+                            <span className="text-on-surface font-medium">{formatCurrency(p.price)}</span>
                           )}
                         </td>
                         <td className="py-4 px-6">
@@ -1776,7 +1777,7 @@ export default function AdminDashboardPage() {
                         {new Date(o.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-4 px-6 font-semibold text-on-surface">
-                        INR {o.totalAmount}
+                        {formatCurrency(o.totalAmount)}
                       </td>
                       <td className="py-4 px-6 flex flex-col items-start gap-1">
                         <span className={`inline-block text-[9px] font-label-caps px-2 py-1 rounded border tracking-wider font-bold uppercase ${
@@ -2102,11 +2103,11 @@ export default function AdminDashboardPage() {
                           {/* Discount & Cap */}
                           <td className="py-4 px-6 font-mono text-xs text-on-surface">
                             <span className="font-bold text-sm">
-                              {c.discountType === 'percentage' ? `${c.discountValue}%` : `INR ${c.discountValue}`}
+                              {c.discountType === 'percentage' ? `${c.discountValue}%` : formatCurrency(c.discountValue)}
                             </span>
                             {c.discountType === 'percentage' && c.maxDiscountAmount && (
                               <span className="block text-[11px] text-on-surface-variant mt-0.5">
-                                Capped at INR {c.maxDiscountAmount}
+                                Capped at {formatCurrency(c.maxDiscountAmount)}
                               </span>
                             )}
                           </td>
@@ -2120,7 +2121,7 @@ export default function AdminDashboardPage() {
                             )}
                             {c.minOrderValue > 0 ? (
                               <span className="inline-block text-[11px] font-mono text-on-surface-variant">
-                                Min: INR {c.minOrderValue}
+                                Min: {formatCurrency(c.minOrderValue)}
                               </span>
                             ) : (
                               <span className="inline-block text-[11px] text-on-surface-variant">
@@ -2250,7 +2251,7 @@ export default function AdminDashboardPage() {
                             <div className="text-xs text-on-surface-variant mt-1">{cart.items.length} items</div>
                           </td>
                           <td className="py-4 font-bold text-primary">
-                            INR {cart.cartValue?.toFixed(2) || '0.00'}
+                            {formatCurrency(cart.cartValue || 0, { decimals: 2 })}
                           </td>
                           <td className="py-4 text-sm text-on-surface-variant">
                             {new Date(cart.updatedAt).toLocaleString()}
@@ -2290,7 +2291,7 @@ export default function AdminDashboardPage() {
                           <img src={imgSrc} alt={insight.name} className="w-12 h-12 rounded object-cover" />
                           <div className="flex-1 overflow-hidden">
                             <div className="font-bold text-sm truncate">{insight.name}</div>
-                            <div className="text-xs text-on-surface-variant">INR {insight.discountedPrice || insight.price}</div>
+                            <div className="text-xs text-on-surface-variant">{formatCurrency(insight.discountedPrice || insight.price)}</div>
                           </div>
                           <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-[10px] font-bold font-label-caps flex-shrink-0">
                             {insight.count} LIKES
@@ -2340,7 +2341,7 @@ export default function AdminDashboardPage() {
                 <div className="grid sm:grid-cols-2 gap-6 mt-5">
                   <div>
                     <label className="block text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-2">
-                      FREE SHIPPING THRESHOLD (INR)
+                      FREE SHIPPING THRESHOLD (₹)
                     </label>
                     <input
                       type="number"
@@ -2353,7 +2354,7 @@ export default function AdminDashboardPage() {
                   </div>
                   <div>
                     <label className="block text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-2">
-                      STANDARD SHIPPING COST (INR)
+                      STANDARD SHIPPING COST (₹)
                     </label>
                     <input
                       type="number"
@@ -2551,7 +2552,7 @@ export default function AdminDashboardPage() {
               {/* Price Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">PRICE (INR) *</label>
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">PRICE (₹) *</label>
                   <input 
                     type="number" 
                     required
@@ -2562,7 +2563,7 @@ export default function AdminDashboardPage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DISCOUNTED PRICE (INR - OPTIONAL)</label>
+                  <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DISCOUNTED PRICE (₹ - OPTIONAL)</label>
                   <input 
                     type="number" 
                     min="0"
@@ -2888,7 +2889,7 @@ export default function AdminDashboardPage() {
                   
                   <div className="flex justify-between text-sm font-bold text-primary pt-3 border-t border-outline-variant/20">
                     <span>Total Amount Paid:</span>
-                    <span>INR {selectedOrder.totalAmount}</span>
+                    <span>{formatCurrency(selectedOrder.totalAmount)}</span>
                   </div>
                 </div>
               </div>
@@ -2923,10 +2924,10 @@ export default function AdminDashboardPage() {
                           {item.quantity}
                         </td>
                         <td className="py-2.5 px-4 text-right text-on-surface-variant font-mono">
-                          INR {item.priceAtPurchase}
+                          {formatCurrency(item.priceAtPurchase)}
                         </td>
                         <td className="py-2.5 px-4 text-right font-mono font-semibold text-primary">
-                          INR {item.priceAtPurchase * item.quantity}
+                          {formatCurrency(item.priceAtPurchase * item.quantity)}
                         </td>
                       </tr>
                     ))}
@@ -3174,7 +3175,7 @@ export default function AdminDashboardPage() {
                     className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
                   >
                     <option value="percentage">Percentage (%)</option>
-                    <option value="flat">Flat Amount (INR)</option>
+                    <option value="flat">Flat Amount (₹)</option>
                   </select>
                 </div>
                 <div className="space-y-1">
@@ -3194,7 +3195,7 @@ export default function AdminDashboardPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
-                    MAX DISCOUNT CAP (INR)
+                    MAX DISCOUNT CAP (₹)
                   </label>
                   <input 
                     type="number" 
@@ -3207,7 +3208,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="space-y-1">
                   <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">
-                    MIN ORDER VALUE (INR)
+                    MIN ORDER VALUE (₹)
                   </label>
                   <input 
                     type="number" 

@@ -9,6 +9,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
+import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 
 const ORDER_TRACKING_STEPS = [
@@ -411,7 +412,7 @@ export default function AccountDashboardPage() {
                                 {new Date(order.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
                               </p>
                               <p className="font-sans text-primary font-bold text-base mt-1">
-                                INR {order.totalAmount}
+                                {formatCurrency(order.totalAmount)}
                               </p>
                             </div>
                             <div className="flex flex-col items-end gap-1.5">
@@ -469,7 +470,7 @@ export default function AccountDashboardPage() {
                                   </div>
                                 </div>
                                 <span className="font-medium text-sm text-on-surface font-sans">
-                                  INR {item.priceAtPurchase * item.quantity}
+                                  {formatCurrency(item.priceAtPurchase * item.quantity)}
                                 </span>
                               </div>
                             ))}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
+import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from './Icon';
 
 export default function ProductCard({ product, className = '' }) {
@@ -127,11 +128,11 @@ export default function ProductCard({ product, className = '' }) {
             {/* Price Line: Bold Price + Strikethrough Discount */}
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm text-on-surface">
-                INR {price}
+                {formatCurrency(price)}
               </span>
               {hasDiscount && (
                 <span className="text-xs text-on-surface-variant line-through opacity-70 font-normal">
-                  INR {originalPrice}
+                  {formatCurrency(originalPrice)}
                 </span>
               )}
             </div>

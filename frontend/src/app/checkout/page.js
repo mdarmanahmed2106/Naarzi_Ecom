@@ -10,6 +10,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
+import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 import orderConfirmedAnimation from '../../../public/animations/One Click Order.json';
 import confettiAnimation from '../../../public/animations/Confetti.json';
@@ -275,7 +276,7 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-on-surface-variant font-label-caps text-[10px]">TOTAL AMOUNT</span>
-              <span className="text-primary font-bold">INR {orderSuccess.totalAmount}</span>
+              <span className="text-primary font-bold">{formatCurrency(orderSuccess.totalAmount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-on-surface-variant font-label-caps text-[10px]">PAYMENT STATUS</span>
@@ -580,7 +581,7 @@ export default function CheckoutPage() {
                   ) : (
                     <>
                       <Icon name="lock" size="sm" />
-                      {`PAY INR ${finalTotal}`}
+                      {`PAY ${formatCurrency(finalTotal)}`}
                     </>
                   )}
                 </button>
@@ -637,7 +638,7 @@ export default function CheckoutPage() {
                             <span className="text-[10px] text-on-surface-variant font-label-caps">SIZE: {item.size}</span>
                           </div>
                         </div>
-                        <span className="font-medium text-on-surface flex-none">INR {price * item.quantity}</span>
+                        <span className="font-medium text-on-surface flex-none">{formatCurrency(price * item.quantity)}</span>
                       </div>
                     );
                   })}
@@ -645,20 +646,20 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-outline-variant/30 mt-4 pt-4 flex justify-between items-center">
                   <span className="font-label-caps text-xs text-on-surface-variant">SUBTOTAL</span>
-                  <span className="text-xs font-medium text-on-surface">INR {cartTotal}</span>
+                  <span className="text-xs font-medium text-on-surface">{formatCurrency(cartTotal)}</span>
                 </div>
 
                 {appliedCoupon && (
                   <div className="flex justify-between items-center mt-3">
                     <span className="font-label-caps text-xs text-on-surface-variant">DISCOUNT ({appliedCoupon.code})</span>
-                    <span className="text-xs font-medium text-green-700">- INR {appliedCoupon.discountAmount}</span>
+                    <span className="text-xs font-medium text-green-700">- {formatCurrency(appliedCoupon.discountAmount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between items-center mt-3">
                   <span className="font-label-caps text-xs text-on-surface-variant">SHIPPING</span>
                   {shippingCost > 0 ? (
-                    <span className="text-xs font-medium text-on-surface">INR {shippingCost}</span>
+                    <span className="text-xs font-medium text-on-surface">{formatCurrency(shippingCost)}</span>
                   ) : (
                     <span className="text-xs text-green-700 font-bold font-label-caps bg-green-50 px-2 py-0.5 rounded border border-green-200">FREE</span>
                   )}
@@ -666,7 +667,7 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-outline-variant/30 mt-4 pt-4 flex justify-between items-center font-bold text-base">
                   <span className="font-label-caps text-xs text-on-surface">TOTAL</span>
-                  <span className="text-primary font-bold">INR {finalTotal}</span>
+                  <span className="text-primary font-bold">{formatCurrency(finalTotal)}</span>
                 </div>
               </div>
             )}
@@ -708,7 +709,7 @@ export default function CheckoutPage() {
                 {appliedCoupon && (
                   <div className="flex items-center gap-1.5 text-xs text-green-700 mt-1 font-medium">
                     <Icon name="check_circle" size="sm" />
-                    <span>Coupon <strong>{appliedCoupon.code}</strong> applied — you saved INR {appliedCoupon.discountAmount}!</span>
+                    <span>Coupon <strong>{appliedCoupon.code}</strong> applied — you saved {formatCurrency(appliedCoupon.discountAmount)}!</span>
                   </div>
                 )}
 
@@ -746,8 +747,8 @@ export default function CheckoutPage() {
                                   )}
                                 </div>
                                 <p className="text-xs text-on-surface mt-1 font-medium">
-                                  {c.description || (c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `INR ${c.discountValue} FLAT OFF`)}
-                                  {c.maxDiscountAmount ? ` (Up to INR ${c.maxDiscountAmount})` : ''}
+                                  {c.description || (c.discountType === 'percentage' ? `${c.discountValue}% OFF` : `${formatCurrency(c.discountValue)} FLAT OFF`)}
+                                  {c.maxDiscountAmount ? ` (Up to ${formatCurrency(c.maxDiscountAmount)})` : ''}
                                 </p>
                                 {c.applicableCategories && c.applicableCategories.length > 0 && (
                                   <p className="text-[10px] text-primary font-medium mt-0.5">
@@ -756,7 +757,7 @@ export default function CheckoutPage() {
                                 )}
                                 {!qualifies && remaining > 0 && (
                                   <p className="text-[11px] text-accent-gold font-medium mt-0.5">
-                                    Add INR {remaining} more to unlock
+                                    Add {formatCurrency(remaining)} more to unlock
                                   </p>
                                 )}
                               </div>

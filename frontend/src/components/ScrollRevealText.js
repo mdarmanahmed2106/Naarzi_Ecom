@@ -7,35 +7,39 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion
 /**
  * Word Component for Scroll Text Reveal
  * Maps strictly:
- * - progress <= start: opacity 0.16 (ghost preview)
- * - progress from start to end: smooth transition to opacity 1.0 (solid black)
- * - progress >= end: permanently opacity 1.0 (solid black)
+ * - progress <= start: opacity 0.15 (ghost preview)
+ * - progress from start to end: smooth transition to opacity 1.0 (solid dark)
+ * - progress >= end: permanently opacity 1.0 (solid dark)
  */
 function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
   const mid = (start + end) / 2;
 
-  // Opacity: Ghost (0.16) -> Solid Contrast (1.0) and stays 1.0 permanently
+  // Opacity: Ghost (0.15) -> Solid Contrast (1.0) and stays 1.0 permanently
   const opacity = useTransform(
     progress,
     [0, start, end, 1],
-    [0.16, 0.16, 1, 1]
+    [0.15, 0.15, 1, 1]
   );
 
   // Subtle natural word lift on active reading front
   const y = useTransform(
     progress,
     [0, start, mid, end, 1],
-    [0, 0, -2.5, 0, 0]
+    [0, 0, -2, 0, 0]
   );
 
   if (shouldReduceMotion) {
-    return <span className="inline-block mr-[0.24em] my-[0.02em] text-[#130f12] font-semibold">{word}</span>;
+    return (
+      <span className="inline-block mr-[0.22em] my-[0.02em] text-[#130f12] font-bold">
+        {word}
+      </span>
+    );
   }
 
   return (
     <motion.span
       style={{ opacity, y }}
-      className="inline-block mr-[0.24em] my-[0.02em] font-semibold text-[#130f12] will-change-transform"
+      className="inline-block mr-[0.22em] my-[0.02em] font-bold text-[#130f12] will-change-transform"
     >
       {word}
     </motion.span>
@@ -43,7 +47,7 @@ function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
 }
 
 export default function ScrollRevealText({
-  text = "Born from a love of craftsmanship and modern femininity, our brand exists to create clothing that feels considered, wearable, and quietly bold. Every piece is designed with intention — balancing structure and softness, ease and elegance, so you feel confident without trying too hard.",
+  text = "Born from a love of movement and quiet confidence, Naarzi exists to create pieces that feel effortless, not accidental. Every silhouette is designed with intention — balancing ease and elegance, comfort and character, so you feel like yourself, only more so.",
   ctaText = "SHOP ALL PRODUCTS",
   ctaLink = "/shop"
 }) {
@@ -57,7 +61,7 @@ export default function ScrollRevealText({
   });
 
   const words = useMemo(() => text.trim().split(/\s+/), [text]);
-  const totalWords = words.length;
+  const totalWords = words.length || 1;
 
   // Reveal timeline bounds: 0.05 to 0.65
   const revealStart = 0.05;
@@ -67,19 +71,19 @@ export default function ScrollRevealText({
   return (
     <section
       ref={containerRef}
-      className="relative h-[225vh] bg-[#fbf8f5] w-full border-t border-outline-variant/20"
+      className="relative h-[220vh] bg-[#fbf8f5] w-full"
       aria-label="Brand manifesto"
     >
-      {/* Sticky viewport stage locked while scrolling, padded to clear sticky header */}
-      <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center pt-24 sm:pt-28 pb-12 sm:pb-16 px-6 sm:px-10 md:px-16 overflow-hidden">
+      {/* Sticky viewport stage locked while scrolling */}
+      <div className="sticky top-0 h-screen w-full flex flex-col items-center justify-center pt-20 sm:pt-24 pb-12 sm:pb-16 px-6 sm:px-10 md:px-16 overflow-hidden">
         <div className="max-w-4xl mx-auto w-full flex flex-col items-center text-center my-auto">
-          
+
           {/* Top 3 Diamond Sparkles (Palo Alto Style) */}
-          <div className="flex items-center justify-center gap-3.5 mb-6 sm:mb-8 text-[#130f12] select-none" aria-hidden="true">
+          <div className="flex items-center justify-center gap-2 mb-6 sm:mb-8 text-[#130f12] select-none" aria-hidden="true">
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
             </svg>
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
               <path d="M12 0L14.8 9.2L24 12L14.8 14.8L12 24L9.2 14.8L0 12L9.2 9.2L12 0Z" />
             </svg>
             <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -87,11 +91,8 @@ export default function ScrollRevealText({
             </svg>
           </div>
 
-          {/* Reveal Manifesto Statement in Bodoni Moda Serif Typography */}
-          <h2
-            style={{ fontFamily: 'var(--font-bodoni-moda), "Bodoni Moda", serif' }}
-            className="text-xl sm:text-2xl md:text-3xl lg:text-[34px] xl:text-[36px] leading-[1.36] sm:leading-[1.4] md:leading-[1.44] tracking-normal text-[#130f12] text-center mb-8 sm:mb-10 max-w-3xl mx-auto"
-          >
+          {/* Reveal Manifesto Statement matching reference image bold typography & line height */}
+          <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] xl:text-[38px] leading-[1.3] sm:leading-[1.32] md:leading-[1.35] tracking-tight text-[#130f12] text-center mb-8 sm:mb-10 max-w-4xl mx-auto">
             {words.map((word, i) => {
               const start = revealStart + i * step;
               const end = start + step;
@@ -108,12 +109,12 @@ export default function ScrollRevealText({
             })}
           </h2>
 
-          {/* Bottom CTA Button: Transparent outline until hovered */}
+          {/* Bottom CTA Button matching reference image rectangular outline */}
           {ctaText && (
             <div>
               <Link
                 href={ctaLink}
-                className="inline-flex items-center justify-center px-8 py-3.5 bg-transparent border border-[#130f12]/80 text-[#130f12] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] hover:text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-lg transition-all duration-300 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95"
+                className="inline-flex items-center justify-center px-8 py-3 bg-transparent border border-[#130f12] text-[#130f12] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] hover:text-white font-label-caps text-[11px] sm:text-xs tracking-[0.2em] uppercase font-bold rounded transition-all duration-300 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95"
               >
                 {ctaText}
               </Link>

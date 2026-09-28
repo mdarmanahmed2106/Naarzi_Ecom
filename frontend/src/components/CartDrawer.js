@@ -7,6 +7,7 @@ import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
 import confettiAnimation from '../../public/animations/Confetti.json';
 import Icon from '@/components/Icon';
+import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function CartDrawer() {
   const {
@@ -142,7 +143,7 @@ export default function CartDrawer() {
             <span>
               {qualifiesForFreeShipping
                 ? 'FREE Pan-India Shipping Applied'
-                : `Add INR ${amountToFreeShipping.toFixed(2)} more for FREE Shipping`}
+                : `Add ${formatCurrency(amountToFreeShipping, { decimals: 2 })} more for FREE Shipping`}
             </span>
           </p>
           <div className="w-full h-1.5 bg-outline-variant/30 rounded-full overflow-hidden mx-auto max-w-[90%]">
@@ -193,11 +194,11 @@ export default function CartDrawer() {
                         <div className="text-right flex-none">
                           {hasDiscount ? (
                             <>
-                              <p className="font-bold text-on-surface text-sm">INR {price.toFixed(2)}</p>
-                              <p className="text-xs text-on-surface-variant line-through">INR {originalPrice.toFixed(2)}</p>
+                              <p className="font-bold text-on-surface text-sm">{formatCurrency(price, { decimals: 2 })}</p>
+                              <p className="text-xs text-on-surface-variant line-through">{formatCurrency(originalPrice, { decimals: 2 })}</p>
                             </>
                           ) : (
-                            <p className="font-bold text-on-surface text-sm">INR {price.toFixed(2)}</p>
+                            <p className="font-bold text-on-surface text-sm">{formatCurrency(price, { decimals: 2 })}</p>
                           )}
                         </div>
                       </div>
@@ -361,7 +362,7 @@ export default function CartDrawer() {
             {appliedCoupon && (
               <div className="flex justify-between items-center mb-4 text-sm">
                 <span className="text-on-surface-variant">Discount ({appliedCoupon.code})</span>
-                <span className="text-sale font-medium">-INR {appliedCoupon.discountAmount.toFixed(2)}</span>
+                <span className="text-sale font-medium">-{formatCurrency(appliedCoupon.discountAmount, { decimals: 2 })}</span>
               </div>
             )}
             <Link 
@@ -369,7 +370,7 @@ export default function CartDrawer() {
               onClick={() => setIsCartOpen(false)}
               className="w-full py-[18px] bg-primary text-white font-bold text-sm tracking-widest rounded-[4px] hover:bg-primary-container transition-colors flex justify-center items-center gap-2"
             >
-              <span>CHECKOUT • INR {finalTotal.toFixed(2)}</span>
+              <span>CHECKOUT • {formatCurrency(finalTotal, { decimals: 2 })}</span>
             </Link>
             <p className="text-center text-on-surface-variant text-[13px] mt-4">
               Shipping & taxes calculated at checkout
