@@ -80,9 +80,13 @@ exports.createRazorpayOrder = async (req, res, next) => {
         razorpayOrder = await razorpayInstance.orders.create(options);
       } catch (rzpErr) {
         console.error('Razorpay Order Creation Error:', rzpErr);
-        return res.status(500).json({
+        // Razorpay rejects bad/mismatched API keys with 401 — surface that distinctly
+        const isAuthFailure = rzpErr.statusCode === 401;
+        return res.status(isAuthFailure ? 401 : 500).json({
           success: false,
-          message: rzpErr.error?.description || rzpErr.message || 'Failed to create Razorpay payment order'
+          message: isAuthFailure
+            ? 'Payment gateway authentication failed. Please contact support.'
+            : rzpErr.error?.description || rzpErr.message || 'Failed to create Razorpay payment order'
         });
       }
 
@@ -93,6 +97,8 @@ exports.createRazorpayOrder = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      // Public key ID that created this order, so the checkout modal always uses the matching key
+      key: process.env.RAZORPAY_KEY_ID,
       order_id: razorpayOrder.id,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
@@ -125,14 +131,17 @@ exports.verifyPayment = async (req, res, next) => {
       isVerified = true;
       console.log('Payment verified automatically in Razorpay MOCK mode.');
     } else {
-      // Real signature verification
+      // Real signature verification: HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)
       const body = razorpay_order_id + '|' + razorpay_payment_id;
       const expectedSignature = crypto
         .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
         .update(body.toString())
         .digest('hex');
 
-      isVerified = expectedSignature === razorpay_signature;
+      // Constant-time comparison so the signature can't be guessed byte-by-byte from timing
+      const expected = Buffer.from(expectedSignature, 'utf8');
+      const received = Buffer.from(String(razorpay_signature), 'utf8');
+      isVerified = expected.length === received.length && crypto.timingSafeEqual(expected, received);
     }
 
     const order = await Order.findOne({ razorpayOrderId: razorpay_order_id });
@@ -141,6 +150,23 @@ exports.verifyPayment = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: 'Associated order not found'
+      });
+    }
+
+    // Only the customer who placed the order (or an admin) may confirm its payment
+    if (order.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to verify payment for this order'
+      });
+    }
+
+    // Already confirmed (e.g. by the webhook) — succeed without double-counting the coupon
+    if (order.paymentStatus === 'paid') {
+      return res.status(200).json({
+        success: true,
+        message: 'Payment already verified',
+        order
       });
     }
 
@@ -163,13 +189,9 @@ exports.verifyPayment = async (req, res, next) => {
         order
       });
     } else {
-      // Payment Verification Failed
-      order.paymentStatus = 'failed';
-      await order.save();
-
-      // Release stock
-      await releaseOrderStock(order);
-
+      // Signature mismatch: reject without touching the order. A forged or corrupted request
+      // must not cancel a real order — if the payment genuinely succeeded, the webhook still
+      // confirms it; if not, the abandoned-stock job releases the reserved stock later.
       return res.status(400).json({
         success: false,
         message: 'Payment verification failed'
@@ -202,7 +224,9 @@ exports.handleWebhook = async (req, res, next) => {
       shasum.update(req.rawBody);
       const digest = shasum.digest('hex');
 
-      isValid = digest === signature;
+      const expected = Buffer.from(digest, 'utf8');
+      const received = Buffer.from(String(signature), 'utf8');
+      isValid = expected.length === received.length && crypto.timingSafeEqual(expected, received);
     }
 
     if (!isValid) {

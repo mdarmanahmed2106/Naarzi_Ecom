@@ -297,9 +297,15 @@ export default function CheckoutPage() {
           throw new Error('Razorpay SDK failed to load. Please check your internet connection and try again.');
         }
 
+        // Prefer the key ID returned with the order so the modal always matches the key that created it
+        const razorpayKey = paymentResponse.key || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+        if (!razorpayKey) {
+          throw new Error('Payments are not configured yet. Please try again later.');
+        }
+
         // 4. Open Razorpay Standard Checkout Modal
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TjWY9so0WNbgL2',
+          key: razorpayKey,
           amount: paymentResponse.amount,
           currency: paymentResponse.currency || 'INR',
           name: 'NAARZI',
