@@ -53,8 +53,8 @@ export default function ProductCard({ product, className = '' }) {
               className="absolute inset-0 w-full h-full object-cover product-image-secondary transition-transform duration-500 group-hover:scale-103"
             />
             
-            {/* Quick-add bag icon */}
-            <button 
+            {/* Quick buy: bag icon that expands into a "QUICK BUY" pill on hover */}
+            <button
               type="button"
               onClick={(e) => {
                 e.preventDefault();
@@ -62,10 +62,13 @@ export default function ProductCard({ product, className = '' }) {
                 setQuickBuyProduct(product);
                 setIsQuickBuyOpen(true);
               }}
-              className="absolute bottom-3.5 right-3.5 w-9 h-9 rounded-full bg-white text-primary flex items-center justify-center shadow-md hover:bg-primary hover:text-white transition-all duration-200 product-quick-add cursor-pointer border border-outline-variant/30 z-20"
-              title="Quick Add to Bag"
+              className="group/qb absolute bottom-3.5 right-3.5 h-9 min-w-9 px-[9px] rounded-xl bg-white text-primary flex items-center justify-center shadow-md product-quick-add cursor-pointer border border-outline-variant/30 z-20"
+              aria-label="Quick buy"
             >
-              <Icon name="shopping_bag" size="sm" className="font-bold" />
+              <Icon name="shopping_bag" size="sm" className="flex-none" />
+              <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap font-label-caps text-[11px] font-semibold tracking-[0.18em] leading-none transition-all duration-300 ease-out group-hover/qb:max-w-[7rem] group-hover/qb:opacity-100 group-hover/qb:ml-2 group-focus-visible/qb:max-w-[7rem] group-focus-visible/qb:opacity-100 group-focus-visible/qb:ml-2">
+                QUICK BUY
+              </span>
             </button>
             
             {/* Wishlist Icon with Heart Pop Animation */}
