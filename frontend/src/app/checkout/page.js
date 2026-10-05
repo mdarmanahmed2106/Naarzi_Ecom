@@ -10,6 +10,7 @@ import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
+import { loadRazorpayScript } from '@/lib/razorpay';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 import orderConfirmedAnimation from '../../../public/animations/One Click Order.json';
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
     setAppliedCoupon,
     user,
     setUser,
+    authLoading,
     settings
   } = useApp();
 
@@ -59,6 +61,19 @@ export default function CheckoutPage() {
     day: 'numeric',
     month: 'short'
   });
+
+  // Preload Razorpay Checkout SDK
+  useEffect(() => {
+    loadRazorpayScript();
+  }, []);
+
+  // Prompt login if user lands on checkout without being authenticated
+  useEffect(() => {
+    if (!authLoading && !user && !orderSuccess) {
+      setAuthModalTab('login');
+      setIsAuthOpen(true);
+    }
+  }, [authLoading, user, orderSuccess, setAuthModalTab, setIsAuthOpen]);
 
   // Load active coupons
   useEffect(() => {
@@ -221,28 +236,74 @@ export default function CheckoutPage() {
         const paymentResponse = await paymentApi.createRazorpayOrder(orderId);
         
         if (paymentResponse.success) {
-          const razorpayOrderId = paymentResponse.razorpayOrderId;
+          const razorpayOrderId = paymentResponse.razorpayOrderId || paymentResponse.order_id;
           
-          // 3. Verify Payment (since we are in MOCK mode, we can verify instantly!)
-          const verifyResponse = await paymentApi.verifyPayment({
-            razorpay_order_id: razorpayOrderId,
-            razorpay_payment_id: `pay_mock_${Math.random().toString(36).substring(2, 11)}`,
-            razorpay_signature: 'mock_signature_verification_success'
-          });
-
-          if (verifyResponse.success) {
-            setOrderSuccess(verifyResponse.order || orderResponse.order);
-            clearCart();
-          } else {
-            throw new Error('Payment verification simulation failed.');
+          // 3. Ensure Razorpay checkout script is loaded
+          const isScriptLoaded = await loadRazorpayScript();
+          if (!isScriptLoaded || typeof window.Razorpay === 'undefined') {
+            throw new Error('Razorpay SDK failed to load. Please check your internet connection and try again.');
           }
+
+          // 4. Open Razorpay Standard Checkout Modal
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TjWY9so0WNbgL2',
+            amount: paymentResponse.amount,
+            currency: paymentResponse.currency || 'INR',
+            name: 'Naarzi',
+            description: `Order #${orderId.slice(-6).toUpperCase()}`,
+            image: '/icon.png',
+            order_id: razorpayOrderId,
+            prefill: {
+              name: user?.name || checkoutName || '',
+              email: user?.email || checkoutEmail || '',
+              contact: phone || '',
+            },
+            theme: {
+              color: '#6b2233',
+            },
+            handler: async function (response) {
+              setLoading(true);
+              try {
+                // 5. Verify payment signature on backend
+                const verifyResponse = await paymentApi.verifyPayment({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                });
+
+                if (verifyResponse.success) {
+                  setOrderSuccess(verifyResponse.order || orderResponse.order);
+                  clearCart();
+                } else {
+                  setError(verifyResponse.message || 'Payment verification failed.');
+                }
+              } catch (verifyErr) {
+                console.error('Payment verification error:', verifyErr);
+                setError(verifyErr.message || 'Payment verification failed. Please contact support if your account was charged.');
+              } finally {
+                setLoading(false);
+              }
+            },
+            modal: {
+              ondismiss: function () {
+                setLoading(false);
+                setError('Payment was cancelled. You can retry checkout anytime.');
+              },
+            },
+          };
+
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', function (response) {
+            setLoading(false);
+            setError(response.error?.description || 'Payment failed. Please try another payment method.');
+          });
+          rzp.open();
         } else {
-          throw new Error('Failed to create payment order.');
+          throw new Error(paymentResponse.message || 'Failed to create payment order.');
         }
       }
     } catch (err) {
       setError(err.message || 'Checkout failed. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -266,7 +327,7 @@ export default function CheckoutPage() {
             Order Confirmed
           </h2>
           <p className="font-body-md text-sm text-on-surface-variant mb-6">
-            Thank you for your purchase! Your payment has been successfully simulated and verified.
+            Thank you for your purchase! Your payment has been successfully confirmed.
           </p>
 
           <div className="w-full bg-surface-container/50 border border-outline-variant/30 rounded-xl p-6 text-left space-y-4 mb-8 text-sm">
@@ -281,7 +342,7 @@ export default function CheckoutPage() {
             <div className="flex justify-between">
               <span className="text-on-surface-variant font-label-caps text-[10px]">PAYMENT STATUS</span>
               <span className="text-green-700 font-bold font-label-caps text-[10px] bg-green-50 px-2 py-0.5 rounded border border-green-200">
-                PAID (MOCK)
+                PAID
               </span>
             </div>
           </div>
@@ -302,6 +363,61 @@ export default function CheckoutPage() {
           </div>
         </main>
         <Footer />
+      </div>
+    );
+  }
+
+  // Loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-surface">
+        <Header />
+        <div className="flex-1 flex items-center justify-center py-40">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Gate screen if user is not authenticated
+  if (!user) {
+    return (
+      <div className="flex flex-col min-h-screen bg-surface">
+        <Header />
+        <main className="max-w-md w-full mx-auto px-6 py-24 flex-1 flex flex-col justify-center items-center text-center">
+          <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-6">
+            <Icon name="lock" size="xl" />
+          </div>
+          <h1 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-3">
+            Please Sign In to Checkout
+          </h1>
+          <p className="font-body-md text-sm text-on-surface-variant mb-8 leading-relaxed max-w-sm">
+            You must be logged in to your Naarzi account to access checkout and complete your order.
+          </p>
+
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              onClick={() => {
+                setAuthModalTab('login');
+                setIsAuthOpen(true);
+              }}
+              className="w-full py-4 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors shadow-sm font-bold flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Icon name="login" size="sm" />
+              LOG IN / REGISTER
+            </button>
+            <Link
+              href="/shop"
+              className="w-full py-3.5 bg-transparent border border-outline text-on-surface font-label-caps text-xs tracking-widest rounded-xl hover:bg-surface-container transition-colors text-center font-semibold"
+            >
+              RETURN TO SHOP
+            </Link>
+          </div>
+        </main>
+        <Footer />
+        <CartDrawer />
+        <AuthModal />
       </div>
     );
   }

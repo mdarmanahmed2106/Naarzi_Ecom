@@ -47,13 +47,30 @@ exports.createRazorpayOrder = async (req, res, next) => {
     // Razorpay amount in paise (multiply INR by 100)
     const amountInPaise = Math.round(order.totalAmount * 100);
 
+    // Validate minimum amount (minimum 100 paise / ₹1 for Razorpay)
+    if (amountInPaise < 100) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order amount must be at least ₹1.00 (100 paise) to proceed with Razorpay checkout'
+      });
+    }
+
     const options = {
       amount: amountInPaise,
       currency: 'INR',
       receipt: order._id.toString()
     };
 
-    const razorpayOrder = await razorpayInstance.orders.create(options);
+    let razorpayOrder;
+    try {
+      razorpayOrder = await razorpayInstance.orders.create(options);
+    } catch (rzpErr) {
+      console.error('Razorpay Order Creation Error:', rzpErr);
+      return res.status(500).json({
+        success: false,
+        message: rzpErr.error?.description || rzpErr.message || 'Failed to create Razorpay payment order'
+      });
+    }
 
     // Save Razorpay Order ID to our DB order
     order.razorpayOrderId = razorpayOrder.id;
@@ -61,6 +78,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      order_id: razorpayOrder.id,
       razorpayOrderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,

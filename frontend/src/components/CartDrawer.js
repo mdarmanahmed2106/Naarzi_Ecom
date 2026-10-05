@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Lottie } from 'lottie-react';
 import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
@@ -10,7 +11,11 @@ import Icon from '@/components/Icon';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function CartDrawer() {
+  const router = useRouter();
   const {
+    user,
+    setIsAuthOpen,
+    setAuthModalTab,
     cartItems,
     isCartOpen,
     setIsCartOpen,
@@ -365,13 +370,20 @@ export default function CartDrawer() {
                 <span className="text-sale font-medium">-{formatCurrency(appliedCoupon.discountAmount, { decimals: 2 })}</span>
               </div>
             )}
-            <Link 
-              href="/checkout" 
-              onClick={() => setIsCartOpen(false)}
-              className="w-full py-[18px] bg-primary text-white font-bold text-sm tracking-widest rounded-[4px] hover:bg-primary-container transition-colors flex justify-center items-center gap-2"
+            <button 
+              onClick={() => {
+                setIsCartOpen(false);
+                if (!user) {
+                  setAuthModalTab('login');
+                  setIsAuthOpen(true);
+                  return;
+                }
+                router.push('/checkout');
+              }}
+              className="w-full py-[18px] bg-primary text-white font-bold text-sm tracking-widest rounded-[4px] hover:bg-primary-container transition-colors flex justify-center items-center gap-2 cursor-pointer"
             >
               <span>CHECKOUT • {formatCurrency(finalTotal, { decimals: 2 })}</span>
-            </Link>
+            </button>
             <p className="text-center text-on-surface-variant text-[13px] mt-4">
               Shipping & taxes calculated at checkout
             </p>
