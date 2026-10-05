@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { adminApi } from '@/lib/api'; // Or just generic fetch if api.js doesn't export login
-import { authApi } from '@/lib/api';
+import { adminToken } from '@/lib/api';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -36,6 +35,9 @@ export default function AdminLogin() {
       if (data.user.role !== 'admin') {
         throw new Error("This account doesn't have admin access.");
       }
+
+      // Keep the token for browsers that block the cross-site auth cookie
+      adminToken.set(data.token);
 
       // Success
       router.push('/');

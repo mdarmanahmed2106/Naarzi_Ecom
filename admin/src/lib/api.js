@@ -1,13 +1,43 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
+// In production the API (onrender.com) and the admin (vercel.app) are different sites, so
+// browsers that block third-party cookies never send the httpOnly auth cookie back.
+// Keep the token from the login response and send it as a Bearer header as a fallback.
+const TOKEN_KEY = 'admin_auth_token';
+
+export const adminToken = {
+  get: () => {
+    try {
+      return typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
+    } catch {
+      return null;
+    }
+  },
+  set: (token) => {
+    try {
+      if (token) localStorage.setItem(TOKEN_KEY, token);
+    } catch {}
+  },
+  clear: () => {
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {}
+  },
+};
+
+export const authHeaders = () => {
+  const token = adminToken.get();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 /**
  * Base fetch wrapper to interact with the backend API
  */
 async function fetchApi(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   // Set credentials to 'include' to ensure HTTP cookies are sent and stored
-  const headers = { ...options.headers };
+  const headers = { ...authHeaders(), ...options.headers };
   const isFormData = options.body && options.body instanceof FormData;
 
   if (!isFormData) {

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi } from '@/lib/api';
+import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi, adminToken, authHeaders } from '@/lib/api';
 import { exportRowsAsCsv } from '@/lib/csv';
 import { formatCurrency } from '@/lib/formatCurrency';
 
@@ -242,13 +242,15 @@ export default function AdminDashboardPage() {
     async function checkAuth() {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/me`, {
-          credentials: 'include'
+          credentials: 'include',
+          headers: authHeaders()
         });
         const data = await response.json();
         if (response.ok && data.user && data.user.role === 'admin') {
           setUser(data.user);
           loadData();
         } else {
+          adminToken.clear();
           router.push('/login');
         }
       } catch (err) {
@@ -1182,13 +1184,14 @@ export default function AdminDashboardPage() {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/logout`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ source: 'admin' }),
         credentials: 'include'
       });
-      router.push('/login');
     } catch (err) {
       console.error(err);
+    } finally {
+      adminToken.clear();
       router.push('/login');
     }
   };
