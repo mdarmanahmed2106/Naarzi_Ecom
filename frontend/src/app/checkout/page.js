@@ -103,6 +103,13 @@ export default function CheckoutPage() {
     loadRazorpayScript();
   }, []);
 
+  // The customer pays from the bottom of the page — bring the confirmation screen into view
+  useEffect(() => {
+    if (orderSuccess) {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }, [orderSuccess]);
+
   // Reset pendingOrderId if cart items or applied coupon change
   useEffect(() => {
     setPendingOrderId(null);
@@ -381,11 +388,17 @@ export default function CheckoutPage() {
   };
 
   // If order was successfully completed, show success panel
+  // Full-screen confirmation on its own — no site header, menu or footer competing for attention
   if (orderSuccess) {
     return (
-      <div className="flex flex-col min-h-screen bg-surface">
-        <Header />
-        <main className="max-w-md w-full mx-auto px-6 py-20 flex-1 flex flex-col justify-center items-center text-center">
+      <div className="min-h-dvh flex flex-col bg-surface">
+        <div className="pt-6 md:pt-10 flex justify-center">
+          <Link href="/" aria-label="Naarzi home" className="flex flex-col items-center">
+            <span className="font-display-lg text-2xl md:text-3xl tracking-[0.2em] text-primary font-bold leading-none">NAARZI</span>
+            <span className="font-label-caps text-[8px] md:text-[9px] tracking-[0.4em] text-accent-gold font-bold mt-1.5">OWN THE MOMENT</span>
+          </Link>
+        </div>
+        <main className="max-w-md w-full mx-auto px-6 py-8 flex-1 flex flex-col justify-center items-center text-center">
           <div className="w-40 h-40 md:w-48 md:h-48 -mb-2">
             <Lottie
               src={orderConfirmedAnimation}
@@ -403,9 +416,9 @@ export default function CheckoutPage() {
           </p>
 
           <div className="w-full bg-surface-container/50 border border-outline-variant/30 rounded-xl p-6 text-left space-y-4 mb-8 text-sm">
-            <div className="flex justify-between">
-              <span className="text-on-surface-variant font-label-caps text-[10px]">ORDER ID</span>
-              <span className="font-mono text-on-surface font-medium">{orderSuccess._id}</span>
+            <div className="flex justify-between gap-4">
+              <span className="text-on-surface-variant font-label-caps text-[10px] flex-none">ORDER ID</span>
+              <span className="font-mono text-on-surface font-medium break-all text-right">{orderSuccess._id}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-on-surface-variant font-label-caps text-[10px]">TOTAL AMOUNT</span>
@@ -434,7 +447,6 @@ export default function CheckoutPage() {
             </Link>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
