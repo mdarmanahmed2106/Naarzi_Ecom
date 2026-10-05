@@ -1,6 +1,7 @@
 'use client';
 
 import React, { use, useState, useEffect } from 'react';
+import { getDefaultSize } from '@/lib/defaultSize';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -42,7 +43,7 @@ export default function ProductDetailPage({ params }) {
       const variant = product.colors.find(c => c.name === selectedColor);
       setCurrentColorVariant(variant || null);
       setActiveImage(0); // reset image index on color change
-      setSelectedSize(''); // reset size
+      setSelectedSize(getDefaultSize(variant?.sizes)); // pre-select the first in-stock size
     }
   }, [selectedColor, product]);
 
@@ -106,9 +107,6 @@ export default function ProductDetailPage({ params }) {
             const firstColor = loadedProduct.colors[0];
             setSelectedColor(firstColor.name);
             setCurrentColorVariant(firstColor);
-            if (firstColor.sizes && firstColor.sizes.length === 1) {
-              setSelectedSize(firstColor.sizes[0].size);
-            }
           }
 
           // Load reviews
@@ -541,7 +539,7 @@ export default function ProductDetailPage({ params }) {
                           name="star"
                           size="lg"
                           className={`cursor-pointer transition-colors ${
-                            rating >= star ? 'text-secondary fill-1' : 'text-on-surface-variant/40'
+                            rating >= star ? 'text-accent-gold fill-1' : 'text-on-surface-variant/40 hover:text-accent-gold/60'
                           }`}
                           onClick={() => setRating(star)}
                           style={{ fontVariationSettings: rating >= star ? "'FILL' 1" : "'FILL' 0" }}
@@ -615,7 +613,7 @@ export default function ProductDetailPage({ params }) {
                               key={star}
                               name="star"
                               size="sm"
-                              className={rev.rating >= star ? 'text-secondary fill-1' : 'text-on-surface-variant/20'}
+                              className={rev.rating >= star ? 'text-accent-gold fill-1' : 'text-on-surface-variant/30'}
                               style={{ fontVariationSettings: rev.rating >= star ? "'FILL' 1" : "'FILL' 0" }}
                             />
                           ))}

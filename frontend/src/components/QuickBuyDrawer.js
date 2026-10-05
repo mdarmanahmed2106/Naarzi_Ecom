@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
 import Icon from '@/components/Icon';
+import { getDefaultSize } from '@/lib/defaultSize';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function QuickBuyDrawer() {
@@ -22,13 +23,9 @@ export default function QuickBuyDrawer() {
     if (isQuickBuyOpen) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
-      // Auto-select size if only one exists
+      // Pre-select the first in-stock size (the only size, for single-size products)
       const currentSizes = quickBuyProduct?.colors?.[0]?.sizes || quickBuyProduct?.sizes || [];
-      if (currentSizes.length === 1) {
-        setSelectedSize(currentSizes[0].size);
-      } else {
-        setSelectedSize('');
-      }
+      setSelectedSize(getDefaultSize(currentSizes));
     } else {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
