@@ -284,7 +284,7 @@ export default function Header() {
                 onMouseEnter={() => handleMouseEnter('apparel')}
                 onMouseLeave={handleMouseLeave}
               >
-                <Link href="/shop?category=apparel" data-active={activeMegaMenu === 'apparel'} className="nav-dot font-label-caps text-[11px] text-on-surface-variant hover:text-primary data-[active=true]:text-primary transition-colors font-bold h-full flex items-center">
+                <Link href="/shop?category=apparel" data-active={activeMegaMenu === 'apparel'} className="nav-dot font-label-caps text-[13px] text-on-surface-variant hover:text-primary data-[active=true]:text-primary transition-colors font-bold h-full flex items-center">
                   APPAREL
                 </Link>
                 
@@ -341,11 +341,11 @@ export default function Header() {
                   </div>
                 )}
               </div>
-              <Link href="/shop?tag=new-arrival" className="nav-dot font-label-caps text-[11px] text-on-surface-variant hover:text-primary transition-colors font-bold">
+              <Link href="/shop?tag=new-arrival" className="nav-dot font-label-caps text-[13px] text-on-surface-variant hover:text-primary transition-colors font-bold">
                 NEW
               </Link>
 
-              <Link href="/shop?tag=sale" className="nav-dot nav-dot-badge font-label-caps text-[11px] bg-sale text-white px-2 py-0.5 rounded hover:bg-sale/80 transition-colors font-bold flex items-center justify-center">
+              <Link href="/shop?tag=sale" className="nav-dot nav-dot-badge font-label-caps text-[13px] bg-sale text-white px-2 py-0.5 rounded hover:bg-sale/80 transition-colors font-bold flex items-center justify-center">
                 SALE
               </Link>
             </nav>
@@ -428,11 +428,8 @@ export default function Header() {
 
           {/* Icons / Actions */}
           <div className="flex-1 flex items-center justify-end gap-3 md:gap-5">
-            <nav className="hidden xl:flex items-center gap-6 mr-4 translate-y-[1px]">
-              <Link href="/about" aria-current={pathname === '/about' ? 'page' : undefined} className="nav-dot font-label-caps text-[11px] text-on-surface-variant hover:text-primary aria-[current=page]:text-primary transition-colors font-bold leading-none">ABOUT US</Link>
-
-              <Link href="/faq" aria-current={pathname === '/faq' ? 'page' : undefined} className="nav-dot font-label-caps text-[11px] text-on-surface-variant hover:text-primary aria-[current=page]:text-primary transition-colors font-bold leading-none">FAQ</Link>
-              <Link href="/contact" aria-current={pathname === '/contact' ? 'page' : undefined} className="nav-dot font-label-caps text-[11px] text-on-surface-variant hover:text-primary aria-[current=page]:text-primary transition-colors font-bold leading-none">CONTACT</Link>
+            <nav className="hidden lg:flex items-center mr-1 translate-y-[1px]">
+              <Link href="/about" aria-current={pathname === '/about' ? 'page' : undefined} className="nav-dot font-label-caps text-[13px] text-on-surface-variant hover:text-primary aria-[current=page]:text-primary transition-colors font-bold leading-none">ABOUT</Link>
             </nav>
 
             <button onClick={() => setSearchOpen(true)} aria-label="Search" className={`items-center text-on-surface-variant hover:text-primary transition-colors p-2.5 -m-2.5 flex ${searchOpen ? 'lg:hidden' : ''}`}>
