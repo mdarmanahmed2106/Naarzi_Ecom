@@ -237,7 +237,7 @@ export default function Header() {
       {banners.length > 0 && (
         <aside className="bg-surface-container text-on-surface border-b border-on-surface overflow-hidden relative">
           {/* Each half is at least a screen wide but grows to fit the messages, so larger text never overlaps; the halves stay identical so the -50% loop is seamless */}
-          <div className="flex w-max marquee-track text-[15px] md:text-[17px] font-label-caps font-semibold tracking-widest">
+          <div className="flex w-max marquee-track text-[11px] md:text-xs font-label-caps font-semibold tracking-widest">
             {/* First set for seamless loop */}
             <div className="flex shrink-0 min-w-[100vw]">
               {banners.map((banner) => (
