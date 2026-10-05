@@ -236,11 +236,12 @@ export default function Header() {
     <>
       {banners.length > 0 && (
         <aside className="bg-surface-container text-on-surface border-b border-on-surface overflow-hidden relative">
-          <div className="flex w-[200%] marquee-track text-[9px] md:text-[10px] font-label-caps font-semibold tracking-widest">
+          {/* Each half is at least a screen wide but grows to fit the messages, so larger text never overlaps; the halves stay identical so the -50% loop is seamless */}
+          <div className="flex w-max marquee-track text-[15px] md:text-[17px] font-label-caps font-semibold tracking-widest">
             {/* First set for seamless loop */}
-            <div className="flex w-1/2">
+            <div className="flex shrink-0 min-w-[100vw]">
               {banners.map((banner) => (
-                <div key={banner._id} className="flex-1 text-center py-2 px-4 flex items-center justify-center whitespace-nowrap">
+                <div key={banner._id} className="flex-1 shrink-0 text-center py-2 px-6 flex items-center justify-center whitespace-nowrap">
                   {banner.message}
                   {banner.link && (
                     <Link href={banner.link} className="font-bold underline underline-offset-2 hover:text-primary transition-colors ml-1">
@@ -251,9 +252,9 @@ export default function Header() {
               ))}
             </div>
             {/* Duplicated set for seamless loop */}
-            <div className="flex w-1/2">
+            <div className="flex shrink-0 min-w-[100vw]">
               {banners.map((banner) => (
-                <div key={`${banner._id}-dup`} className="flex-1 text-center py-2 px-4 flex items-center justify-center whitespace-nowrap">
+                <div key={`${banner._id}-dup`} className="flex-1 shrink-0 text-center py-2 px-6 flex items-center justify-center whitespace-nowrap">
                   {banner.message}
                   {banner.link && (
                     <Link href={banner.link} className="font-bold underline underline-offset-2 hover:text-primary transition-colors ml-1">
