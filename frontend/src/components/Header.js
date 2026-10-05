@@ -236,7 +236,7 @@ export default function Header() {
     <>
       {banners.length > 0 && (
         <aside className="bg-surface-container text-on-surface border-b border-on-surface overflow-hidden relative">
-          <div className="flex w-[200%] marquee-track text-[9px] md:text-[10px] font-label-caps tracking-widest">
+          <div className="flex w-[200%] marquee-track text-[9px] md:text-[10px] font-label-caps font-semibold tracking-widest">
             {/* First set for seamless loop */}
             <div className="flex w-1/2">
               {banners.map((banner) => (
