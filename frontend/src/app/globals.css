@@ -253,3 +253,39 @@ body {
 .toast-progress {
   animation: toastProgress linear forwards;
 }
+
+/* Header nav: small dot under the hovered / current item */
+.nav-dot {
+  position: relative;
+}
+.nav-dot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 0.95em);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  opacity: 0;
+  transform: translateX(-50%) scale(0);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+  pointer-events: none;
+}
+.nav-dot:hover::after,
+.nav-dot:focus-visible::after,
+.nav-dot[data-active='true']::after,
+.nav-dot[aria-current='page']::after {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+/* Badge-style links (SALE): dot sits just below the badge, in its colour */
+.nav-dot-badge::after {
+  top: calc(100% + 5px);
+  background: var(--color-sale);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-dot::after {
+    transition: none;
+  }
+}
