@@ -18,8 +18,11 @@ const STORIES_DATA = [
     id: 'story-2',
     topTag: 'COLOUR FIRST · 2026',
     title: 'Turning simple fabrics into vibrant stories with colour-led design that moves with you.',
-    video: '/ZAINUL0001.MP4',
-    poster: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1000&auto=format&fit=crop',
+    // Served from Cloudinary, compressed on delivery: 1280px wide, 30fps, auto quality,
+    // H.264 for every browser incl. Safari, audio stripped (~0.5MB vs the 67MB original)
+    video: 'https://res.cloudinary.com/ogatxfhx/video/upload/q_auto,w_1280,ac_none,fps_30,vc_h264/v1791200250/ZAINUL0001.mp4',
+    // First frame of the same video, shown while it loads
+    poster: 'https://res.cloudinary.com/ogatxfhx/video/upload/so_0,w_1280,q_auto/v1791200250/ZAINUL0001.jpg',
     type: 'video',
     ctaText: 'EXPLORE THE CAPSULE',
     link: '/shop?tag=trending'

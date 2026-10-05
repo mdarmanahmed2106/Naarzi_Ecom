@@ -47,3 +47,5 @@ Thumbs.db
 # Firebase Admin Service Account Keys
 *firebase-adminsdk*.json
 *.serviceAccount.json
+# Vercel CLI project links
+.vercel
