@@ -39,7 +39,14 @@ export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
   const desktopVideoRef = useRef(null);
   const mobileVideoRef = useRef(null);
+  const mobileDeckRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
+
+  // Scroll progress through the mobile card deck
+  const { scrollYProgress: mobileProgress } = useScroll({
+    target: mobileDeckRef,
+    offset: ['start start', 'end end']
+  });
 
   // Ensure autoplay video plays reliably across all browsers
   useEffect(() => {
@@ -91,7 +98,7 @@ export default function ScrollStorytellingSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-[280vh] bg-[#fbf8f5] border-b border-outline-variant/20"
+      className="relative w-full h-auto lg:h-[280vh] bg-[#fbf8f5] border-b border-outline-variant/20"
       aria-label="Naarzi Storytelling Capsule"
     >
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
@@ -189,56 +196,106 @@ export default function ScrollStorytellingSection() {
         </div>
       </div>
 
-      {/* MOBILE / TABLET FLOW (< 1024px) */}
-      <div className="lg:hidden relative h-auto py-16 px-6 sm:px-10 space-y-16 max-w-xl mx-auto">
+      {/* MOBILE / TABLET FLOW (< 1024px): sticky card deck — each card pins under the
+          header and the next one slides up over it while the one behind shrinks back */}
+      <div
+        ref={mobileDeckRef}
+        className="lg:hidden relative py-12 px-4 sm:px-10 max-w-xl mx-auto"
+      >
         {STORIES_DATA.map((story, idx) => (
-          <div key={story.id} className="space-y-6">
-            {/* Mobile Visual (Image or Video) */}
-            <div className="relative w-full aspect-[4/3] rounded-[24px] overflow-hidden border border-black/10 bg-[#eae2d5]">
-              {idx === 1 ? (
-                <video
-                  ref={mobileVideoRef}
-                  src={story.video}
-                  poster={story.poster}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img
-                  src={story.img}
-                  alt={story.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              )}
-            </div>
-
-            {/* Mobile Text & CTA */}
-            <div className="space-y-5">
-              {story.topTag && (
-                <span className="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">
-                  {story.topTag}
-                </span>
-              )}
-              <h3 className="text-2xl sm:text-3xl text-[#111111] font-bold leading-snug tracking-tight">
-                {story.title}
-              </h3>
-              <div className="pt-1">
-                <Link
-                  href={story.link}
-                  className="inline-flex items-center justify-center px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px]"
-                >
-                  {story.ctaText}
-                </Link>
-              </div>
-            </div>
-          </div>
+          <MobileStoryCard
+            key={story.id}
+            story={story}
+            index={idx}
+            total={STORIES_DATA.length}
+            progress={mobileProgress}
+            reduceMotion={shouldReduceMotion}
+            videoRef={idx === 1 ? mobileVideoRef : undefined}
+          />
         ))}
+        {/* Hold so the last card pins and fully covers the deck before the section scrolls away */}
+        <div aria-hidden="true" className="h-[30vh]" />
       </div>
     </section>
+  );
+}
+
+function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef }) {
+  const isLast = index === total - 1;
+
+  // A card stays full size while it's on top, then shrinks only while the next card slides over it
+  const coverStart = index / (total - 1);
+  const coverEnd = Math.min(1, (index + 1) / (total - 1));
+  const scale = useTransform(progress, [coverStart, coverEnd], [1, isLast ? 1 : 0.9]);
+  const dim = useTransform(progress, [coverStart, coverEnd], [0, isLast ? 0 : 0.35]);
+
+  return (
+    <div
+      className="sticky"
+      // Every card pins at the same spot under the 80px header so the next one fully covers it
+      style={{ top: '5.5rem', marginBottom: isLast ? 0 : '18vh' }}
+    >
+      <motion.div
+        style={{ scale: reduceMotion ? 1 : scale, transformOrigin: 'center center' }}
+        initial={reduceMotion ? false : { opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.6, ease: [0.215, 0.61, 0.355, 1] }}
+        className="relative bg-[#fbf8f5] rounded-[24px] border border-black/10 shadow-[0_-10px_30px_-12px_rgba(30,25,27,0.18)] overflow-hidden will-change-transform"
+      >
+        {/* Visual (Image or Video) */}
+        <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eae2d5]">
+          {story.type === 'video' ? (
+            <video
+              ref={videoRef}
+              src={story.video}
+              poster={story.poster}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <img
+              src={story.img}
+              alt={story.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          )}
+        </div>
+
+        {/* Text & CTA — fixed min-height keeps every card the same size so none peeks out behind another */}
+        <div className="p-5 space-y-3 min-h-[15rem]">
+          {story.topTag && (
+            <span className="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">
+              {story.topTag}
+            </span>
+          )}
+          <h3 className="text-[1.25rem] sm:text-2xl text-[#111111] font-bold leading-snug tracking-tight">
+            {story.title}
+          </h3>
+          <div className="pt-1">
+            <Link
+              href={story.link}
+              className="inline-flex items-center justify-center px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px] active:scale-95 transition-transform"
+            >
+              {story.ctaText}
+            </Link>
+          </div>
+        </div>
+
+        {/* Dims the card as it recedes behind the next one */}
+        {!reduceMotion && (
+          <motion.div
+            aria-hidden="true"
+            style={{ opacity: dim }}
+            className="absolute inset-0 bg-[#1e191b] pointer-events-none"
+          />
+        )}
+      </motion.div>
+    </div>
   );
 }

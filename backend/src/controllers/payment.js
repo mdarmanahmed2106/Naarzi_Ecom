@@ -62,19 +62,34 @@ exports.createRazorpayOrder = async (req, res, next) => {
     };
 
     let razorpayOrder;
-    try {
-      razorpayOrder = await razorpayInstance.orders.create(options);
-    } catch (rzpErr) {
-      console.error('Razorpay Order Creation Error:', rzpErr);
-      return res.status(500).json({
-        success: false,
-        message: rzpErr.error?.description || rzpErr.message || 'Failed to create Razorpay payment order'
-      });
+
+    // Reuse existing Razorpay order if already created and still in 'created' state
+    if (order.razorpayOrderId && !isMock && razorpayInstance.orders.fetch) {
+      try {
+        const existingOrder = await razorpayInstance.orders.fetch(order.razorpayOrderId);
+        if (existingOrder && existingOrder.status === 'created' && existingOrder.amount === amountInPaise) {
+          razorpayOrder = existingOrder;
+        }
+      } catch (fetchErr) {
+        razorpayOrder = null;
+      }
     }
 
-    // Save Razorpay Order ID to our DB order
-    order.razorpayOrderId = razorpayOrder.id;
-    await order.save();
+    if (!razorpayOrder) {
+      try {
+        razorpayOrder = await razorpayInstance.orders.create(options);
+      } catch (rzpErr) {
+        console.error('Razorpay Order Creation Error:', rzpErr);
+        return res.status(500).json({
+          success: false,
+          message: rzpErr.error?.description || rzpErr.message || 'Failed to create Razorpay payment order'
+        });
+      }
+
+      // Save Razorpay Order ID to our DB order
+      order.razorpayOrderId = razorpayOrder.id;
+      await order.save();
+    }
 
     res.status(200).json({
       success: true,

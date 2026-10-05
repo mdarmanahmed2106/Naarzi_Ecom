@@ -14,6 +14,10 @@ import Icon from '@/components/Icon';
 import ProductCard from '@/components/ProductCard';
 import ScrollRevealText from '@/components/ScrollRevealText';
 import ScrollStorytellingSection from '@/components/ScrollStorytellingSection';
+import NaarziStorySection from '@/components/NaarziStorySection';
+import HighlightsStrip from '@/components/HighlightsStrip';
+import RevealFooter from '@/components/RevealFooter';
+import ReviewsSection from '@/components/ReviewsSection';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -62,8 +66,6 @@ function HomePageContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, [products]);
 
-  // Reviews Carousel State & Ref
-  const reviewsRef = useRef(null);
 
   // Instagram ticker images
   const instaImages = [
@@ -142,13 +144,6 @@ function HomePageContent() {
     }
   };
 
-  // Reviews smooth scroll trigger
-  const handleScrollReview = (direction) => {
-    if (reviewsRef.current) {
-      const scrollAmt = direction === 'left' ? -350 : 350;
-      reviewsRef.current.scrollBy({ left: scrollAmt, behavior: 'smooth' });
-    }
-  };
 
   // Staggered load animation variants for Hero
   const heroContainerVariants = {
@@ -183,6 +178,24 @@ function HomePageContent() {
         ease: 'easeOut'
       }
     }
+  };
+
+  // Category tiles: soft staggered rise the first time they scroll into view
+  const categoryGridVariants = {
+    rest: {},
+    show: { transition: { staggerChildren: shouldReduceMotion ? 0 : 0.12, delayChildren: 0.05 } }
+  };
+  const categoryTileVariants = {
+    rest: { opacity: 0, y: shouldReduceMotion ? 0 : 48, scale: shouldReduceMotion ? 1 : 0.97 },
+    show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.9, ease: [0.215, 0.61, 0.355, 1] } }
+  };
+  const categoryImageVariants = {
+    rest: { scale: shouldReduceMotion ? 1 : 1.12 },
+    show: { scale: 1, transition: { duration: 1.4, ease: [0.215, 0.61, 0.355, 1] } }
+  };
+  const categoryTextVariants = {
+    rest: { opacity: 0, y: shouldReduceMotion ? 0 : 14 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut', delay: 0.35 } }
   };
 
   // Map categories to Palo Alto Shop by Category structure
@@ -230,14 +243,15 @@ function HomePageContent() {
       <Header />
 
       {/* Hero Banner with Page Load Animations */}
-      <section className="sticky top-0 w-full h-dvh flex items-center overflow-hidden z-0">
+      <section className="sticky top-0 w-full h-dvh flex items-end md:items-center overflow-hidden z-0">
         <div className="absolute inset-0 z-0">
           <img
             alt="Naarzi Resort Collection Hero"
             className="w-full h-full object-cover object-[30%_center] md:object-center"
             src="/hero_image.png"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/30 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/30 to-transparent hidden md:block"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent md:hidden"></div>
           <div
             className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
             style={{
@@ -248,7 +262,7 @@ function HomePageContent() {
 
         <div className="relative z-10 w-full max-w-container-max mx-auto px-6 md:px-margin-desktop">
           <motion.div
-            className="max-w-xl mt-20 md:mt-0 md:-translate-y-8"
+            className="max-w-xl pb-40 md:pb-0 md:-translate-y-8"
             initial="hidden"
             animate="visible"
             variants={heroContainerVariants}
@@ -262,29 +276,29 @@ function HomePageContent() {
             </motion.span>
             <motion.h1
               variants={heroChildVariants}
-              className="font-display-lg text-4xl md:text-6xl text-on-surface mb-4 md:mb-5 leading-tight font-bold"
+              className="font-display-lg text-[2.5rem] md:text-6xl text-on-surface mb-3 md:mb-5 leading-[1.1] md:leading-tight font-bold"
             >
               <span className="italic font-serif text-primary">Expression</span>,<br />Not Just Fashion
             </motion.h1>
             <motion.p
               variants={heroChildVariants}
-              className="font-body-lg text-base md:text-lg text-on-surface-variant mb-6 max-w-md"
+              className="font-body-lg text-base md:text-lg text-on-surface-variant mb-5 md:mb-6 max-w-md"
             >
               Wear Your Colour.<br />Feel the Vibe.
             </motion.p>
             <motion.div
               variants={heroChildVariants}
-              className="flex flex-col sm:flex-row items-center gap-4"
+              className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 sm:gap-4"
             >
               <Link
                 href="/shop?tag=new-arrival"
-                className="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-bold active:scale-[0.98] text-center"
+                className="w-full sm:w-auto px-4 sm:px-8 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-bold active:scale-[0.98] text-center"
               >
                 Shop New Arrivals
               </Link>
               <Link
                 href="/shop?tag=sale"
-                className="w-full sm:w-auto px-8 py-3.5 bg-transparent border border-primary/40 hover:border-primary text-primary hover:bg-primary/5 font-label-caps text-xs tracking-widest rounded-xl transition-all cursor-pointer font-bold active:scale-[0.98] text-center"
+                className="w-full sm:w-auto px-4 sm:px-8 py-3.5 bg-surface/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none border border-primary/40 hover:border-primary text-primary hover:bg-primary/5 font-label-caps text-xs tracking-widest rounded-xl transition-all cursor-pointer font-bold active:scale-[0.98] text-center"
               >
                 Shop Sale
               </Link>
@@ -304,78 +318,93 @@ function HomePageContent() {
         </motion.div>
       </section>
 
+      {/* Card + footer share one layer above the sticky hero; the footer sticks to the bottom inside it */}
+      <div className="relative z-10 -mt-8 md:-mt-10">
+
       {/* Category Slider/Grid with Scroll Triggered Fade-in */}
-      <div className="relative z-10 -mt-8 md:-mt-10 rounded-t-[32px] md:rounded-t-[40px] bg-surface shadow-[0_-12px_40px_rgba(107,34,51,0.04)] w-full">
+      <div className="relative z-10 rounded-t-[32px] md:rounded-t-[40px] rounded-b-[32px] md:rounded-b-[40px] bg-surface shadow-[0_-12px_40px_rgba(107,34,51,0.04),0_24px_40px_-12px_rgba(30,25,27,0.35)] w-full">
         <motion.section
-          className="py-20 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full"
+          className="py-12 md:py-20 max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop w-full"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
           variants={scrollFadeInVariants}
         >
-          <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface mb-10 text-center font-bold">
+          <h2 className="font-display-lg text-[1.75rem] md:text-4xl text-on-surface mb-6 md:mb-10 text-center font-bold">
             Shop by Category
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
+            initial="rest"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={categoryGridVariants}
+          >
             {paloAltoCategories.map((item) => (
-              <div
+              <motion.div
                 key={item.id}
                 onClick={item.action}
-                className="group relative h-[450px] md:h-[500px] rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-[0_12px_35px_rgba(107,34,51,0.06)] transition-all duration-300"
+                variants={categoryTileVariants}
+                className="group relative aspect-[3/4] lg:aspect-auto lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-[0_12px_35px_rgba(107,34,51,0.06)] transition-shadow duration-300"
               >
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-full h-full object-cover category-tile-image"
-                />
+                {/* Image settles from a gentle zoom; the inner img keeps its CSS hover zoom */}
+                <motion.div variants={categoryImageVariants} className="w-full h-full">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover category-tile-image"
+                  />
+                </motion.div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:via-black/35 transition-all duration-300"></div>
-                <div className="absolute bottom-8 left-8 right-8 text-white category-tile-text">
-                  <span className="font-label-caps text-[9px] text-white/70 tracking-widest uppercase block mb-2 font-semibold">
+                <motion.div variants={categoryTextVariants} className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8 text-white">
+                <div className="category-tile-text">
+                  <span className="font-label-caps text-[8px] md:text-[9px] text-white/70 tracking-widest uppercase block mb-1 md:mb-2 font-semibold">
                     {item.eyebrow}
                   </span>
-                  <h3 className="font-display-lg text-2xl md:text-3xl text-white font-bold mb-2">
+                  <h3 className="font-display-lg text-xl md:text-3xl text-white font-bold md:mb-2">
                     {item.name}
                   </h3>
-                  <p className="font-body-md text-xs text-white/80 leading-relaxed">
+                  <p className="hidden sm:block font-body-md text-xs text-white/80 leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
-              </div>
+                </motion.div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </motion.section>
 
 
         {/* Main Product Feed & Trending Carousel (Single Row Alignment per Reference) */}
-        <section className="py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
-          <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
+        <section className="py-12 md:py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
+          <div className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop">
 
             {/* Section Header: Title, CTA Button & Nav Controls */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 pb-6 border-b border-outline-variant/30">
+            <div className="flex flex-row justify-between items-end gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-outline-variant/30">
               <div>
                 <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold block mb-1 uppercase">
                   CURATED SELECTION
                 </span>
-                <h2 className="font-display-lg text-3xl md:text-4xl text-on-surface font-bold tracking-tight">
+                <h2 className="font-display-lg text-[1.75rem] leading-tight md:text-4xl text-on-surface font-bold tracking-tight">
                   Trending this <span className="italic font-serif text-primary font-normal">Season</span>
                 </h2>
               </div>
               <div className="flex items-center gap-4">
                 <Link
                   href="/shop?tag=trending"
-                  className="group px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white text-xs font-label-caps tracking-widest rounded-xl font-bold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 inline-flex items-center gap-2 whitespace-nowrap cursor-pointer active:scale-95"
+                  className="group px-3 py-2 sm:px-7 sm:py-3.5 sm:bg-[var(--color-primary)] sm:hover:bg-[var(--color-primary-container)] text-primary sm:text-white text-[11px] sm:text-xs font-label-caps tracking-widest rounded-xl font-bold transition-all duration-300 sm:shadow-md sm:hover:shadow-lg sm:hover:-translate-y-0.5 inline-flex items-center gap-1.5 sm:gap-2 whitespace-nowrap cursor-pointer active:scale-95"
                 >
-                  <span>SHOP ALL TRENDING</span>
-                  <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 text-white" />
+                  <span><span className="sm:hidden">VIEW ALL</span><span className="hidden sm:inline">SHOP ALL TRENDING</span></span>
+                  <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 sm:text-white" />
                 </Link>
               </div>
             </div>
 
             {/* Single Row Horizontal Products Slider/Carousel */}
             {loading ? (
-              <div className="flex gap-6 overflow-hidden py-6">
+              <div className="flex gap-3 sm:gap-6 overflow-hidden py-6">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] flex-shrink-0">
+                  <div key={i} className="w-[calc(50%-1.25rem)] sm:w-[280px] md:w-[300px] flex-shrink-0">
                     <div className="w-full aspect-[3/4] rounded-xl bg-surface-container animate-pulse mb-3" />
                     <div className="h-4 w-3/4 rounded bg-surface-container animate-pulse mb-2" />
                     <div className="h-4 w-1/3 rounded bg-surface-container animate-pulse" />
@@ -404,13 +433,13 @@ function HomePageContent() {
                   onMouseLeave={handleMouseLeave}
                   onMouseUp={handleMouseUp}
                   onMouseMove={handleMouseMove}
-                  className="flex flex-nowrap gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-1 cursor-grab active:cursor-grabbing select-none"
+                  className="flex flex-nowrap gap-3 sm:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-1 cursor-grab active:cursor-grabbing select-none"
                 >
                   {products.map((product) => (
                     <ProductCard
                       key={product._id}
                       product={product}
-                      className="min-w-[260px] sm:min-w-[280px] md:min-w-[300px] max-w-[320px] flex-shrink-0 snap-start"
+                      className="w-[calc(50%-1.25rem)] sm:w-[280px] md:w-[300px] flex-shrink-0 snap-start"
                     />
                   ))}
                 </div>
@@ -438,184 +467,15 @@ function HomePageContent() {
         {/* Full-Screen Scroll-Driven Storytelling Section (GSAP Pin + Overlapping Card Deck) */}
         <ScrollStorytellingSection />
 
-        {/* The Naarzi Story & Founder Manifesto Section */}
-        <motion.section
-          className="py-24 max-w-container-max mx-auto px-6 md:px-margin-desktop w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-          variants={scrollFadeInVariants}
-        >
-          <div className="lg:col-span-6 space-y-6">
-            <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">
-              THE NAARZI STORY
-            </span>
-            <h2 className="font-display-lg text-3xl md:text-5xl text-on-surface leading-tight font-bold">
-              “Beauty Where Others Saw Waste”
-            </h2>
-            <p className="font-headline-sm text-base md:text-lg text-primary font-medium italic">
-              Turning simple fabrics into vibrant stories.
-            </p>
-            <p className="font-body-lg text-on-surface-variant leading-relaxed">
-              Naarzi was born from a singular belief: that art lives in the overlooked. We don’t chase transient fashion seasons — we design for pure, unapologetic self-expression. Every garment is colour-led, thoughtfully crafted, and cut for effortless confidence. Wear the vibe. Feel the colour.
-            </p>
+        {/* The Naarzi Story: scroll-animated editorial collage */}
+        <NaarziStorySection />
 
-            {/* 3 Brand Pillars */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-outline-variant/30">
-              <div className="space-y-1">
-                <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">01 · COLOUR FIRST</span>
-                <p className="font-body-md text-xs text-on-surface-variant leading-normal">
-                  Mood-defining palettes that speak before you do.
-                </p>
-              </div>
-              <div className="space-y-1">
-                <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">02 · THOUGHTFUL DESIGN</span>
-                <p className="font-body-md text-xs text-on-surface-variant leading-normal">
-                  Fluid, relaxed cuts crafted for everyday confidence.
-                </p>
-              </div>
-              <div className="space-y-1">
-                <span className="font-label-caps text-xs text-primary font-bold block tracking-wider">03 · LIMITED DROPS</span>
-                <p className="font-body-md text-xs text-on-surface-variant leading-normal">
-                  Small, intentional capsules made to be cherished.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <Link
-                href="/shop?tag=new arrival"
-                className="inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary border-b-2 border-primary pb-2 hover:opacity-80 transition-opacity font-bold"
-              >
-                EXPLORE THE LAUNCH CAPSULE
-                <Icon name="arrow_forward" size="sm" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Visual Editorial Composition */}
-          <div className="lg:col-span-6 grid grid-cols-2 gap-4 items-center">
-            <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container">
-              <img
-                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop"
-                className="w-full h-full object-cover"
-                alt="Naarzi Colour-Led Ready-to-Wear"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-              <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
-                COLOUR FIRST · 2026
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              <div className="relative rounded-2xl overflow-hidden aspect-[4/5] shadow-md bg-surface-container mt-6">
-                <img
-                  src="https://images.unsplash.com/photo-1617922001439-4a2e6562f328?q=80&w=1000&auto=format&fit=crop"
-                  className="w-full h-full object-cover"
-                  alt="Naarzi Atelier and Thoughtful Design"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <span className="absolute bottom-4 left-4 right-4 text-white font-label-caps text-[10px] tracking-widest font-bold">
-                  ART FROM THE OVERLOOKED
-                </span>
-              </div>
-
-              <div className="bg-surface-container-high/60 border border-outline-variant/30 rounded-xl p-4 text-center">
-                <p className="font-display-md text-xs sm:text-sm text-primary font-bold italic">
-                  “A friend who inspires, not a brand that shouts.”
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.section>
-
-        {/* Reviews Carousel testimonial section */}
-        <motion.section
-          className="py-16 bg-surface-container-low/30 border-t border-outline-variant/20 w-full"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
-          variants={scrollFadeInVariants}
-        >
-          <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <span className="font-label-caps text-[10px] text-primary tracking-widest block font-bold">GUEST DIARIES</span>
-                <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Reviews & Testimonials</h2>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleScrollReview('left')}
-                  className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
-                >
-                  <Icon name="arrow_back" size="md" />
-                </button>
-                <button
-                  onClick={() => handleScrollReview('right')}
-                  className="w-10 h-10 rounded-full border border-outline-variant/40 hover:border-primary text-on-surface-variant hover:text-primary flex items-center justify-center transition-colors cursor-pointer bg-white"
-                >
-                  <Icon name="arrow_forward" size="md" />
-                </button>
-              </div>
-            </div>
-
-            <div
-              ref={reviewsRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-4"
-            >
-              {[
-                {
-                  text: "Absolutely stunning fabric. The linen trousers drape beautifully and feel incredibly soft.",
-                  author: "Emily R.",
-                  rating: 5
-                },
-                {
-                  text: "Naarzi has become my go-to for resort wear. Simple, elegant, and timeless silhouettes.",
-                  author: "Sophia M.",
-                  rating: 5
-                },
-                {
-                  text: "The quality of the organic cotton ribbed tanks is unmatched. Soft texture with structure.",
-                  author: "Alisha K.",
-                  rating: 5
-                },
-                {
-                  text: "Breathtaking color palette! The Wine slip dress fits like a dream. Highly recommend.",
-                  author: "Carla L.",
-                  rating: 5
-                }
-              ].map((rev, idx) => (
-                <div
-                  key={idx}
-                  className="min-w-[300px] md:min-w-[350px] max-w-[350px] snap-start bg-white border border-outline-variant/20 rounded-xl p-6 shadow-sm flex flex-col justify-between"
-                >
-                  <div className="space-y-4">
-                    {/* Stars */}
-                    <div className="flex text-amber-500 gap-0.5">
-                      {[...Array(rev.rating)].map((_, i) => (
-                        <Icon key={i} name="star" size="sm" className="fill-1" style={{ fontVariationSettings: '"FILL" 1' }} />
-                      ))}
-                    </div>
-                    <p className="font-body-md text-sm text-on-surface-variant italic leading-relaxed">
-                      "{rev.text}"
-                    </p>
-                  </div>
-                  <div className="mt-6 border-t border-outline-variant/10 pt-4 flex justify-between items-center">
-                    <span className="font-label-caps text-[10px] text-on-surface font-bold">{rev.author}</span>
-                    <span className="text-[10px] text-green-600 font-label-caps tracking-wider flex items-center gap-1 font-bold">
-                      <Icon name="verified" size="sm" /> VERIFIED CUSTOMER
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </motion.section>
+        {/* Featured testimonials */}
+        <ReviewsSection />
 
         {/* Instagram Gallery infinite loop marquee ticker */}
-        <section className="py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
-          <div className="text-center max-w-xl mx-auto mb-10">
+        <section className="py-12 md:py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
+          <div className="text-center max-w-xl mx-auto mb-6 md:mb-10 px-4">
             <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">#NAARZILIFE</span>
             <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Instagram Gallery</h2>
           </div>
@@ -623,7 +483,7 @@ function HomePageContent() {
           <div className="w-full relative overflow-hidden py-4">
             <div className="flex gap-4 w-max instagram-marquee-track">
               {instaMarqueeImages.map((img, idx) => (
-                <div key={idx} className="w-48 h-48 md:w-64 md:h-64 rounded-xl overflow-hidden shadow-sm relative group cursor-pointer border border-outline-variant/10">
+                <div key={idx} className="w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 rounded-xl overflow-hidden shadow-sm relative group cursor-pointer border border-outline-variant/10">
                   <img
                     src={img}
                     alt={`Instagram photo ${idx}`}
@@ -638,9 +498,15 @@ function HomePageContent() {
           </div>
         </section>
 
-        <Footer />
+        {/* Closing promises strip — the last thing on the card before it lifts away */}
+        <HighlightsStrip />
 
-      </div> {/* Closing the relative z-10 sticky cover wrapper */}
+      </div> {/* Closing the content card */}
+
+      {/* Footer revealed from underneath the card */}
+      <RevealFooter />
+
+      </div> {/* Closing the card + footer layer */}
 
       {/* Global Modals / Overlay components */}
       <CartDrawer />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
@@ -11,6 +11,7 @@ import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import Toast from '@/components/Toast';
 
 const ORDER_TRACKING_STEPS = [
   { key: 'processing', label: 'Order Placed', icon: 'receipt_long' },
@@ -101,7 +102,11 @@ export default function AccountDashboardPage() {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [cancellingId, setCancellingId] = useState(null);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toast, setToast] = useState(null);
+  const notify = useCallback((type, title, message) => {
+    setToast({ id: Date.now(), type, title, message });
+  }, []);
+  const dismissToast = useCallback(() => setToast(null), []);
 
   // Address State
   const [addresses, setAddresses] = useState(user?.addresses || []);
@@ -159,9 +164,9 @@ export default function AccountDashboardPage() {
       setOrders((prev) =>
         prev.map((o) => (o._id === orderId ? { ...o, orderStatus: 'cancelled', refundStatus: response.order?.refundStatus } : o))
       );
-      setToastMessage(response.message);
+      notify('success', 'Order cancelled', response.message);
     } catch (err) {
-      setToastMessage(err.message || 'Unable to cancel this order. Please try again.');
+      notify('error', 'Could not cancel order', err.message || 'Please try again.');
     } finally {
       setCancellingId(null);
     }
@@ -208,11 +213,11 @@ export default function AccountDashboardPage() {
       if (response.success) {
         setUser(response.user);
         setAddresses(response.user.addresses);
-        setToastMessage(editingAddressId ? 'Address updated successfully' : 'Address added successfully');
+        notify('success', editingAddressId ? 'Address updated' : 'Address added', 'Your saved addresses are up to date.');
         resetAddressForm();
       }
     } catch (err) {
-      setToastMessage(err.message || `Failed to ${editingAddressId ? 'update' : 'add'} address`);
+      notify('error', `Could not ${editingAddressId ? 'update' : 'add'} address`, err.message || 'Please check the details and try again.');
     } finally {
       setIsSubmittingAddress(false);
     }
@@ -225,10 +230,10 @@ export default function AccountDashboardPage() {
       if (response.success) {
         setUser(response.user);
         setAddresses(response.user.addresses);
-        setToastMessage('Address deleted');
+        notify('success', 'Address deleted', 'It has been removed from your account.');
       }
     } catch (err) {
-      setToastMessage(err.message || 'Failed to delete address');
+      notify('error', 'Could not delete address', err.message || 'Please try again.');
     }
   };
 
@@ -239,10 +244,10 @@ export default function AccountDashboardPage() {
       const response = await authApi.updateProfile(profileForm);
       if (response.success) {
         setUser(response.user);
-        setToastMessage('Profile updated successfully');
+        notify('success', 'Profile updated', 'Your details have been saved.');
       }
     } catch (err) {
-      setToastMessage(err.message || 'Failed to update profile');
+      notify('error', 'Could not update profile', err.message || 'Please try again.');
     } finally {
       setIsSubmittingProfile(false);
     }
@@ -384,14 +389,6 @@ export default function AccountDashboardPage() {
               
               {activeTab === 'orders' && (
                 <div className="animate-fade-in">
-                  {toastMessage && (
-                    <div className="mb-6 p-4 bg-primary-container/20 border border-primary/20 rounded-lg text-sm text-on-surface flex justify-between items-center">
-                      <span>{toastMessage}</span>
-                      <button onClick={() => setToastMessage('')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <Icon name="close" size="md" className="align-middle" />
-                      </button>
-                    </div>
-                  )}
 
                   {loadingOrders ? (
                     <div className="flex items-center justify-center py-20">
@@ -484,14 +481,6 @@ export default function AccountDashboardPage() {
 
               {activeTab === 'address' && (
                 <div className="animate-fade-in">
-                  {toastMessage && (
-                    <div className="mb-6 p-4 bg-primary-container/20 border border-primary/20 rounded-lg text-sm text-on-surface flex justify-between items-center">
-                      <span>{toastMessage}</span>
-                      <button onClick={() => setToastMessage('')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <Icon name="close" size="md" className="align-middle" />
-                      </button>
-                    </div>
-                  )}
                   
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-bold font-sans text-on-surface">Saved Addresses</h2>
@@ -589,14 +578,6 @@ export default function AccountDashboardPage() {
 
               {activeTab === 'details' && (
                 <div className="animate-fade-in">
-                  {toastMessage && (
-                    <div className="mb-6 p-4 bg-primary-container/20 border border-primary/20 rounded-lg text-sm text-on-surface flex justify-between items-center">
-                      <span>{toastMessage}</span>
-                      <button onClick={() => setToastMessage('')} className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
-                        <Icon name="close" size="md" className="align-middle" />
-                      </button>
-                    </div>
-                  )}
 
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display-lg text-xl font-bold shrink-0">
@@ -680,6 +661,7 @@ export default function AccountDashboardPage() {
 
       <CartDrawer />
       <AuthModal />
+      <Toast toast={toast} onClose={dismissToast} />
       <Footer />
     </div>
   );
