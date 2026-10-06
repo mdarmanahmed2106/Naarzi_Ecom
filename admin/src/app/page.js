@@ -94,6 +94,55 @@ function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, mar
   );
 }
 
+// Which status an order may move to FROM its current status; [] = final state.
+// Mirrors backend/src/utils/orderStatusTransitions.js (the backend is the real enforcement —
+// this just keeps the UI from offering a change the API will reject).
+const ALLOWED_TRANSITIONS = {
+  processing: ['shipped', 'cancelled'],
+  shipped: ['delivered', 'cancelled'],
+  delivered: [],
+  cancelled: [],
+};
+
+const STATUS_STYLES = {
+  delivered: 'bg-green-50 text-green-700 border-green-200',
+  shipped: 'bg-blue-50 text-blue-700 border-blue-200',
+  processing: 'bg-amber-50 text-amber-700 border-amber-200',
+  cancelled: 'bg-red-50 text-red-700 border-red-200',
+};
+
+// Status dropdown that only offers legal next steps; read-only badge once an order is final
+function OrderStatusControl({ status, onChange, size = 'sm' }) {
+  const allowedNext = ALLOWED_TRANSITIONS[status] || [];
+  const sizing = size === 'lg' ? 'px-3 py-2 rounded-xl' : 'px-2 py-1.5 rounded-lg';
+  const style = STATUS_STYLES[status] || STATUS_STYLES.cancelled;
+
+  if (allowedNext.length === 0) {
+    return (
+      <span
+        title="This order is in a final state and can't be changed"
+        className={`inline-flex items-center gap-1 border text-xs font-semibold ${sizing} ${style}`}
+      >
+        <span className="material-symbols-outlined leading-none" style={{ fontSize: 14 }}>lock</span>
+        {status}
+      </span>
+    );
+  }
+
+  return (
+    <select
+      value={status}
+      onChange={(e) => onChange(e.target.value)}
+      className={`border text-xs font-semibold focus:outline-none cursor-pointer ${sizing} ${style}`}
+    >
+      <option value={status} disabled className="text-on-surface bg-white">{status}</option>
+      {allowedNext.map((next) => (
+        <option key={next} value={next} className="text-on-surface bg-white">→ {next}</option>
+      ))}
+    </select>
+  );
+}
+
 export default function AdminDashboardPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -1799,24 +1848,10 @@ export default function AdminDashboardPage() {
                         )}
                       </td>
                       <td className="py-4 px-6">
-                        <select 
-                          value={o.orderStatus}
-                          onChange={(e) => handleUpdateOrderStatus(o._id, e.target.value)}
-                          className={`px-2 py-1.5 border rounded-lg text-xs font-semibold focus:outline-none cursor-pointer ${
-                            o.orderStatus === 'delivered'
-                              ? 'bg-green-50 text-green-700 border-green-200'
-                              : o.orderStatus === 'shipped'
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
-                              : o.orderStatus === 'processing'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-red-50 text-red-700 border-red-200'
-                          }`}
-                        >
-                          <option value="processing" className="text-on-surface bg-white">processing</option>
-                          <option value="shipped" className="text-on-surface bg-white">shipped</option>
-                          <option value="delivered" className="text-on-surface bg-white">delivered</option>
-                          <option value="cancelled" className="text-on-surface bg-white">cancelled</option>
-                        </select>
+                        <OrderStatusControl
+                          status={o.orderStatus}
+                          onChange={(next) => handleUpdateOrderStatus(o._id, next)}
+                        />
                       </td>
                       <td className="py-4 px-6 text-right">
                         <button 
@@ -2778,25 +2813,14 @@ export default function AdminDashboardPage() {
               </div>
               
               <div className="flex items-center gap-2">
-                <span className="text-xs text-on-surface-variant font-semibold">Change Fulfillment:</span>
-                <select 
-                  value={selectedOrder.orderStatus}
-                  onChange={(e) => handleUpdateOrderStatus(selectedOrder._id, e.target.value)}
-                  className={`px-3 py-2 border rounded-xl text-xs font-semibold focus:outline-none cursor-pointer ${
-                    selectedOrder.orderStatus === 'delivered'
-                      ? 'bg-green-50 text-green-700 border-green-200'
-                      : selectedOrder.orderStatus === 'shipped'
-                      ? 'bg-blue-50 text-blue-700 border-blue-200'
-                      : selectedOrder.orderStatus === 'processing'
-                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                      : 'bg-red-50 text-red-700 border-red-200'
-                  }`}
-                >
-                  <option value="processing">processing</option>
-                  <option value="shipped">shipped</option>
-                  <option value="delivered">delivered</option>
-                  <option value="cancelled">cancelled</option>
-                </select>
+                <span className="text-xs text-on-surface-variant font-semibold">
+                  {(ALLOWED_TRANSITIONS[selectedOrder.orderStatus] || []).length ? 'Change Fulfillment:' : 'Final state:'}
+                </span>
+                <OrderStatusControl
+                  status={selectedOrder.orderStatus}
+                  onChange={(next) => handleUpdateOrderStatus(selectedOrder._id, next)}
+                  size="lg"
+                />
               </div>
             </div>
 

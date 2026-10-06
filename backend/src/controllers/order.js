@@ -3,6 +3,7 @@ const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
 const Settings = require('../models/Settings');
+const { getAllowedNextStatuses } = require('../utils/orderStatusTransitions');
 
 const releaseOrderStock = async (order) => {
   try {
@@ -405,6 +406,19 @@ exports.updateOrderStatus = async (req, res, next) => {
         success: false,
         message: 'Order not found'
       });
+    }
+
+    // Enforce the order state machine. Only checked when the status actually changes, so
+    // re-saving tracking details on an unchanged status still works. This is what stops e.g.
+    // delivered → cancelled, which would add stock back for items already with the customer.
+    if (orderStatus !== order.orderStatus) {
+      const allowedNext = getAllowedNextStatuses(order.orderStatus);
+      if (!allowedNext.includes(orderStatus)) {
+        return res.status(400).json({
+          success: false,
+          message: `Cannot change order status from "${order.orderStatus}" to "${orderStatus}". Allowed next steps: ${allowedNext.length ? allowedNext.join(', ') : 'none — this order is in a final state'}.`
+        });
+      }
     }
 
     // If order is cancelled, release stock (if not already cancelled or failed)
