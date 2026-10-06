@@ -8,6 +8,7 @@ import { useApp } from '@/context/AppContext';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ProductCard from '@/components/ProductCard';
+import { getOccasion } from '@/lib/occasions';
 
 function FilterSection({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -53,6 +54,7 @@ function ShopContent() {
   // Derive active states from searchParams
   const activeCategory = searchParams.get('category') || '';
   const activeTag = searchParams.get('tag') || '';
+  const activeOccasion = searchParams.get('occasion') || '';
   const inStockOnly = searchParams.get('inStock') === 'true';
   const outOfStockOnly = searchParams.get('inStock') === 'false';
   const sizeParam = searchParams.get('size') || '';
@@ -111,6 +113,7 @@ function ShopContent() {
 
         if (activeCategory) params.category = activeCategory;
         if (activeTag) params.tag = activeTag;
+        if (activeOccasion) params.occasion = activeOccasion;
         if (inStockOnly) params.inStock = 'true';
         else if (outOfStockOnly) params.inStock = 'false';
         if (activeSizes.length > 0) params.size = activeSizes.join(',');
@@ -129,7 +132,7 @@ function ShopContent() {
       }
     }
     fetchProducts();
-  }, [activeCategory, activeTag, inStockOnly, outOfStockOnly, sizeParam, colorParam, activeSort]);
+  }, [activeCategory, activeTag, activeOccasion, inStockOnly, outOfStockOnly, sizeParam, colorParam, activeSort]);
 
   const handleSizeToggle = (size) => {
     const newSizes = activeSizes.includes(size)
@@ -149,6 +152,7 @@ function ShopContent() {
     updateFilters({
       category: null,
       tag: null,
+      occasion: null,
       inStock: null,
       size: null,
       color: null,
@@ -157,6 +161,9 @@ function ShopContent() {
   };
 
   const getCategoryDisplayName = () => {
+    if (activeOccasion) {
+      return getOccasion(activeOccasion)?.name || activeOccasion.charAt(0).toUpperCase() + activeOccasion.slice(1);
+    }
     if (activeTag) {
       return activeTag.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
@@ -191,7 +198,7 @@ function ShopContent() {
               </button>
             )}
           </div>
-          {(activeCategory === '' || activeCategory === 'apparel') && !activeTag && !activeSearch && (
+          {(activeCategory === '' || activeCategory === 'apparel') && !activeTag && !activeOccasion && !activeSearch && (
             <p className="font-body-md text-on-surface-variant mt-4 max-w-xl">
               Contemporary, colour-led ready-to-wear designed for effortless confidence and personal expression.
             </p>

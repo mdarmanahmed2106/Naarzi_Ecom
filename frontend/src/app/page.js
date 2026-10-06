@@ -18,6 +18,7 @@ import NaarziStorySection from '@/components/NaarziStorySection';
 import HighlightsStrip from '@/components/HighlightsStrip';
 import RevealFooter from '@/components/RevealFooter';
 import ReviewsSection from '@/components/ReviewsSection';
+import OccasionEdits from '@/components/OccasionEdits';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -198,45 +199,37 @@ function HomePageContent() {
     show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut', delay: 0.35 } }
   };
 
-  // Map categories to Palo Alto Shop by Category structure
-  const apparelCat = categories.find(c => c.slug === 'apparel') || {};
-  const accessoriesCat = categories.find(c => c.slug === 'accessories') || {};
-  const shoesCat = categories.find(c => c.slug === 'shoes') || {};
+  // "Find Your Shape": tiles come from the live categories (admin-managed). Taglines follow the
+  // brand content doc's voice; a category added later still gets a tile, just without a tagline.
+  // Keys are the slugs the admin generates from the category names
+  const CATEGORY_COPY = {
+    shirts: { eyebrow: 'SHARP & STRUCTURED', tagline: 'Tailored, structured, unmistakably sharp.' },
+    'kurtis-tunics': { eyebrow: 'EVERYDAY GRACE', tagline: 'Easy silhouettes, considered detail.' },
+    'co-ord-sets': { eyebrow: 'MATCHED SEPARATES', tagline: 'Two pieces, one statement.' },
+    'suit-sets': { eyebrow: 'DESK TO EVENING', tagline: 'From the desk to the evening, without changing.' },
+    skirts: { eyebrow: 'CLASSIC SHAPES', tagline: 'Classic shapes, NAARZI colour.' },
+  };
+  const CATEGORY_ORDER = ['shirts', 'kurtis-tunics', 'co-ord-sets', 'suit-sets', 'skirts'];
+  // Desktop columns by tile count (full class names so Tailwind generates them)
+  const GRID_COLS = { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-3' };
+  const rank = (slug) => {
+    const i = CATEGORY_ORDER.indexOf(slug);
+    return i === -1 ? CATEGORY_ORDER.length : i;
+  };
 
-  const paloAltoCategories = [
-    {
-      id: 'new',
-      eyebrow: 'JUST ADDED',
-      name: 'New',
-      desc: 'Shop the latest resort collections',
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBLQNhD0BgxsXxd7P7czm7dqEpzbBox51lXdbu4amdoYSbdVfglnEoehmzAvyrwzwJ28VH91ZBwbNZVRvWtoLqTsMt51kQ9C0ytoc-CuGba8jWEAgaOSfB6ZApu0Yt9c8WJYykjpwLJg2Ovjv8ccwaSgHFTWY72RxKbHIEAwuHwQGqjM4uzEavkH5A6eWlFvZwIEtJ91FQOx89ZvcgbiLy5GrVAnABXmPPhMtLPDM4eZp5LiW3mEmubKA',
-      action: () => router.push('/shop?tag=new arrival')
-    },
-    {
-      id: 'apparel',
-      eyebrow: 'LAYERS TO LOVE',
-      name: 'Apparel',
-      desc: 'Bundle up in linen & silk style',
-      image: apparelCat.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-      action: () => router.push('/shop?category=apparel')
-    },
-    {
-      id: 'accessories',
-      eyebrow: 'SLEEK STYLES',
-      name: 'Accessories',
-      desc: 'A look for every occasion',
-      image: accessoriesCat.image || 'https://images.unsplash.com/photo-1535295972055-1c762f4483e5?q=80&w=1000&auto=format&fit=crop',
-      action: () => router.push('/shop?category=accessories')
-    },
-    {
-      id: 'bestselling',
-      eyebrow: 'MOST-WANTED',
-      name: 'Bestselling',
-      desc: 'Your favorites, selling fast!',
-      image: shoesCat.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw',
-      action: () => router.push('/shop?tag=trending')
-    }
-  ];
+  // Once any of the brand's five categories exist, show only those; until then fall back to
+  // whatever categories exist so the section is never empty.
+  const brandCategories = categories.filter((c) => CATEGORY_ORDER.includes(c.slug));
+  const shopCategories = [...(brandCategories.length > 0 ? brandCategories : categories)]
+    .sort((a, b) => rank(a.slug) - rank(b.slug))
+    .map((c) => ({
+      id: c.slug,
+      eyebrow: CATEGORY_COPY[c.slug]?.eyebrow || 'SHOP THE EDIT',
+      name: c.name,
+      desc: CATEGORY_COPY[c.slug]?.tagline || '',
+      image: c.image || '/hero_image.png',
+      href: `/shop?category=${encodeURIComponent(c.slug)}`,
+    }));
 
   return (
     <div className="flex flex-col min-h-screen bg-surface">
@@ -330,23 +323,39 @@ function HomePageContent() {
           viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
           variants={scrollFadeInVariants}
         >
-          <h2 className="font-display-lg text-[1.75rem] md:text-4xl text-on-surface mb-6 md:mb-10 text-center font-bold">
-            Shop by Category
-          </h2>
+          <div className="text-center max-w-xl mx-auto mb-6 md:mb-10">
+            <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold block mb-2">SHOP BY CATEGORY</span>
+            <h2 className="font-display-lg text-[1.75rem] md:text-4xl text-on-surface font-bold">
+              Find Your <span className="italic font-normal text-primary">Shape</span>
+            </h2>
+            <p className="font-body-md text-sm md:text-base text-on-surface-variant mt-3">
+              From tailored shirts to flowing co-ord sets — browse by the silhouette you reach for most.
+            </p>
+          </div>
+          {shopCategories.length === 0 ? (
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-5" aria-hidden="true">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} className={`rounded-xl md:rounded-2xl bg-surface-container animate-pulse lg:aspect-auto lg:h-[460px] ${i === 4 ? 'col-span-2 lg:col-span-1 aspect-[16/9]' : 'aspect-[3/4]'}`} />
+              ))}
+            </div>
+          ) : (
           <motion.div
-            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6"
+            className={`grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 ${GRID_COLS[shopCategories.length] || 'lg:grid-cols-4'}`}
             initial="rest"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
             variants={categoryGridVariants}
           >
-            {paloAltoCategories.map((item) => (
+            {shopCategories.map((item, i) => (
               <motion.div
                 key={item.id}
-                onClick={item.action}
                 variants={categoryTileVariants}
-                className="group relative aspect-[3/4] lg:aspect-auto lg:h-[500px] rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-[0_12px_35px_rgba(107,34,51,0.06)] transition-shadow duration-300"
+                className={`group relative lg:aspect-auto ${shopCategories.length >= 5 ? 'lg:h-[460px]' : 'lg:h-[500px]'} rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-[0_12px_35px_rgba(107,34,51,0.06)] transition-shadow duration-300 ${
+                  // An odd tile out on the 2-column phone grid spans the full width
+                  shopCategories.length % 2 === 1 && i === shopCategories.length - 1 ? 'col-span-2 lg:col-span-1 aspect-[16/9]' : 'aspect-[3/4]'
+                }`}
               >
+                <Link href={item.href} aria-label={`Shop ${item.name}`} className="absolute inset-0 z-10" />
                 {/* Image settles from a gentle zoom; the inner img keeps its CSS hover zoom */}
                 <motion.div variants={categoryImageVariants} className="w-full h-full">
                   <img
@@ -364,16 +373,18 @@ function HomePageContent() {
                   <h3 className="font-display-lg text-xl md:text-3xl text-white font-bold md:mb-2">
                     {item.name}
                   </h3>
-                  <p className="hidden sm:block font-body-md text-xs text-white/80 leading-relaxed">
-                    {item.desc}
-                  </p>
+                  {item.desc && (
+                    <p className="hidden sm:block font-body-md text-xs text-white/80 leading-relaxed">
+                      {item.desc}
+                    </p>
+                  )}
                 </div>
                 </motion.div>
               </motion.div>
             ))}
           </motion.div>
+          )}
         </motion.section>
-
 
         {/* Main Product Feed & Trending Carousel (Single Row Alignment per Reference) */}
         <section className="py-12 md:py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
@@ -460,6 +471,9 @@ function HomePageContent() {
 
           </div>
         </section>
+
+        {/* Shop by Occasion — editorial list with a photo that follows the active occasion */}
+        <OccasionEdits products={products} />
 
         {/* Scroll-Driven Text Reveal Manifesto Section */}
         <ScrollRevealText />

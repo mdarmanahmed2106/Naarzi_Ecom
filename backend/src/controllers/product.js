@@ -83,8 +83,11 @@ exports.getProducts = async (req, res, next) => {
 
     // 2. Occasion Filter (shop by occasion)
     if (occasion) {
-      // Handles single string or array of occasion strings
-      query.occasion = Array.isArray(occasion) ? { $in: occasion } : occasion;
+      // Handles single string or array of occasion strings. Case-insensitive exact match,
+      // so "Workwear" typed in the admin still matches ?occasion=workwear.
+      const escapeRegex = (str) => String(str).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const toPattern = (o) => new RegExp(`^${escapeRegex(o)}$`, 'i');
+      query.occasion = Array.isArray(occasion) ? { $in: occasion.map(toPattern) } : toPattern(occasion);
     }
 
     // 3. Price Filter (handles original price and discountedPrice)

@@ -8,6 +8,7 @@ import { useApp } from '@/context/AppContext';
 import { promoBannersApi, productsApi, categoriesApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import { OCCASIONS } from '@/lib/occasions';
 
 export default function Header() {
   const {
@@ -317,11 +318,19 @@ export default function Header() {
                       </div>
 
                       <div>
-                        <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Featured</h4>
+                        <h4 className="font-label-caps text-xs tracking-widest font-bold mb-4">Occasion</h4>
                         <ul className="space-y-3 text-sm text-on-surface-variant">
-                          <li><Link href="/shop?tag=trending" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Trending</Link></li>
-                          <li><Link href="/shop?tag=staff-pick" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Staff Picks</Link></li>
-                          <li><Link href="/shop?tag=essentials" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Essentials</Link></li>
+                          {OCCASIONS.map((occ) => (
+                            <li key={occ.slug}>
+                              <Link
+                                href={`/shop?occasion=${occ.slug}`}
+                                onClick={() => setActiveMegaMenu(null)}
+                                className="hover:text-primary transition-colors block"
+                              >
+                                {occ.name}
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
                       </div>
 
