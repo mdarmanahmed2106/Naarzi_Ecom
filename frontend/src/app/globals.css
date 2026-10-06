@@ -33,7 +33,7 @@
   --color-on-error-container: #93000a;
 
   /* Accent colors used loosely across the app outside the core Material palette */
-  --color-sale: #d94f4f;
+  --color-sale: #b0384f; /* deep rose-red: reads as sale, stays in the Dusty Rose family */
   --color-accent-gold: #c5a059;
   --color-first-order-badge: #fbf0ea;
 
@@ -44,15 +44,20 @@
   --spacing-gutter: 24px;
   --spacing-section-gap: 120px;
 
-  /* Typography mapping to loaded next/font google variables */
-  --font-display-lg: var(--font-playfair-display), serif;
-  --font-headline-md: var(--font-playfair-display), serif;
-  --font-headline-sm: var(--font-playfair-display), serif;
-  --font-bodoni-moda: var(--font-bodoni-moda), serif;
-  --font-body-lg: var(--font-source-sans-3), sans-serif;
-  --font-body-md: var(--font-source-sans-3), sans-serif;
-  --font-label-caps: var(--font-source-sans-3), sans-serif;
-  --font-label-sm: var(--font-source-sans-3), sans-serif;
+  /* Typography mapping to loaded next/font google variables:
+     Playfair Display for headings and italic accents; Source Sans 3 for body, labels, buttons,
+     navigation and prices. */
+  --font-display-lg: var(--font-playfair-display), Georgia, serif;
+  --font-headline-md: var(--font-playfair-display), Georgia, serif;
+  --font-headline-sm: var(--font-playfair-display), Georgia, serif;
+  --font-body-lg: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
+  --font-body-md: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
+  --font-label-caps: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
+  --font-label-sm: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
+  /* Override Tailwind's generic families so `font-serif` italic accents use Playfair (not Georgia)
+     and `font-sans` uses Source Sans 3 */
+  --font-serif: var(--font-playfair-display), Georgia, serif;
+  --font-sans: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
 }
 
 body {

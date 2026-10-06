@@ -1,20 +1,19 @@
-import { Playfair_Display, Source_Sans_3, Bodoni_Moda } from "next/font/google";
+import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
 import "./globals.css";
 
+// Type system: Playfair Display for headings and italic accents, Source Sans 3 for body, UI,
+// labels and prices. Italics are loaded so accent words use Playfair's real italic.
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
+  style: ["normal", "italic"],
   variable: "--font-playfair-display",
 });
 
 const sourceSans3 = Source_Sans_3({
   subsets: ["latin"],
+  style: ["normal", "italic"],
   variable: "--font-source-sans-3",
-});
-
-const bodoniModa = Bodoni_Moda({
-  subsets: ["latin"],
-  variable: "--font-bodoni-moda",
 });
 
 export const metadata = {
@@ -27,7 +26,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${playfairDisplay.variable} ${sourceSans3.variable} ${bodoniModa.variable} h-full antialiased overflow-x-clip`}
+      className={`${playfairDisplay.variable} ${sourceSans3.variable} h-full antialiased overflow-x-clip`}
     >
       <head>
         <link

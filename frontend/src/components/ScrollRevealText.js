@@ -92,7 +92,7 @@ export default function ScrollRevealText({
           </div>
 
           {/* Reveal Manifesto Statement matching reference image bold typography & line height */}
-          <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] xl:text-[38px] leading-[1.3] sm:leading-[1.32] md:leading-[1.35] tracking-tight text-[#130f12] text-center mb-8 sm:mb-10 max-w-4xl mx-auto">
+          <h2 className="font-display-lg font-bold text-2xl sm:text-3xl md:text-[32px] lg:text-[36px] xl:text-[38px] leading-[1.3] sm:leading-[1.32] md:leading-[1.35] tracking-tight text-[#130f12] text-center mb-8 sm:mb-10 max-w-4xl mx-auto">
             {words.map((word, i) => {
               const start = revealStart + i * step;
               const end = start + step;

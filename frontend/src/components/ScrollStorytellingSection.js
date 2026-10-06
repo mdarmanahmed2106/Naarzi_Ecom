@@ -126,7 +126,7 @@ export default function ScrollStorytellingSection() {
                 )}
 
                 {/* Bold Headline Statement */}
-                <h3 className="text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
+                <h3 className="font-display-lg text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
                   {story.title}
                 </h3>
 
@@ -277,7 +277,7 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
               {story.topTag}
             </span>
           )}
-          <h3 className="text-[1.25rem] sm:text-2xl text-[#111111] font-bold leading-snug tracking-tight">
+          <h3 className="font-display-lg text-[1.5rem] sm:text-3xl text-[#111111] font-bold leading-snug tracking-tight">
             {story.title}
           </h3>
           <div className="pt-1">
