@@ -235,7 +235,7 @@ export default function ProductDetailPage({ params }) {
                 {currentColorVariant?.images?.map((img, index) => (
                   <div key={index} className="w-full shrink-0 snap-center aspect-[3/4] rounded-xl overflow-hidden relative bg-surface-container">
                     {product.isOnSale && index === 0 && (
-                      <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                      <div className="absolute top-4 right-4 bg-sale text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
                         <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
                           <span>SALE</span>
                           <span>SALE</span>
@@ -257,7 +257,7 @@ export default function ProductDetailPage({ params }) {
                 {/* Main Active Image */}
                 <div className="flex-1 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
                   {product.isOnSale && (
-                    <div className="absolute top-4 right-4 bg-error text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
+                    <div className="absolute top-4 right-4 bg-sale text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
                       <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
                         <span>SALE</span>
                         <span>SALE</span>

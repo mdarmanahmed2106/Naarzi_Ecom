@@ -40,16 +40,22 @@ exports.getProducts = async (req, res, next) => {
 
     // 0.85 Tag Filter
     if (tag) {
-      const tagsArray = Array.isArray(tag) ? tag : tag.split(',');
-      if (tagsArray.includes('sale')) {
+      const tagsArray = (Array.isArray(tag) ? tag : tag.split(',')).map(t => String(t).trim()).filter(Boolean);
+      // Tags are free text in the admin ("new arrival", "New-Arrival"...), so match ignoring case
+      // and treating hyphens and spaces as the same: ?tag=new-arrival finds "new arrival".
+      const tagPattern = (t) => {
+        const words = t.split(/[-\s]+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        return new RegExp(`^${words.join('[-\\s]+')}$`, 'i');
+      };
+      if (tagsArray.some(t => t.toLowerCase() === 'sale')) {
         query.isOnSale = true;
         // Remove 'sale' from array to check other tags
-        const otherTags = tagsArray.filter(t => t !== 'sale');
+        const otherTags = tagsArray.filter(t => t.toLowerCase() !== 'sale');
         if (otherTags.length > 0) {
-          query.tags = { $in: otherTags };
+          query.tags = { $in: otherTags.map(tagPattern) };
         }
       } else {
-        query.tags = { $in: tagsArray };
+        query.tags = { $in: tagsArray.map(tagPattern) };
       }
     }
 

@@ -171,7 +171,7 @@ export default function NaarziStorySection() {
 
         <motion.div {...fadeUp(0.2)} className="pt-2">
           <Link
-            href="/shop?tag=new arrival"
+            href="/shop?tag=new-arrival"
             className="group relative inline-flex items-center gap-2 font-label-caps text-xs tracking-widest text-primary pb-2 font-bold"
           >
             EXPLORE THE LAUNCH CAPSULE

@@ -106,7 +106,7 @@ export default function ProductCard({ product, className = '' }) {
 
             {/* Floating Badges */}
             {product.isOnSale && (
-              <span className="absolute top-3.5 left-3.5 bg-error text-white text-[10px] font-label-caps tracking-widest px-2.5 py-1 rounded shadow-xs z-10 flex gap-4 w-20 overflow-hidden">
+              <span className="absolute top-3.5 left-3.5 bg-sale text-white text-[10px] font-label-caps tracking-widest px-2.5 py-1 rounded shadow-xs z-10 flex gap-4 w-20 overflow-hidden">
                 <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
                   <span>SALE</span>
                   <span>SALE</span>
