@@ -13,6 +13,10 @@ const nextConfig = {
     domains: ['shopforaurelia.com'],
   },
   allowedDevOrigins: lanOrigins,
+  // The brand content doc lists the FAQ at /faqs; the site links to /faq
+  async redirects() {
+    return [{ source: '/faqs', destination: '/faq', permanent: true }];
+  },
 };
 
 export default nextConfig;

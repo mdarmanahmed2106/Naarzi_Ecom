@@ -53,7 +53,7 @@ export default function Footer() {
               Contemporary, colour-led ready-to-wear — turning simple fabrics into vibrant stories. Not fashion. Expression.
             </p>
             <p className="text-xs text-surface/70">
-              <a href="mailto:care@naarzi.com" className="underline underline-offset-2 hover:text-surface transition-colors">care@naarzi.com</a>
+              <a href="mailto:support@naarzi.com" className="underline underline-offset-2 hover:text-surface transition-colors">support@naarzi.com</a>
               {' '}· Mon – Sat, 10am – 7pm IST
             </p>
           </div>
