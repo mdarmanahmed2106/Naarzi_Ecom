@@ -11,13 +11,25 @@ const getOrCreateCart = async (userId) => {
   return cart;
 };
 
+// Populate products and drop lines whose product no longer exists (e.g. deleted in the admin);
+// otherwise the storefront receives `product: null` and crashes computing the cart total.
+const populateCart = async (cart) => {
+  await cart.populate('items.product');
+  const validItems = cart.items.filter((item) => item.product);
+  if (validItems.length !== cart.items.length) {
+    cart.items = validItems;
+    await cart.save();
+  }
+  return cart;
+};
+
 // @desc    Get current user's cart
 // @route   GET /api/cart
 // @access  Private
 exports.getCart = async (req, res, next) => {
   try {
     let cart = await getOrCreateCart(req.user.id);
-    cart = await cart.populate('items.product');
+    cart = await populateCart(cart);
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -52,7 +64,7 @@ exports.addItem = async (req, res, next) => {
     await cart.save();
     
     // Return populated cart
-    cart = await cart.populate('items.product');
+    cart = await populateCart(cart);
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -80,7 +92,7 @@ exports.removeItem = async (req, res, next) => {
     );
 
     await cart.save();
-    await cart.populate('items.product');
+    await populateCart(cart);
     
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
@@ -115,10 +127,15 @@ exports.syncCart = async (req, res, next) => {
 
     if (items && Array.isArray(items) && items.length > 0) {
       for (const localItem of items) {
-        const productId = typeof localItem.product === 'object' ? localItem.product._id : localItem.product;
-        
+        // A browser cart can still hold lines whose product was deleted (`product: null`) — skip them.
+        // Lines for products that no longer exist are also dropped later by populateCart.
+        const productId = localItem?.product && typeof localItem.product === 'object'
+          ? localItem.product._id
+          : localItem?.product;
+        if (!productId) continue;
+
         const existingItemIndex = cart.items.findIndex(
-          item => item.product.toString() === productId && item.size === localItem.size && item.color === localItem.color
+          item => item.product?.toString() === String(productId) && item.size === localItem.size && item.color === localItem.color
         );
 
         if (existingItemIndex > -1) {
@@ -140,7 +157,7 @@ exports.syncCart = async (req, res, next) => {
       await cart.save();
     }
 
-    cart = await cart.populate('items.product');
+    cart = await populateCart(cart);
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

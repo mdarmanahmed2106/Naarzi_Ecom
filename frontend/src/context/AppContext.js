@@ -5,6 +5,10 @@ import { authApi, wishlistApi, cartApi, settingsApi } from '@/lib/api';
 
 const AppContext = createContext(null);
 
+// Keep only cart lines that still have a real product attached
+const sanitizeCart = (items) =>
+  (Array.isArray(items) ? items : []).filter((item) => item && item.product && item.product._id);
+
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -66,7 +70,7 @@ export function AppProvider({ children }) {
       let itemsToSync = [];
       if (localCart) {
         try {
-          itemsToSync = JSON.parse(localCart);
+          itemsToSync = sanitizeCart(JSON.parse(localCart));
         } catch (e) { }
       }
 
@@ -118,17 +122,25 @@ export function AppProvider({ children }) {
     const savedCart = localStorage.getItem('naarzi_cart');
     if (savedCart) {
       try {
-        setCartItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        const clean = sanitizeCart(parsed);
+        setCartItems(clean);
+        // Rewrite storage too, so a stale line for a deleted product is gone for good
+        if (Array.isArray(parsed) && clean.length !== parsed.length) {
+          localStorage.setItem('naarzi_cart', JSON.stringify(clean));
+        }
       } catch (err) {
         console.error('Failed to parse cart from local storage:', err);
       }
     }
   }, []);
 
-  // Save cart to localStorage when it changes
+  // Save cart to localStorage when it changes. Lines whose product no longer exists
+  // (deleted in the admin) arrive with `product: null` — drop them so totals never crash.
   const saveCart = (items) => {
-    setCartItems(items);
-    localStorage.setItem('naarzi_cart', JSON.stringify(items));
+    const clean = sanitizeCart(items);
+    setCartItems(clean);
+    localStorage.setItem('naarzi_cart', JSON.stringify(clean));
   };
 
   // Auth actions
