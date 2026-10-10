@@ -235,12 +235,8 @@ export default function ProductDetailPage({ params }) {
                 {currentColorVariant?.images?.map((img, index) => (
                   <div key={index} className="w-full shrink-0 snap-center aspect-[3/4] rounded-xl overflow-hidden relative bg-surface-container">
                     {product.isOnSale && index === 0 && (
-                      <div className="absolute top-4 right-4 bg-sale text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
-                        <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
-                          <span>SALE</span>
-                          <span>SALE</span>
-                          <span>SALE</span>
-                        </div>
+                      <div className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
+                        SALE
                       </div>
                     )}
                     <img 
@@ -257,13 +253,9 @@ export default function ProductDetailPage({ params }) {
                 {/* Main Active Image */}
                 <div className="flex-1 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
                   {product.isOnSale && (
-                    <div className="absolute top-4 right-4 bg-sale text-white text-[10px] font-label-caps tracking-widest px-3 py-1.5 rounded shadow-sm z-10 flex gap-4 w-24 overflow-hidden">
-                      <div className="flex gap-4 w-max marquee-track whitespace-nowrap">
-                        <span>SALE</span>
-                        <span>SALE</span>
-                        <span>SALE</span>
+                    <div className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
+                        SALE
                       </div>
-                    </div>
                   )}
                   <img 
                     src={currentColorVariant?.images?.[activeImage]} 
@@ -308,7 +300,7 @@ export default function ProductDetailPage({ params }) {
                     <span className="font-body-md text-sm text-on-surface-variant line-through opacity-70">
                       {formatCurrency(originalPrice)}
                     </span>
-                    <span className="text-[10px] font-label-caps text-green-700 bg-green-50 px-2.5 py-1 rounded border border-green-200 uppercase tracking-widest font-bold">
+                    <span className="text-[10px] font-label-caps text-sale uppercase tracking-[0.2em]">
                       SAVE {formatCurrency(originalPrice - price)}
                     </span>
                   </>
@@ -380,7 +372,7 @@ export default function ProductDetailPage({ params }) {
               </div>
 
               {/* Actions: Qty, Add to Bag, Wishlist */}
-              <div className="sticky bottom-0 z-40 bg-surface p-4 -mx-6 md:mx-0 md:p-0 border-t border-outline-variant/20 md:border-none shadow-[0_-12px_24px_rgba(107,34,51,0.06)] md:shadow-none flex items-center gap-3 md:gap-4 mb-8 md:mb-12 mt-4 md:mt-0 transition-all duration-300">
+              <div className="sticky bottom-0 md:static z-40 bg-surface p-4 -mx-6 md:mx-0 md:p-0 border-t border-outline-variant/20 md:border-none shadow-[0_-12px_24px_rgba(28,26,23,0.06)] md:shadow-none flex items-center gap-3 md:gap-4 mb-8 md:mb-12 mt-4 md:mt-0 transition-all duration-300">
                 {/* Quantity Selector */}
                 <div className="flex items-center border border-outline-variant/50 rounded-xl h-14 bg-transparent px-1">
                   <button 

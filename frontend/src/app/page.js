@@ -260,22 +260,22 @@ function HomePageContent() {
             animate="visible"
             variants={heroContainerVariants}
           >
-            <motion.div variants={heroChildVariants} className="w-10 h-[2px] bg-[var(--color-secondary)] mb-3" />
+            <motion.div variants={heroChildVariants} className="w-12 h-px bg-primary/60 mb-5" />
             <motion.span
               variants={heroChildVariants}
-              className="font-label-caps text-xs text-primary tracking-widest block mb-3"
+              className="font-label-caps text-[11px] text-primary tracking-[0.35em] block mb-5"
             >
               LAUNCH CAPSULE
             </motion.span>
             <motion.h1
               variants={heroChildVariants}
-              className="font-display-lg text-[2.5rem] md:text-6xl text-on-surface mb-3 md:mb-5 leading-[1.1] md:leading-tight font-bold"
+              className="font-display-lg text-[2.75rem] md:text-7xl text-on-surface mb-4 md:mb-6 leading-[1.02] tracking-[-0.02em]"
             >
               <span className="italic font-serif text-primary">Expression</span>,<br />Not Just Fashion
             </motion.h1>
             <motion.p
               variants={heroChildVariants}
-              className="font-body-lg text-base md:text-lg text-on-surface-variant mb-5 md:mb-6 max-w-md"
+              className="font-body-lg text-base md:text-lg font-light text-on-surface-variant mb-7 md:mb-9 max-w-md"
             >
               Wear Your Colour.<br />Feel the Vibe.
             </motion.p>
@@ -285,13 +285,13 @@ function HomePageContent() {
             >
               <Link
                 href="/shop?tag=new-arrival"
-                className="w-full sm:w-auto px-4 sm:px-8 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary/90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 cursor-pointer font-bold active:scale-[0.98] text-center"
+                className="w-full sm:w-auto px-4 sm:px-10 py-4 bg-primary text-white font-label-caps text-[11px] tracking-[0.18em] sm:tracking-[0.25em] uppercase hover:bg-primary-container transition-colors duration-300 cursor-pointer active:scale-[0.98] text-center"
               >
                 Shop New Arrivals
               </Link>
               <Link
                 href="/shop?tag=sale"
-                className="w-full sm:w-auto px-4 sm:px-8 py-3.5 bg-surface/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none border border-primary/40 hover:border-primary text-primary hover:bg-primary/5 font-label-caps text-xs tracking-widest rounded-xl transition-all cursor-pointer font-bold active:scale-[0.98] text-center"
+                className="w-full sm:w-auto px-4 sm:px-10 py-4 bg-surface/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none border border-primary/70 hover:bg-primary hover:text-white text-primary font-label-caps text-[11px] tracking-[0.18em] sm:tracking-[0.25em] uppercase transition-colors duration-300 cursor-pointer active:scale-[0.98] text-center"
               >
                 Shop Sale
               </Link>
@@ -315,20 +315,20 @@ function HomePageContent() {
       <div className="relative z-10 -mt-8 md:-mt-10">
 
       {/* Category Slider/Grid with Scroll Triggered Fade-in */}
-      <div className="relative z-10 rounded-t-[32px] md:rounded-t-[40px] rounded-b-[32px] md:rounded-b-[40px] bg-surface shadow-[0_-12px_40px_rgba(107,34,51,0.04),0_24px_40px_-12px_rgba(30,25,27,0.35)] w-full">
+      <div className="relative z-10 bg-surface shadow-[0_-12px_40px_rgba(28,26,23,0.06),0_24px_40px_-12px_rgba(28,26,23,0.3)] w-full">
         <motion.section
-          className="py-12 md:py-20 max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop w-full"
+          className="py-14 md:py-28 max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop w-full"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.05, margin: "0px 0px 100px 0px" }}
           variants={scrollFadeInVariants}
         >
-          <div className="text-center max-w-xl mx-auto mb-6 md:mb-10">
-            <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold block mb-2">SHOP BY CATEGORY</span>
-            <h2 className="font-display-lg text-[1.75rem] md:text-4xl text-on-surface font-bold">
+          <div className="text-center max-w-xl mx-auto mb-8 md:mb-14">
+            <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-4">SHOP BY CATEGORY</span>
+            <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">
               Find Your <span className="italic font-normal text-primary">Shape</span>
             </h2>
-            <p className="font-body-md text-sm md:text-base text-on-surface-variant mt-3">
+            <p className="font-body-md text-sm md:text-base font-light text-on-surface-variant mt-4">
               From tailored shirts to flowing co-ord sets — browse by the silhouette you reach for most.
             </p>
           </div>
@@ -350,7 +350,7 @@ function HomePageContent() {
               <motion.div
                 key={item.id}
                 variants={categoryTileVariants}
-                className={`group relative lg:aspect-auto ${shopCategories.length >= 5 ? 'lg:h-[460px]' : 'lg:h-[500px]'} rounded-xl md:rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-[0_12px_35px_rgba(107,34,51,0.06)] transition-shadow duration-300 ${
+                className={`group relative lg:aspect-auto ${shopCategories.length >= 5 ? 'lg:h-[460px]' : 'lg:h-[500px]'} overflow-hidden cursor-pointer ${
                   // An odd tile out on the 2-column phone grid spans the full width
                   shopCategories.length % 2 === 1 && i === shopCategories.length - 1 ? 'col-span-2 lg:col-span-1 aspect-[16/9]' : 'aspect-[3/4]'
                 }`}
@@ -364,13 +364,13 @@ function HomePageContent() {
                     className="w-full h-full object-cover category-tile-image"
                   />
                 </motion.div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent group-hover:via-black/35 transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/70 transition-all duration-300"></div>
                 <motion.div variants={categoryTextVariants} className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8 text-white">
                 <div className="category-tile-text">
-                  <span className="font-label-caps text-[8px] md:text-[9px] text-white/70 tracking-widest uppercase block mb-1 md:mb-2 font-semibold">
+                  <span className="font-label-caps text-[8px] md:text-[9px] text-white/70 tracking-[0.3em] uppercase block mb-1 md:mb-2">
                     {item.eyebrow}
                   </span>
-                  <h3 className="font-display-lg text-xl md:text-3xl text-white font-bold md:mb-2">
+                  <h3 className="font-display-lg text-xl md:text-[1.9rem] leading-tight text-white md:mb-2">
                     {item.name}
                   </h3>
                   {item.desc && (
@@ -387,26 +387,26 @@ function HomePageContent() {
         </motion.section>
 
         {/* Main Product Feed & Trending Carousel (Single Row Alignment per Reference) */}
-        <section className="py-12 md:py-16 bg-surface-container-lowest w-full border-t border-outline-variant/30">
+        <section className="py-14 md:py-24 bg-surface-container-lowest w-full border-t border-outline-variant/30">
           <div className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop">
 
             {/* Section Header: Title, CTA Button & Nav Controls */}
             <div className="flex flex-row justify-between items-end gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-outline-variant/30">
               <div>
-                <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold block mb-1 uppercase">
+                <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-3 uppercase">
                   CURATED SELECTION
                 </span>
-                <h2 className="font-display-lg text-[1.75rem] leading-tight md:text-4xl text-on-surface font-bold tracking-tight">
+                <h2 className="font-display-lg text-[2rem] leading-tight md:text-5xl text-on-surface">
                   Trending this <span className="italic font-serif text-primary font-normal">Season</span>
                 </h2>
               </div>
               <div className="flex items-center gap-4">
                 <Link
                   href="/shop?tag=trending"
-                  className="group px-3 py-2 sm:px-7 sm:py-3.5 sm:bg-[var(--color-primary)] sm:hover:bg-[var(--color-primary-container)] text-primary sm:text-white text-[11px] sm:text-xs font-label-caps tracking-widest rounded-xl font-bold transition-all duration-300 sm:shadow-md sm:hover:shadow-lg sm:hover:-translate-y-0.5 inline-flex items-center gap-1.5 sm:gap-2 whitespace-nowrap cursor-pointer active:scale-95"
+                  className="group px-3 py-2 sm:px-0 sm:py-2 text-primary text-[11px] font-label-caps tracking-[0.25em] border-b border-primary/0 hover:border-primary transition-colors duration-300 inline-flex items-center gap-1.5 sm:gap-2 whitespace-nowrap cursor-pointer active:scale-95"
                 >
                   <span><span className="sm:hidden">VIEW ALL</span><span className="hidden sm:inline">SHOP ALL TRENDING</span></span>
-                  <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1 sm:text-white" />
+                  <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </div>
             </div>
@@ -490,14 +490,14 @@ function HomePageContent() {
         {/* Instagram Gallery infinite loop marquee ticker */}
         <section className="py-12 md:py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
           <div className="text-center max-w-xl mx-auto mb-6 md:mb-10 px-4">
-            <span className="font-label-caps text-[10px] text-primary tracking-widest block mb-2 font-bold">#NAARZILIFE</span>
-            <h2 className="font-display-lg text-2xl md:text-3xl text-on-surface font-bold">Instagram Gallery</h2>
+            <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-4">#NAARZILIFE</span>
+            <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">Instagram Gallery</h2>
           </div>
 
           <div className="w-full relative overflow-hidden py-4">
             <div className="flex gap-4 w-max instagram-marquee-track">
               {instaMarqueeImages.map((img, idx) => (
-                <div key={idx} className="w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 rounded-xl overflow-hidden shadow-sm relative group cursor-pointer border border-outline-variant/10">
+                <div key={idx} className="w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 overflow-hidden relative group cursor-pointer">
                   <img
                     src={img}
                     alt={`Instagram photo ${idx}`}

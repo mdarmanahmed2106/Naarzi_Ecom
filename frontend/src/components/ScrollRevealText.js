@@ -30,7 +30,7 @@ function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
 
   if (shouldReduceMotion) {
     return (
-      <span className="inline-block mr-[0.22em] my-[0.02em] text-[#130f12] font-bold">
+      <span className="inline-block mr-[0.22em] my-[0.02em] text-[#130f12]">
         {word}
       </span>
     );
@@ -39,7 +39,7 @@ function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
   return (
     <motion.span
       style={{ opacity, y }}
-      className="inline-block mr-[0.22em] my-[0.02em] font-bold text-[#130f12] will-change-transform"
+      className="inline-block mr-[0.22em] my-[0.02em] text-[#130f12] will-change-transform"
     >
       {word}
     </motion.span>
@@ -114,7 +114,7 @@ export default function ScrollRevealText({
             <div>
               <Link
                 href={ctaLink}
-                className="inline-flex items-center justify-center px-8 py-3 bg-transparent border border-[#130f12] text-[#130f12] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] hover:text-white font-label-caps text-[11px] sm:text-xs tracking-[0.2em] uppercase font-bold rounded transition-all duration-300 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer active:scale-95"
+                className="inline-flex items-center justify-center px-8 py-3 bg-transparent border border-[#130f12] text-[#130f12] hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)] hover:text-white font-label-caps text-[11px] sm:text-xs tracking-[0.2em] uppercase font-bold rounded transition-all duration-300 cursor-pointer active:scale-95"
               >
                 {ctaText}
               </Link>

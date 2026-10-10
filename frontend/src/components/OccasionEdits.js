@@ -92,7 +92,7 @@ export default function OccasionEdits({ products = [] }) {
         <Link
           href={`/shop?occasion=${current.slug}`}
           aria-label={`Shop ${current.name}`}
-          className="lg:col-span-5 lg:justify-self-end relative block aspect-square w-full max-w-[22rem] sm:max-w-[26rem] lg:max-w-[30rem] rounded-[22px] md:rounded-[28px] overflow-hidden bg-surface-container"
+          className="lg:col-span-5 lg:justify-self-end relative block aspect-square w-full max-w-[22rem] sm:max-w-[26rem] lg:max-w-[30rem] rounded-[3px] overflow-hidden bg-surface-container"
         >
           <AnimatePresence initial={false}>
             <motion.img

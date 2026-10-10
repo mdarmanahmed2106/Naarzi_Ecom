@@ -86,7 +86,7 @@ export default function WishlistPage() {
                   {/* Card Main Link */}
                   <Link href={`/products/${product.slug}`} className="block">
                     {/* Image frame */}
-                    <div className="w-full aspect-[3/4] bg-surface-container rounded-xl overflow-hidden mb-4 relative shadow-sm transition-all duration-300 group-hover:shadow-[0_8px_30px_rgba(107,34,51,0.05)] product-crossfade-container">
+                    <div className="w-full aspect-[3/4] bg-surface-container rounded-xl overflow-hidden mb-4 relative shadow-sm transition-all duration-300 group-hover:shadow-[0_8px_30px_rgba(28,26,23,0.05)] product-crossfade-container">
                       <img 
                         src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500?text=No+Image'} 
                         alt={product.name} 

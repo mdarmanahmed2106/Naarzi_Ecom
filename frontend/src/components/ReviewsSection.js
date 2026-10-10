@@ -129,7 +129,7 @@ export default function ReviewsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, ease: EASE }}
-            className="lg:col-span-8 relative overflow-hidden bg-surface-container-lowest border border-outline-variant/30 rounded-[24px] md:rounded-[32px] p-6 sm:p-8 md:p-12 shadow-[0_20px_50px_-30px_rgba(107,34,51,0.35)] flex flex-col min-h-[22rem] md:min-h-[26rem]"
+            className="lg:col-span-8 relative overflow-hidden bg-surface-container-lowest border border-outline-variant/30 rounded-[3px] p-6 sm:p-8 md:p-12 shadow-[0_20px_50px_-30px_rgba(28,26,23,0.35)] flex flex-col min-h-[22rem] md:min-h-[26rem]"
           >
             {/* Oversized decorative quotation mark */}
             <span
@@ -244,7 +244,7 @@ export default function ReviewsSection() {
                     aria-current={isActive}
                     className={`relative w-full h-full text-left rounded-2xl border p-4 pl-5 transition-all duration-300 cursor-pointer overflow-hidden ${
                       isActive
-                        ? 'bg-surface-container-lowest border-primary/40 shadow-[0_12px_30px_-18px_rgba(107,34,51,0.45)]'
+                        ? 'bg-surface-container-lowest border-primary/40 shadow-[0_12px_30px_-18px_rgba(28,26,23,0.45)]'
                         : 'bg-transparent border-outline-variant/40 hover:bg-surface-container-lowest/70'
                     }`}
                   >

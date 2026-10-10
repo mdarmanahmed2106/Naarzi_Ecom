@@ -239,7 +239,7 @@ export default function NaarziStorySection() {
             whileInView={{ opacity: 1, rotate: -2, scale: 1 }}
             viewport={{ once: true, amount: 0.6 }}
             transition={{ type: 'spring', stiffness: 160, damping: 16, delay: 0.2 }}
-            className="relative bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 md:p-5 text-center shadow-[0_12px_30px_-14px_rgba(107,34,51,0.35)]"
+            className="relative bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 md:p-5 text-center shadow-[0_12px_30px_-14px_rgba(28,26,23,0.35)]"
           >
             <span aria-hidden="true" className="absolute -top-3 left-4 font-display-lg text-4xl leading-none text-accent-gold">“</span>
             <p className="font-headline-sm text-[12px] sm:text-sm md:text-base text-primary font-bold italic leading-snug">

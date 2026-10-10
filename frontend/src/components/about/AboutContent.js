@@ -71,7 +71,7 @@ export default function AboutContent() {
           initial={reduce ? false : { opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: EASE, delay: 0.2 }}
-          className="lg:col-span-6 relative rounded-[24px] md:rounded-[32px] overflow-hidden aspect-[4/3] lg:aspect-[5/4] bg-surface-container shadow-[0_24px_60px_-30px_rgba(107,34,51,0.45)]"
+          className="lg:col-span-6 relative rounded-[3px] overflow-hidden aspect-[4/3] lg:aspect-[5/4] bg-surface-container shadow-[0_24px_60px_-30px_rgba(28,26,23,0.45)]"
         >
           <img src="/hero_image.png" alt="Inside the NAARZI studio — colour, sketches and fabric" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
@@ -109,7 +109,7 @@ export default function AboutContent() {
           <motion.div
             key={card.label}
             {...fadeUp(i * 0.12)}
-            className="relative overflow-hidden bg-surface-container-lowest border border-outline-variant/30 rounded-[24px] p-7 md:p-10 shadow-[0_20px_50px_-35px_rgba(107,34,51,0.4)]"
+            className="relative overflow-hidden bg-surface-container-lowest border border-outline-variant/30 rounded-[3px] p-7 md:p-10 shadow-[0_20px_50px_-35px_rgba(28,26,23,0.4)]"
           >
             <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
             <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold">{card.label}</span>
@@ -149,7 +149,7 @@ export default function AboutContent() {
       <section className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop pb-16 md:pb-28">
         <motion.div
           {...fadeUp(0)}
-          className="relative overflow-hidden rounded-[28px] md:rounded-[40px] bg-primary text-white px-6 py-14 md:px-16 md:py-20 text-center"
+          className="relative overflow-hidden rounded-[3px] bg-primary text-white px-6 py-14 md:px-16 md:py-20 text-center"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="w-8 h-8 mx-auto mb-6 text-accent-gold">
             <path fill="currentColor" d="M12 0c.6 6.2 1.8 8.4 12 12-10.2 3.6-11.4 5.8-12 12-.6-6.2-1.8-8.4-12-12C10.2 8.4 11.4 6.2 12 0Z" />

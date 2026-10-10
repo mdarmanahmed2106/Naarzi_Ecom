@@ -150,7 +150,7 @@ export default function FaqContent({ groups }) {
         </motion.div>
 
         {/* Still need help */}
-        <div className="mt-12 md:mt-16 rounded-[24px] bg-surface-container-low border border-outline-variant/30 p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+        <div className="mt-12 md:mt-16 rounded-[3px] bg-surface-container-low border border-outline-variant/30 p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
           <div>
             <p className="font-headline-sm text-xl text-on-surface">Still have a question?</p>
             <p className="font-body-md text-sm text-on-surface-variant mt-1">

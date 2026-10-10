@@ -1,41 +1,51 @@
 @import "tailwindcss";
 
 @theme {
+  /* Brand dusty-rose primary over a quiet palette of warm ivory and stone neutrals: the rose
+     stays the one accent; everything around it is restrained. */
   --color-primary: #8f4d5c;
   --color-primary-container: #a65e6f;
   --color-on-primary: #ffffff;
   --color-on-primary-container: #ffdbe2;
-  --color-secondary: #f7f2e7;
-  --color-secondary-container: #ebe2d3;
-  --color-on-secondary: #2c251e;
-  --color-on-secondary-container: #493f33;
-  --color-tertiary: #2e384d;
-  --color-tertiary-container: #44506b;
+  --color-secondary: #f3efe8;
+  --color-secondary-container: #e6e0d6;
+  --color-on-secondary: #23201c;
+  --color-on-secondary-container: #4a453e;
+  --color-tertiary: #2b2f36;
+  --color-tertiary-container: #444a54;
   --color-on-tertiary: #ffffff;
-  --color-on-tertiary-container: #b8c4e0;
-  --color-surface: #fdfbf7;
-  --color-surface-dim: #e4dfd6;
-  --color-surface-bright: #fffff8;
-  --color-surface-container: #f4eee5;
-  --color-surface-container-low: #f9f5ee;
-  --color-surface-container-high: #eee8de;
-  --color-surface-container-highest: #e8e2d7;
-  --color-surface-container-lowest: #ffffff;
-  --color-on-surface: #1e191b;
-  --color-on-surface-variant: #5c4a4e;
-  --color-outline: #8e787d;
-  --color-outline-variant: #dfcfd3;
-  --color-background: #fdfbf7;
-  --color-on-background: #1e191b;
-  --color-error: #ba1a1a;
+  --color-on-tertiary-container: #c3c8d1;
+  --color-surface: #f8f6f2;
+  --color-surface-dim: #e3dfd8;
+  --color-surface-bright: #fcfbf9;
+  --color-surface-container: #f0ede7;
+  --color-surface-container-low: #f5f2ee;
+  --color-surface-container-high: #e9e5de;
+  --color-surface-container-highest: #e2ddd5;
+  --color-surface-container-lowest: #fffefc;
+  --color-on-surface: #1c1a17;
+  --color-on-surface-variant: #625c54;
+  --color-outline: #8f887e;
+  --color-outline-variant: #d9d3c9;
+  --color-background: #f8f6f2;
+  --color-on-background: #1c1a17;
+  --color-error: #9b2c2c;
   --color-on-error: #ffffff;
-  --color-error-container: #ffdad6;
-  --color-on-error-container: #93000a;
+  --color-error-container: #f6e3e0;
+  --color-on-error-container: #6e1d1d;
 
   /* Accent colors used loosely across the app outside the core Material palette */
   --color-sale: #b0384f; /* deep rose-red: reads as sale, stays in the Dusty Rose family */
-  --color-accent-gold: #c5a059;
-  --color-first-order-badge: #fbf0ea;
+  --color-accent-gold: #a6906c; /* champagne bronze, used sparingly (stars, quote marks) */
+  --color-first-order-badge: #f1ece4;
+
+  /* Tight, tailored corners instead of soft pills */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.125rem;
+  --radius-lg: 0.1875rem;
+  --radius-xl: 0.1875rem;
+  --radius-2xl: 0.25rem;
+  --radius-3xl: 0.375rem;
 
   /* Spacing and margins matching design guidelines */
   --spacing-margin-desktop: 64px;
@@ -45,19 +55,41 @@
   --spacing-section-gap: 120px;
 
   /* Typography mapping to loaded next/font google variables:
-     Playfair Display for headings and italic accents; Source Sans 3 for body, labels, buttons,
+     Bodoni Moda for headings and italic accents; Jost for body, labels, buttons,
      navigation and prices. */
-  --font-display-lg: var(--font-playfair-display), Georgia, serif;
-  --font-headline-md: var(--font-playfair-display), Georgia, serif;
-  --font-headline-sm: var(--font-playfair-display), Georgia, serif;
-  --font-body-lg: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
-  --font-body-md: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
-  --font-label-caps: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
-  --font-label-sm: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
-  /* Override Tailwind's generic families so `font-serif` italic accents use Playfair (not Georgia)
-     and `font-sans` uses Source Sans 3 */
-  --font-serif: var(--font-playfair-display), Georgia, serif;
-  --font-sans: var(--font-source-sans-3), 'Helvetica Neue', Arial, sans-serif;
+  --font-display-lg: var(--font-display), 'Didot', Georgia, serif;
+  --font-headline-md: var(--font-display), 'Didot', Georgia, serif;
+  --font-headline-sm: var(--font-display), 'Didot', Georgia, serif;
+  --font-body-lg: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
+  --font-body-md: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
+  --font-label-caps: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
+  --font-label-sm: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
+  /* Override Tailwind's generic families so `font-serif` italic accents use Bodoni and
+     `font-sans` uses Jost */
+  --font-serif: var(--font-display), 'Didot', Georgia, serif;
+  --font-sans: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Premium type rules. Deliberately unlayered so they win over Tailwind's font-bold utilities
+   scattered through the components: Didone display type is set light (bold Bodoni reads heavy
+   and festive), and tracked caps labels sit at medium weight. */
+.font-display-lg,
+.font-headline-md,
+.font-headline-sm,
+.font-serif {
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  /* Cap the optical size: at Bodoni's display end the hairlines vanish on screens */
+  font-variation-settings: 'opsz' 28;
+}
+.font-label-caps {
+  font-weight: 500;
+}
+/* The NAARZI masthead: a lower optical size and a touch more weight so its hairlines hold */
+.brand-wordmark {
+  font-weight: 500;
+  font-variation-settings: 'opsz' 14;
 }
 
 body {
@@ -284,9 +316,9 @@ body {
   opacity: 1;
   transform: translateX(-50%) scale(1);
 }
-/* Badge-style links (SALE): dot sits just below the badge, in its colour */
+/* SALE link: same dot position, in the sale colour */
 .nav-dot-badge::after {
-  top: calc(100% + 5px);
+  top: calc(50% + 0.95em);
   background: var(--color-sale);
 }
 @media (prefers-reduced-motion: reduce) {

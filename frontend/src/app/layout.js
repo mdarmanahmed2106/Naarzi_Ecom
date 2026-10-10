@@ -1,19 +1,21 @@
-import { Playfair_Display, Source_Sans_3 } from "next/font/google";
+import { Bodoni_Moda, Jost } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
 import "./globals.css";
 
-// Type system: Playfair Display for headings and italic accents, Source Sans 3 for body, UI,
-// labels and prices. Italics are loaded so accent words use Playfair's real italic.
-const playfairDisplay = Playfair_Display({
+// Type system: Bodoni Moda (high-contrast Didone, set light) for headings and italic accents;
+// Jost (geometric sans) for body, UI, labels and prices. The opsz axis is loaded so globals.css
+// can pin it to a size where the hairlines survive on screen.
+const bodoniModa = Bodoni_Moda({
   subsets: ["latin"],
   style: ["normal", "italic"],
-  variable: "--font-playfair-display",
+  axes: ["opsz"],
+  variable: "--font-display",
 });
 
-const sourceSans3 = Source_Sans_3({
+const jost = Jost({
   subsets: ["latin"],
   style: ["normal", "italic"],
-  variable: "--font-source-sans-3",
+  variable: "--font-sans-body",
 });
 
 export const metadata = {
@@ -26,7 +28,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${playfairDisplay.variable} ${sourceSans3.variable} h-full antialiased overflow-x-clip`}
+      className={`${bodoniModa.variable} ${jost.variable} h-full antialiased overflow-x-clip`}
     >
       <head>
         <link

@@ -149,7 +149,7 @@ export default function ScrollStorytellingSection() {
           {/* Card 0: Base Card (Image) */}
           <motion.div
             style={{ scale: shouldReduceMotion ? 1 : card0Scale, zIndex: 10 }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[0].img}
@@ -166,7 +166,7 @@ export default function ScrollStorytellingSection() {
               scale: shouldReduceMotion ? 1 : card1Scale,
               zIndex: 20
             }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <video
               ref={desktopVideoRef}
@@ -187,7 +187,7 @@ export default function ScrollStorytellingSection() {
               y: shouldReduceMotion ? 0 : card2Y,
               zIndex: 30
             }}
-            className="absolute inset-0 w-full h-full rounded-[28px] xl:rounded-[36px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
+            className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <img
               src={STORIES_DATA[2].img}
@@ -244,7 +244,7 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.25 }}
         transition={{ duration: 0.6, ease: [0.215, 0.61, 0.355, 1] }}
-        className="relative bg-[#fbf8f5] rounded-[24px] border border-black/10 shadow-[0_-10px_30px_-12px_rgba(30,25,27,0.18)] overflow-hidden will-change-transform"
+        className="relative bg-[#fbf8f5] rounded-[3px] border border-black/10 shadow-[0_-10px_30px_-12px_rgba(30,25,27,0.18)] overflow-hidden will-change-transform"
       >
         {/* Visual (Image or Video) */}
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eae2d5]">

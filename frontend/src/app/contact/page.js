@@ -55,7 +55,7 @@ export default function ContactPage() {
               real person from the NAARZI team will get back to you.
             </p>
 
-            <div className="relative overflow-hidden rounded-[24px] bg-primary text-white p-7 md:p-9 shadow-[0_24px_60px_-30px_rgba(107,34,51,0.6)]">
+            <div className="relative overflow-hidden rounded-[3px] bg-primary text-white p-7 md:p-9 shadow-[0_24px_60px_-30px_rgba(28,26,23,0.6)]">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="absolute -right-4 -top-4 w-28 h-28 text-white/10">
                 <path fill="currentColor" d="M12 0c.6 6.2 1.8 8.4 12 12-10.2 3.6-11.4 5.8-12 12-.6-6.2-1.8-8.4-12-12C10.2 8.4 11.4 6.2 12 0Z" />
               </svg>
@@ -84,7 +84,7 @@ export default function ContactPage() {
                 <li key={r.href}>
                   <Link
                     href={r.href}
-                    className="group flex items-center gap-4 md:gap-5 bg-surface-container-lowest border border-outline-variant/30 hover:border-primary/40 rounded-2xl p-5 md:p-6 transition-all hover:shadow-[0_16px_40px_-24px_rgba(107,34,51,0.45)]"
+                    className="group flex items-center gap-4 md:gap-5 bg-surface-container-lowest border border-outline-variant/30 hover:border-primary/40 rounded-2xl p-5 md:p-6 transition-all hover:shadow-[0_16px_40px_-24px_rgba(28,26,23,0.45)]"
                   >
                     <span className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-none">
                       <Icon name={r.icon} size="md" />

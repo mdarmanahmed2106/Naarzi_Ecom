@@ -340,7 +340,7 @@ export default function Header() {
                           <li><Link href="/shop?tag=new-arrival" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">New Arrivals</Link></li>
                           <li><Link href="/shop?tag=bestsellers" onClick={() => setActiveMegaMenu(null)} className="hover:text-primary transition-colors block">Best Sellers</Link></li>
                           <li>
-                            <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className="font-bold text-white bg-sale px-2 py-0.5 rounded w-fit hover:opacity-80 transition-opacity inline-block">
+                            <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className="text-sale hover:opacity-70 transition-opacity block">
                               Sale
                             </Link>
                           </li>
@@ -354,7 +354,7 @@ export default function Header() {
                 NEW
               </Link>
 
-              <Link href="/shop?tag=sale" className="nav-dot nav-dot-badge font-label-caps text-[13px] bg-sale text-white px-2 py-0.5 rounded hover:bg-sale/80 transition-colors font-bold flex items-center justify-center">
+              <Link href="/shop?tag=sale" className="nav-dot nav-dot-badge font-label-caps text-[13px] text-sale hover:opacity-70 transition-opacity font-bold">
                 SALE
               </Link>
             </nav>
@@ -420,10 +420,10 @@ export default function Header() {
               </div>
             ) : (
               <Link href="/" className="flex flex-col items-center justify-center">
-                <span className="font-display-lg text-3xl md:text-4xl tracking-widest text-primary font-bold leading-none">
+                <span className="brand-wordmark font-display-lg text-3xl md:text-4xl tracking-widest text-primary leading-none">
                   NAARZI
                 </span>
-                <span className="font-label-caps text-[8px] md:text-[10px] tracking-[0.4em] text-accent-gold font-bold mt-2 uppercase">
+                <span className="font-label-caps text-[8px] md:text-[10px] tracking-[0.4em] text-on-surface-variant font-bold mt-2 uppercase whitespace-nowrap">
                   OWN THE MOMENT
                 </span>
               </Link>
@@ -544,7 +544,7 @@ export default function Header() {
               NEW ARRIVAL
             </Link>
 
-            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm bg-sale text-white px-3 py-1 rounded w-fit font-bold tracking-widest hover:opacity-80 transition-opacity">
+            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-sale w-fit font-bold tracking-widest hover:opacity-70 transition-opacity">
               SALE
             </Link>
           </nav>
