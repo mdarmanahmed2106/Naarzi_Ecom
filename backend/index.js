@@ -45,10 +45,12 @@ app.use(
       } else if (process.env.NODE_ENV === 'development' && isPrivateLanOrigin(origin)) {
         callback(null, true);
       } else {
+        // CLIENT_URL / ADMIN_CLIENT_URL may each list several origins, comma-separated
+        // (e.g. https://naarzi.com,https://www.naarzi.com,https://naarzi-shop.vercel.app)
         const allowedOrigins = [
           process.env.CLIENT_URL || 'http://localhost:3000',
           process.env.ADMIN_CLIENT_URL || 'http://localhost:3007'
-        ];
+        ].flatMap((list) => list.split(',').map((o) => o.trim().replace(/[/]+$/, '')));
         if (allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
