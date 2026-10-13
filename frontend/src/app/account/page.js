@@ -162,7 +162,14 @@ export default function AccountDashboardPage() {
     try {
       const response = await ordersApi.cancelOrder(orderId);
       setOrders((prev) =>
-        prev.map((o) => (o._id === orderId ? { ...o, orderStatus: 'cancelled', refundStatus: response.order?.refundStatus } : o))
+        prev.map((o) => (o._id === orderId
+          ? {
+              ...o,
+              orderStatus: 'cancelled',
+              paymentStatus: response.order?.paymentStatus ?? o.paymentStatus,
+              refundStatus: response.order?.refundStatus,
+            }
+          : o))
       );
       notify('success', 'Order cancelled', response.message);
     } catch (err) {
@@ -423,9 +430,15 @@ export default function AccountDashboardPage() {
                                 }`}>
                                   {order.paymentStatus}
                                 </span>
-                                {order.refundStatus === 'pending' && (
+                                {order.refundStatus === 'completed' && (
+                                  <span className="px-2 py-0.5 rounded font-bold text-[10px] uppercase border text-green-700 bg-green-50 border-green-200">
+                                    Refunded
+                                  </span>
+                                )}
+                                {/* A failed automatic refund is retried by the team, so customers see it as in progress */}
+                                {(order.refundStatus === 'pending' || order.refundStatus === 'failed') && (
                                   <span className="px-2 py-0.5 rounded font-bold text-[10px] uppercase border text-yellow-700 bg-yellow-50 border-yellow-200">
-                                    Refund pending
+                                    Refund in progress
                                   </span>
                                 )}
                               </div>

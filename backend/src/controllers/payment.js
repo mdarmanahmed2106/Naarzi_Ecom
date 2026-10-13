@@ -2,7 +2,28 @@ const crypto = require('crypto');
 const Order = require('../models/Order');
 const Coupon = require('../models/Coupon');
 const { razorpayInstance, isMock } = require('../config/razorpay');
+const Notification = require('../models/Notification');
 const { releaseOrderStock } = require('./order');
+
+// Mark an order paid exactly once. The status check and the update are one atomic operation,
+// so when the client's /verify call and Razorpay's order.paid webhook arrive together only one
+// of them wins — and only the winner counts the coupon redemption.
+// Returns the updated order if this call made the change, otherwise null.
+const markOrderPaid = async (filter, razorpayPaymentId) => {
+  const update = { paymentStatus: 'paid' };
+  if (razorpayPaymentId) update.razorpayPaymentId = razorpayPaymentId;
+
+  const order = await Order.findOneAndUpdate(
+    { ...filter, paymentStatus: { $ne: 'paid' } },
+    { $set: update },
+    { returnDocument: 'after' }
+  );
+
+  if (order && order.couponCode) {
+    await Coupon.findOneAndUpdate({ code: order.couponCode }, { $inc: { usedCount: 1 } });
+  }
+  return order;
+};
 
 // @desc    Create Razorpay Order
 // @route   POST /api/payment/create-order
@@ -171,22 +192,14 @@ exports.verifyPayment = async (req, res, next) => {
     }
 
     if (isVerified) {
-      // Payment Successful
-      order.paymentStatus = 'paid';
-      order.razorpayPaymentId = razorpay_payment_id;
-      await order.save();
-
-      if (order.couponCode) {
-        await Coupon.findOneAndUpdate(
-          { code: order.couponCode },
-          { $inc: { usedCount: 1 } }
-        );
-      }
+      // Payment Successful. markOrderPaid is atomic, so if the webhook confirms the same payment
+      // at the same moment, only one of them counts the coupon.
+      const paidOrder = await markOrderPaid({ _id: order._id }, razorpay_payment_id);
 
       return res.status(200).json({
         success: true,
         message: 'Payment verified and captured successfully',
-        order
+        order: paidOrder || (await Order.findById(order._id))
       });
     } else {
       // Signature mismatch: reject without touching the order. A forged or corrupted request
@@ -243,38 +256,52 @@ exports.handleWebhook = async (req, res, next) => {
       const razorpayOrder = payload.order.entity;
       const razorpayOrderId = razorpayOrder.id;
 
-      const order = await Order.findOne({ razorpayOrderId });
-
-      if (order && order.paymentStatus !== 'paid') {
-        order.paymentStatus = 'paid';
-        // Find the payment id from the webhook if available
-        if (payload.payment) {
-          order.razorpayPaymentId = payload.payment.entity.id;
-        }
-        await order.save();
-        
-        if (order.couponCode) {
-          await Coupon.findOneAndUpdate(
-            { code: order.couponCode },
-            { $inc: { usedCount: 1 } }
-          );
-        }
-        
-        console.log(`Webhook updated Order ${order._id} to paid`);
+      const paymentId = payload.payment ? payload.payment.entity.id : undefined;
+      const paidOrder = await markOrderPaid({ razorpayOrderId }, paymentId);
+      if (paidOrder) {
+        console.log(`Webhook updated Order ${paidOrder._id} to paid`);
       }
     } else if (event === 'payment.failed') {
       const razorpayPayment = payload.payment.entity;
       const razorpayOrderId = razorpayPayment.order_id;
 
-      const order = await Order.findOne({ razorpayOrderId });
+      // Claim pending → failed atomically so this can't overwrite a payment confirmed meanwhile
+      const order = await Order.findOneAndUpdate(
+        { razorpayOrderId, paymentStatus: 'pending' },
+        { $set: { paymentStatus: 'failed' } },
+        { returnDocument: 'after' }
+      );
 
-      if (order && order.paymentStatus === 'pending') {
-        order.paymentStatus = 'failed';
-        await order.save();
-
-        // Release stock back
+      if (order) {
+        // Release stock back (releaseOrderStock guarantees this happens at most once per order)
         await releaseOrderStock(order);
         console.log(`Webhook updated Order ${order._id} to failed. Stock released.`);
+      }
+    } else if (event === 'refund.processed' || event === 'refund.failed') {
+      const refund = payload.refund && payload.refund.entity;
+      if (refund) {
+        const order = await Order.findOne({
+          $or: [{ razorpayRefundId: refund.id }, { razorpayPaymentId: refund.payment_id }]
+        });
+        if (order) {
+          if (event === 'refund.processed') {
+            order.refundStatus = 'completed';
+            order.paymentStatus = 'refunded';
+            order.refundedAt = new Date();
+          } else {
+            order.refundStatus = 'failed';
+            order.razorpayRefundId = null; // allow the admin to retry
+            await Notification.create({
+              title: 'Refund Failed',
+              message: `Razorpay could not complete the refund of ₹${order.totalAmount} for order #${order._id.toString().slice(-8).toUpperCase()}. Retry it from the order page.`,
+              type: 'REFUND_REQUESTED',
+              referenceId: order._id,
+              referenceModel: 'Order'
+            });
+          }
+          await order.save();
+          console.log(`Webhook ${event} recorded for Order ${order._id}`);
+        }
       }
     }
 

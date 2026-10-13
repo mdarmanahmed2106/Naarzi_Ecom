@@ -5,7 +5,8 @@ const {
   getOrder,
   getAllOrders,
   updateOrderStatus,
-  cancelOrder
+  cancelOrder,
+  refundOrder
 } = require('../controllers/order');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const validate = require('../middleware/validate');
@@ -28,5 +29,7 @@ router.route('/:id')
 router.put('/:id/status', requireAdmin, validate(updateOrderStatusSchema), updateOrderStatus);
 
 router.post('/:id/cancel', cancelOrder);
+
+router.post('/:id/refund', requireAdmin, refundOrder);
 
 module.exports = router;

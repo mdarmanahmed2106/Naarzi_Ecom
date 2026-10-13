@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const connectDB = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
+const { apiLimiter } = require('./src/middleware/rateLimiter');
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,11 @@ const adminRoutes = require('./src/routes/admin');
 const notificationRoutes = require('./src/routes/notification');
 
 const app = express();
+
+// Render (and most hosts) sit one proxy in front of the app. Trusting that single hop makes
+// req.ip the visitor's real IP instead of the proxy's, so rate limits apply per visitor rather
+// than to everyone at once (which let one person lock all customers out of login).
+app.set('trust proxy', 1);
 
 // Set security headers
 app.use(helmet());
@@ -100,6 +106,9 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Mount routes
+// General per-visitor rate limit for the whole API (auth routes add a stricter one on top)
+app.use('/api', apiLimiter);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);

@@ -91,7 +91,12 @@ const updateProductSchema = z.object({
 const orderItemInputSchema = z.object({
   product: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid product ID'),
   size: z.string().min(1, 'Size is required'),
-  quantity: z.number().int().min(1, 'Quantity must be at least 1')
+  // The colour the customer picked. Optional only for older carts saved before colours existed;
+  // the server then falls back to the product's first colour.
+  color: z.string().trim().min(1).max(100).optional(),
+  // Capped so a single order can't reserve a whole size's stock (matches MAX_QTY_PER_LINE in the
+  // storefront's AppContext)
+  quantity: z.number().int().min(1, 'Quantity must be at least 1').max(10, 'You can order at most 10 of an item')
 });
 
 const addressInputSchema = z.object({
@@ -105,7 +110,9 @@ const addressInputSchema = z.object({
 
 const createOrderSchema = z.object({
   body: z.object({
-    items: z.array(orderItemInputSchema).min(1, 'Order must contain at least one item'),
+    items: z.array(orderItemInputSchema).min(1, 'Order must contain at least one item').max(30, 'An order can contain at most 30 items'),
+    // Without this, Zod strips the code and the order is charged without the discount
+    couponCode: z.string().trim().max(50).nullable().optional(),
     shippingAddress: addressInputSchema
   })
 });

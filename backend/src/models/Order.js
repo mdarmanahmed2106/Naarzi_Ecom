@@ -106,8 +106,23 @@ const orderSchema = new mongoose.Schema({
   },
   refundStatus: {
     type: String,
-    enum: ['not_applicable', 'pending', 'completed'],
+    enum: ['not_applicable', 'pending', 'completed', 'failed'],
     default: 'not_applicable'
+  },
+  razorpayRefundId: {
+    type: String,
+    default: null
+  },
+  refundedAt: {
+    type: Date,
+    default: null
+  },
+  // Set (atomically) the moment this order's reserved stock is returned, so stock can only
+  // ever be released once — whichever of cancel / admin cancel / abandoned-order job /
+  // failed-payment webhook gets there first.
+  stockReleased: {
+    type: Boolean,
+    default: false
   },
   razorpayOrderId: {
     type: String,

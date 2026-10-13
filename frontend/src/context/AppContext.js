@@ -5,6 +5,9 @@ import { authApi, wishlistApi, cartApi, settingsApi } from '@/lib/api';
 
 const AppContext = createContext(null);
 
+// Most of one item a customer can order at once; the API rejects more (createOrderSchema)
+export const MAX_QTY_PER_LINE = 10;
+
 // Keep only cart lines that still have a real product attached
 const sanitizeCart = (items) =>
   (Array.isArray(items) ? items : []).filter((item) => item && item.product && item.product._id);
@@ -225,6 +228,7 @@ export function AppProvider({ children }) {
 
   // Cart actions
   const addToCart = async (product, size, quantity = 1, color = '') => {
+    quantity = Math.min(quantity, MAX_QTY_PER_LINE);
     const existingIndex = cartItems.findIndex(
       (item) => item.product._id === product._id && item.size === size && item.color === color
     );
@@ -232,7 +236,7 @@ export function AppProvider({ children }) {
     let updatedCart;
     if (existingIndex > -1) {
       updatedCart = [...cartItems];
-      updatedCart[existingIndex].quantity += quantity;
+      updatedCart[existingIndex].quantity = Math.min(updatedCart[existingIndex].quantity + quantity, MAX_QTY_PER_LINE);
     } else {
       updatedCart = [...cartItems, { product, size, quantity, color }];
     }
@@ -271,6 +275,7 @@ export function AppProvider({ children }) {
       removeFromCart(productId, size, color);
       return;
     }
+    quantity = Math.min(quantity, MAX_QTY_PER_LINE);
     const updatedCart = cartItems.map((item) =>
       item.product._id === productId && item.size === size && item.color === color
         ? { ...item, quantity }

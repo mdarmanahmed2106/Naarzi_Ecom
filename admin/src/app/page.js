@@ -111,6 +111,22 @@ const STATUS_STYLES = {
   cancelled: 'bg-red-50 text-red-700 border-red-200',
 };
 
+const REFUND_BADGES = {
+  pending: { label: 'Refund Pending', className: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+  completed: { label: 'Refunded', className: 'bg-green-50 text-green-700 border-green-200' },
+  failed: { label: 'Refund Failed', className: 'bg-red-50 text-red-700 border-red-200' },
+};
+
+function RefundBadge({ status }) {
+  const badge = REFUND_BADGES[status];
+  if (!badge) return null;
+  return (
+    <span className={`inline-block text-[9px] font-label-caps px-2 py-1 rounded border tracking-wider font-bold uppercase ${badge.className}`}>
+      {badge.label}
+    </span>
+  );
+}
+
 // Status dropdown that only offers legal next steps; read-only badge once an order is final
 function OrderStatusControl({ status, onChange, size = 'sm' }) {
   const allowedNext = ALLOWED_TRANSITIONS[status] || [];
@@ -242,6 +258,7 @@ export default function AdminDashboardPage() {
 
   // Order Detail Modal State
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [refundingId, setRefundingId] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -775,6 +792,23 @@ export default function AdminDashboardPage() {
   };
 
   // Save tracking number / carrier / estimated delivery without changing fulfillment status
+  // Retry a refund that failed when the order was cancelled
+  const handleRetryRefund = async (orderId) => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    setRefundingId(orderId);
+    try {
+      const response = await ordersApi.refund(orderId);
+      setSuccessMsg(response.message || 'Refund processed');
+      setOrders(prevOrders => prevOrders.map(o => o._id === orderId ? { ...o, ...response.order } : o));
+      setSelectedOrder(prev => (prev && prev._id === orderId ? { ...prev, ...response.order } : prev));
+    } catch (err) {
+      setErrorMsg(`Refund failed: ${err.message}`);
+    } finally {
+      setRefundingId(null);
+    }
+  };
+
   const handleSaveTracking = async (orderId) => {
     setErrorMsg('');
     setSuccessMsg('');
@@ -1841,11 +1875,7 @@ export default function AdminDashboardPage() {
                         }`}>
                           {o.paymentStatus}
                         </span>
-                        {o.refundStatus === 'pending' && (
-                          <span className="inline-block text-[9px] font-label-caps px-2 py-1 rounded border tracking-wider font-bold uppercase bg-yellow-50 text-yellow-700 border-yellow-200">
-                            Refund Pending
-                          </span>
-                        )}
+                        <RefundBadge status={o.refundStatus} />
                       </td>
                       <td className="py-4 px-6">
                         <OrderStatusControl
@@ -2823,6 +2853,41 @@ export default function AdminDashboardPage() {
                 />
               </div>
             </div>
+
+            {/* Refund — cancelling a paid order refunds it automatically; retry here if it failed */}
+            {selectedOrder.orderStatus === 'cancelled' && ['paid', 'refunded'].includes(selectedOrder.paymentStatus) && (
+              <div className="bg-surface-container/40 border border-outline-variant/20 p-4 rounded-xl mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block font-bold">REFUND</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-on-surface font-semibold">{formatCurrency(selectedOrder.totalAmount)}</span>
+                    <RefundBadge status={selectedOrder.refundStatus} />
+                  </div>
+                  <p className="text-[11px] text-on-surface-variant mt-1">
+                    {selectedOrder.refundStatus === 'completed'
+                      ? `Refunded${selectedOrder.refundedAt ? ` on ${new Date(selectedOrder.refundedAt).toLocaleDateString()}` : ''} to the original payment method.`
+                      : selectedOrder.refundStatus === 'pending'
+                      ? 'Initiated with Razorpay — it completes automatically.'
+                      : selectedOrder.refundStatus === 'failed'
+                      ? 'The automatic refund failed. Retry it, or refund from the Razorpay dashboard.'
+                      : 'Not refunded yet.'}
+                    {selectedOrder.razorpayRefundId && selectedOrder.razorpayRefundId !== 'claimed' && (
+                      <span className="block font-mono mt-0.5">{selectedOrder.razorpayRefundId}</span>
+                    )}
+                  </p>
+                </div>
+                {selectedOrder.paymentStatus === 'paid' && ['failed', 'not_applicable'].includes(selectedOrder.refundStatus) && (
+                  <button
+                    type="button"
+                    onClick={() => handleRetryRefund(selectedOrder._id)}
+                    disabled={refundingId === selectedOrder._id}
+                    className="px-4 py-2 bg-primary text-white text-[11px] font-label-caps tracking-widest rounded-xl font-bold hover:bg-primary-container transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {refundingId === selectedOrder._id ? 'REFUNDING…' : 'RETRY REFUND'}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Tracking Details — powers the customer-facing order tracker */}
             <div className="bg-surface-container/40 border border-outline-variant/20 p-4 rounded-xl mb-6">

@@ -136,6 +136,7 @@ export const ordersApi = {
   getDetails: (id) => fetchApi(`/orders/${id}`),
   getAll: () => fetchApi('/orders'),
   updateStatus: (id, status, tracking = {}) => fetchApi(`/orders/${id}/status`, { method: 'PUT', body: { orderStatus: status, ...tracking } }),
+  refund: (id) => fetchApi(`/orders/${id}/refund`, { method: 'POST' }),
 };
 
 export const paymentApi = {
