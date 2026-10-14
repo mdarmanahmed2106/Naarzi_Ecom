@@ -144,21 +144,25 @@ exports.getAbandonedCarts = async (req, res, next) => {
     .skip(skipNum)
     .limit(parsedLimit);
 
-    // Compute cart value and format
-    let formattedCarts = carts.map(cart => {
-      const cartValue = cart.items.reduce((total, item) => {
-        const price = item.product.discountedPrice || item.product.price;
-        return total + (price * item.quantity);
-      }, 0);
+    // Compute cart value and format. Items whose product has since been deleted populate as
+    // null; skip them (and carts left with nothing) instead of crashing the whole report.
+    let formattedCarts = carts
+      .map(cart => {
+        const items = cart.items.filter(item => item.product);
+        const cartValue = items.reduce((total, item) => {
+          const price = item.product.discountedPrice || item.product.price;
+          return total + (price * item.quantity);
+        }, 0);
 
-      return {
-        _id: cart._id,
-        user: cart.user,
-        items: cart.items,
-        updatedAt: cart.updatedAt,
-        cartValue
-      };
-    });
+        return {
+          _id: cart._id,
+          user: cart.user,
+          items,
+          updatedAt: cart.updatedAt,
+          cartValue
+        };
+      })
+      .filter(cart => cart.items.length > 0);
 
     // Support sorting by value (only sorts current page since pagination happens in DB)
     if (req.query.sortBy === 'value') {
