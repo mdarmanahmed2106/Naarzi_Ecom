@@ -49,54 +49,65 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col justify-center items-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl border border-outline-variant/30 p-8">
-        <div className="text-center mb-8">
-          <h1 className="font-display-lg text-3xl font-bold text-primary mb-2">Admin Portal</h1>
-          <p className="text-sm text-on-surface-variant">Sign in to manage the store</p>
-        </div>
+    <div className="min-h-screen bg-surface flex flex-col justify-center items-center px-4 py-12">
+      <div className="text-center mb-10">
+        <span className="brand-wordmark font-display-lg text-[2.5rem] tracking-[0.18em] text-primary leading-none block">NAARZI</span>
+        <span className="font-label-caps text-[10px] tracking-[0.45em] uppercase text-on-surface-variant mt-3 block">Admin</span>
+      </div>
+
+      <div className="max-w-sm w-full bg-surface-container-lowest border border-outline-variant/60 px-7 py-8 md:px-9 md:py-10">
+        <h1 className="font-display-lg text-[1.9rem] leading-tight text-on-surface mb-1">Sign in</h1>
+        <p className="text-sm text-on-surface-variant mb-8">Manage products, orders and the store.</p>
 
         {errorMsg && (
-          <div className="mb-6 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 flex items-center gap-2">
-            <span className="material-symbols-outlined">error</span>
+          <div role="alert" className="mb-6 px-4 py-3 bg-error-container/60 text-error text-sm border-l-2 border-error flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">error</span>
             {errorMsg}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-1">
-            <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">EMAIL ADDRESS</label>
-            <input 
-              type="email" 
+          <div className="space-y-1.5">
+            <label htmlFor="admin-email" className="block font-label-caps text-[10px] tracking-[0.25em] uppercase text-on-surface-variant">Email</label>
+            <input
+              id="admin-email"
+              type="email"
               required
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+              className="w-full h-11 px-3.5 bg-surface border border-outline-variant focus:border-primary focus:outline-none transition-colors"
               placeholder="admin@naarzi.com"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">PASSWORD</label>
-            <input 
-              type="password" 
+          <div className="space-y-1.5">
+            <label htmlFor="admin-password" className="block font-label-caps text-[10px] tracking-[0.25em] uppercase text-on-surface-variant">Password</label>
+            <input
+              id="admin-password"
+              type="password"
               required
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
+              className="w-full h-11 px-3.5 bg-surface border border-outline-variant focus:border-primary focus:outline-none transition-colors"
               placeholder="••••••••"
             />
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-primary text-white font-label-caps text-sm tracking-widest rounded-xl hover:bg-primary-container transition-colors font-bold mt-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full h-12 bg-primary text-white font-label-caps text-[11px] tracking-[0.25em] uppercase hover:bg-primary-container transition-colors mt-3 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? 'AUTHENTICATING...' : 'SIGN IN'}
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
       </div>
+
+      <a href={process.env.NEXT_PUBLIC_STORE_URL || 'https://naarzi.com'} className="mt-8 text-xs text-on-surface-variant hover:text-primary transition-colors">
+        ← Back to naarzi.com
+      </a>
     </div>
   );
 }

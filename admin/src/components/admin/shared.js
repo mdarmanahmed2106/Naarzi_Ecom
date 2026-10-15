@@ -7,84 +7,104 @@ import { useRouter } from 'next/navigation';
 export function AdminHeader({ user, logout, notifications, unreadCount, markAsRead, markAllAsRead }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
+  const storeUrl = process.env.NEXT_PUBLIC_STORE_URL || 'https://naarzi.com';
   return (
-    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-outline-variant/30 py-4 px-6 md:px-10 lg:px-16">
-      <div className="w-full flex items-center justify-between">
+    <header className="sticky top-0 z-40 h-16 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/50 px-5 md:px-8">
+      <div className="h-full w-full flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Link href="/" className="flex flex-col items-start justify-center hover:opacity-85 transition-opacity">
-            <span className="font-display-lg text-xl md:text-2xl tracking-widest text-primary font-bold leading-none">
+          <Link href="/" className="hover:opacity-80 transition-opacity" aria-label="Naarzi admin home">
+            <span className="brand-wordmark font-display-lg text-[1.6rem] tracking-[0.18em] text-primary leading-none">
               NAARZI
             </span>
-            <span className="font-label-caps text-[6px] md:text-[8px] tracking-[0.4em] text-accent-gold font-bold mt-1 uppercase">
-              OWN THE MOMENT
-            </span>
           </Link>
-          <span className="h-4 w-px bg-outline-variant/60"></span>
-          <span className="text-[9px] font-label-caps text-on-surface-variant tracking-wider font-bold">ADMIN PORTAL</span>
+          <span className="h-5 w-px bg-outline-variant" aria-hidden="true"></span>
+          <span className="font-label-caps text-[10px] tracking-[0.3em] uppercase text-on-surface-variant">Admin</span>
         </div>
-        
-        <div className="flex items-center gap-6 text-[10px] font-label-caps font-bold">
-          {user ? (
-            <div className="relative flex items-center gap-6">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="relative text-on-surface hover:text-primary transition-colors cursor-pointer bg-transparent border-none flex items-center justify-center"
-              >
-                <span className="material-symbols-outlined text-[18px]">notifications</span>
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-error text-[8px] items-center justify-center text-white font-bold">{unreadCount}</span>
-                  </span>
-                )}
-              </button>
 
-              {isDropdownOpen && (
-                <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-surface border border-outline-variant/30 rounded-xl z-50 flex flex-col p-2">
-                  <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/20 mb-2">
-                    <span className="font-label-caps text-xs tracking-wider text-on-surface font-bold">NOTIFICATIONS</span>
+        {user ? (
+          <div className="relative flex items-center gap-1 md:gap-2">
+            <a
+              href={storeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 font-label-caps text-[11px] tracking-[0.2em] uppercase text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              View store
+              <span className="material-symbols-outlined text-[16px]">arrow_outward</span>
+            </a>
+
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+              aria-expanded={isDropdownOpen}
+              className="relative w-9 h-9 inline-flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[20px]">notifications</span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-4 h-4 px-1 rounded-full bg-primary text-white text-[9px] font-medium leading-4 text-center tabular-nums">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {isDropdownOpen && (
+              <>
+                {/* Click anywhere else to close */}
+                <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} aria-hidden="true" />
+                <div className="absolute top-full right-0 mt-2 w-[22rem] max-w-[calc(100vw-2.5rem)] max-h-[26rem] overflow-y-auto bg-surface-container-lowest border border-outline-variant/60 shadow-[0_18px_40px_-20px_rgba(28,26,23,0.35)] z-50">
+                  <div className="sticky top-0 bg-surface-container-lowest flex items-center justify-between px-4 py-3 border-b border-outline-variant/50">
+                    <span className="font-label-caps text-[11px] tracking-[0.25em] uppercase text-on-surface">Notifications</span>
                     {unreadCount > 0 && (
-                      <button onClick={markAllAsRead} className="text-[9px] text-primary hover:underline">
-                        MARK ALL READ
+                      <button onClick={markAllAsRead} className="text-[11px] text-primary hover:underline underline-offset-4 cursor-pointer">
+                        Mark all read
                       </button>
                     )}
                   </div>
                   {notifications.length === 0 ? (
-                    <div className="p-4 text-center text-xs text-on-surface-variant italic">No new notifications</div>
+                    <div className="px-4 py-10 text-center text-sm text-on-surface-variant">You&apos;re all caught up.</div>
                   ) : (
-                    notifications.map(notif => (
-                      <div 
-                        key={notif._id} 
-                        className={`p-3 rounded-lg mb-1 cursor-pointer transition-colors ${notif.isRead ? 'bg-surface hover:bg-surface-container' : 'bg-primary/5 hover:bg-primary/10'}`}
-                        onClick={() => {
-                          if (!notif.isRead) markAsRead(notif._id);
-                          if (notif.referenceModel === 'Order') {
-                            // Open the order itself; older notifications without a reference land on the list
-                            router.push(notif.referenceId ? `/orders/${notif.referenceId}` : '/orders');
-                            setIsDropdownOpen(false);
-                          }
-                        }}
-                      >
-                        <div className="flex justify-between items-start mb-1">
-                          <span className={`font-bold text-xs ${notif.isRead ? 'text-on-surface' : 'text-primary'}`}>{notif.title}</span>
-                          <span className="text-[9px] text-on-surface-variant">{new Date(notif.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <p className="text-[11px] text-on-surface leading-tight">{notif.message}</p>
-                      </div>
-                    ))
+                    <ul className="divide-y divide-outline-variant/40">
+                      {notifications.map(notif => (
+                        <li key={notif._id}>
+                          <button
+                            type="button"
+                            className={`w-full text-left px-4 py-3 transition-colors cursor-pointer ${notif.isRead ? 'hover:bg-surface-container-low' : 'bg-primary/[0.04] hover:bg-primary/[0.08]'}`}
+                            onClick={() => {
+                              if (!notif.isRead) markAsRead(notif._id);
+                              if (notif.referenceModel === 'Order') {
+                                // Open the order itself; older notifications without a reference land on the list
+                                router.push(notif.referenceId ? `/orders/${notif.referenceId}` : '/orders');
+                                setIsDropdownOpen(false);
+                              }
+                            }}
+                          >
+                            <div className="flex justify-between items-baseline gap-3 mb-0.5">
+                              <span className={`text-[13px] flex items-center gap-1.5 ${notif.isRead ? 'text-on-surface' : 'text-primary font-medium'}`}>
+                                {!notif.isRead && <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" aria-hidden="true" />}
+                                {notif.title}
+                              </span>
+                              <span className="text-[11px] text-on-surface-variant shrink-0">{new Date(notif.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <p className="text-xs text-on-surface-variant leading-snug">{notif.message}</p>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </div>
-              )}
-              
-              <button 
-                onClick={logout}
-                className="text-on-surface hover:text-error transition-colors tracking-widest cursor-pointer bg-transparent border-none font-bold text-[10px] font-label-caps"
-              >
-                LOG OUT
-              </button>
-            </div>
-          ) : null}
-        </div>
+              </>
+            )}
+
+            <span className="hidden md:block h-5 w-px bg-outline-variant mx-2" aria-hidden="true"></span>
+            <span className="hidden md:block text-[13px] text-on-surface max-w-[12rem] truncate" title={user.email}>{user.name || user.email}</span>
+            <button
+              onClick={logout}
+              className="h-9 px-3 font-label-caps text-[11px] tracking-[0.2em] uppercase text-on-surface-variant hover:text-error transition-colors cursor-pointer"
+            >
+              Log out
+            </button>
+          </div>
+        ) : null}
       </div>
     </header>
   );

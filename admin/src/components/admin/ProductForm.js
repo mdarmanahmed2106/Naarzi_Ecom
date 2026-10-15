@@ -59,7 +59,7 @@ export default function ProductForm() {
         {/* Title */}
         <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
           <h2 className="font-display-lg text-2xl text-primary font-bold">
-            {modalMode === 'add' ? 'Add New Product' : 'Edit Product'}
+            Product details
           </h2>
           <Link
             href="/products"

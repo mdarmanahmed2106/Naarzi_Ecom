@@ -5,12 +5,40 @@ import Link from 'next/link';
 import { AdminHeader } from '@/components/admin/shared';
 import { useAdmin } from '@/components/admin/AdminProvider';
 
+// Where "Storefront" in the breadcrumb goes
+const STORE_URL = process.env.NEXT_PUBLIC_STORE_URL || 'https://naarzi.com';
+
+// Every admin section: sidebar label, page title and one-line description
+const SECTIONS = {
+  products: { title: 'Products', icon: 'grid_view', desc: 'Your catalogue: prices, colour variants and visibility.' },
+  inventory: { title: 'Inventory', icon: 'inventory_2', desc: 'Stock levels for every colour and size.' },
+  categories: { title: 'Categories', icon: 'category', desc: 'How products are grouped in the store.' },
+  orders: { title: 'Orders', icon: 'receipt_long', desc: 'Fulfilment, tracking and refunds.' },
+  customers: { title: 'Customers', icon: 'group', desc: 'Everyone with a Naarzi account.' },
+  reviews: { title: 'Reviews', icon: 'reviews', desc: 'Moderate what customers say about products.' },
+  banners: { title: 'Promo banners', icon: 'campaign', desc: 'Messages in the announcement bar across the store.' },
+  coupons: { title: 'Coupons', icon: 'local_offer', desc: 'Discount codes and the rules that guard them.' },
+  marketing: { title: 'Marketing', icon: 'insights', desc: 'Abandoned carts and what customers are wishing for.' },
+  settings: { title: 'Settings', icon: 'settings', desc: 'Shipping charges and store-wide options.' },
+};
+
+const NAV_GROUPS = [
+  { label: 'Catalogue', items: ['products', 'inventory', 'categories'] },
+  { label: 'Sales', items: ['orders', 'customers', 'reviews'] },
+  { label: 'Marketing', items: ['banners', 'coupons', 'marketing'] },
+  { label: 'Store', items: ['settings'] },
+];
+
+// Sections whose list the search box (and rating filter) actually filters
+const SEARCHABLE = ['products', 'inventory', 'orders', 'categories', 'reviews', 'customers'];
+
 // Chrome shared by every admin section; the section itself renders as children
 export default function AdminShell({ children }) {
   const {
     activeTab,
     isOrderDetail,
     isProductForm,
+    pathname,
     products,
     categories,
     orders,
@@ -22,6 +50,7 @@ export default function AdminShell({ children }) {
     stockEditProduct,
     stockEditColors,
     setStockEditColors,
+    name,
     category,
     colors,
     isCategoryModalOpen,
@@ -104,171 +133,156 @@ export default function AdminShell({ children }) {
     );
   }
 
+  const section = SECTIONS[activeTab] || SECTIONS.products;
+  const isDetail = isOrderDetail || isProductForm;
+  // Detail pages are titled after what they show (order number, new / edit product)
+  const pageTitle = isOrderDetail
+    ? `Order #${pathname.split('/')[2].slice(-8).toUpperCase()}`
+    : isProductForm
+    ? (pathname.endsWith('/new') ? 'New product' : 'Edit product')
+    : section.title;
+  const showSearch = !isDetail && SEARCHABLE.includes(activeTab);
+  const navBadge = { orders: pendingOrdersCount, inventory: lowStockAlertCount };
+  const stats = [
+    { label: 'Products', value: totalProducts },
+    { label: 'Low stock', value: lowStockAlertCount, alert: lowStockAlertCount > 0, tone: 'text-error' },
+    { label: 'To fulfil', value: pendingOrdersCount, alert: pendingOrdersCount > 0, tone: 'text-amber-700' },
+    { label: 'Orders', value: totalOrdersCount },
+    { label: 'Revenue', value: new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalRevenue) },
+  ];
+
   return (
-    <div className="min-h-screen bg-surface font-body-md text-on-surface flex flex-col">
-      <AdminHeader 
-        user={user} 
-        logout={logout} 
-        notifications={notifications} 
-        unreadCount={unreadCount} 
-        markAsRead={markAsRead} 
-        markAllAsRead={markAllAsRead} 
+    <div className="min-h-screen bg-surface text-on-surface flex flex-col">
+      <AdminHeader
+        user={user}
+        logout={logout}
+        notifications={notifications}
+        unreadCount={unreadCount}
+        markAsRead={markAsRead}
+        markAllAsRead={markAllAsRead}
       />
 
       <div className="flex flex-1 w-full relative">
         {/* Sidebar Navigation */}
-        <aside className="w-64 shrink-0 border-r border-outline-variant/30 hidden md:block pt-10 pr-6 pl-6 lg:pl-10 sticky top-[72px] h-[calc(100vh-72px)] overflow-y-auto">
-          <div className="pb-10">
-            <h2 className="text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-4 px-4">ADMIN MENU</h2>
-            <nav className="flex flex-col gap-1 text-sm font-label-caps font-bold">
-              <Link
-                href="/products"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'products' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">grid_view</span>
-                PRODUCTS
-              </Link>
-              <Link
-                href="/inventory"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'inventory' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">inventory</span>
-                INVENTORY
-              </Link>
-              <Link
-                href="/orders"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'orders' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">receipt_long</span>
-                ORDERS
-              </Link>
-              <Link
-                href="/categories"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'categories' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">category</span>
-                CATEGORIES
-              </Link>
-              <Link
-                href="/banners"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'banners' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">campaign</span>
-                PROMO BANNERS
-              </Link>
-              <Link
-                href="/coupons"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'coupons' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">local_offer</span>
-                COUPONS
-              </Link>
-              <Link
-                href="/reviews"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'reviews' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">reviews</span>
-                REVIEWS
-              </Link>
-              <Link
-                href="/customers"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'customers' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">group</span>
-                CUSTOMERS
-              </Link>
-              <Link
-                href="/marketing"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'marketing' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">insights</span>
-                MARKETING
-              </Link>
-              <Link
-                href="/settings"
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors w-full text-left ${
-                  activeTab === 'settings' ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">settings</span>
-                SETTINGS
-              </Link>
-            </nav>
-          </div>
+        <aside className="w-60 shrink-0 border-r border-outline-variant/50 hidden md:block sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto">
+          <nav className="py-8 px-4 space-y-7" aria-label="Admin sections">
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label}>
+                <p className="px-3 mb-2 font-label-caps text-[10px] tracking-[0.3em] uppercase text-on-surface-variant/70">{group.label}</p>
+                <ul className="space-y-0.5">
+                  {group.items.map((key) => {
+                    const item = SECTIONS[key];
+                    const active = activeTab === key;
+                    return (
+                      <li key={key}>
+                        <Link
+                          href={`/${key}`}
+                          aria-current={active ? 'page' : undefined}
+                          className={`relative flex items-center gap-3 px-3 py-2 text-[13px] transition-colors ${
+                            active
+                              ? 'bg-primary/[0.07] text-primary font-medium before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[2px] before:bg-primary'
+                              : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                          <span className="flex-1">{item.title}</span>
+                          {navBadge[key] > 0 && (
+                            <span className={`min-w-5 h-5 px-1.5 inline-flex items-center justify-center text-[10px] font-medium tabular-nums ${
+                              key === 'inventory' ? 'bg-error-container text-error' : 'bg-amber-50 text-amber-700'
+                            }`}>
+                              {navBadge[key]}
+                            </span>
+                          )}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </aside>
 
-        <main className="flex-1 px-6 md:pl-8 md:pr-10 lg:pr-16 w-full pt-10 pb-24 overflow-x-hidden">
-        
+        <main className="flex-1 min-w-0 px-5 md:px-10 pt-8 md:pt-10 pb-24">
+
+        {/* Mobile section switcher (sidebar is hidden on small screens) */}
+        <nav className="md:hidden flex overflow-x-auto gap-2 -mx-5 px-5 pb-4 mb-6 border-b border-outline-variant/50 scrollbar-hide" aria-label="Admin sections">
+          {NAV_GROUPS.flatMap((g) => g.items).map((key) => (
+            <Link
+              key={key}
+              href={`/${key}`}
+              className={`whitespace-nowrap px-3.5 py-2 text-xs border transition-colors ${
+                activeTab === key ? 'border-primary text-primary bg-primary/[0.06]' : 'border-outline-variant/60 text-on-surface-variant'
+              }`}
+            >
+              {SECTIONS[key].title}
+            </Link>
+          ))}
+        </nav>
+
         {/* Breadcrumb / Title */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-          <div>
-            <nav className="text-[10px] font-label-caps text-on-surface-variant mb-2">
-              <Link href="/" className="hover:text-primary transition-colors">STOREFRONT</Link>
-              <span> / </span>
-              <span className="text-on-surface">ADMIN PANEL</span>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-5 mb-8 pb-6 border-b border-outline-variant/50">
+          <div className="min-w-0">
+            <nav className="font-label-caps text-[10px] tracking-[0.25em] uppercase text-on-surface-variant mb-3 flex items-center gap-2" aria-label="Breadcrumb">
+              <a href={STORE_URL} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Storefront</a>
+              <span className="text-outline-variant">/</span>
+              {isDetail ? (
+                <Link href={`/${activeTab}`} className="hover:text-primary transition-colors">{section.title}</Link>
+              ) : (
+                <span className="text-on-surface">{section.title}</span>
+              )}
+              {isDetail && (
+                <>
+                  <span className="text-outline-variant">/</span>
+                  <span className="text-on-surface">{isOrderDetail ? 'Order' : pathname.endsWith('/new') ? 'New' : 'Edit'}</span>
+                </>
+              )}
             </nav>
-            <h1 className="font-display-lg text-4xl text-primary font-bold">Dashboard</h1>
+            <h1 className="font-display-lg text-[2.25rem] md:text-[2.75rem] leading-[1.05] text-on-surface">{pageTitle}</h1>
+            {!isDetail && <p className="text-sm text-on-surface-variant mt-2">{section.desc}</p>}
           </div>
-          
-          <div className="flex items-center gap-3">
-          {!isOrderDetail && !isProductForm && (activeTab === 'products' || activeTab === 'inventory' || activeTab === 'orders' || activeTab === 'customers') && (
+
+          <div className="flex items-center gap-3 shrink-0">
+          {!isDetail && (activeTab === 'products' || activeTab === 'inventory' || activeTab === 'orders' || activeTab === 'customers') && (
             <button
               onClick={handleExportCsv}
-              className="px-6 py-3.5 bg-transparent border border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary font-label-caps text-xs tracking-widest rounded-xl transition-colors flex items-center gap-2 cursor-pointer font-bold"
+              className="h-11 px-5 border border-outline-variant text-on-surface-variant hover:border-on-surface hover:text-on-surface font-label-caps text-[11px] tracking-[0.2em] uppercase transition-colors flex items-center gap-2 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">download</span>
-              EXPORT CSV
+              Export CSV
             </button>
           )}
           {isProductForm ? null : (activeTab === 'products' || activeTab === 'inventory') ? (
             <Link
               href="/products/new"
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 font-bold"
+              className="h-11 px-5 bg-primary text-white font-label-caps text-[11px] tracking-[0.2em] uppercase hover:bg-primary-container transition-colors flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              ADD NEW PRODUCT
+              Add product
             </Link>
           ) : activeTab === 'categories' ? (
             <button
               onClick={openCategoryAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
+              className="h-11 px-5 bg-primary text-white font-label-caps text-[11px] tracking-[0.2em] uppercase hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              ADD NEW CATEGORY
+              Add category
             </button>
           ) : activeTab === 'banners' ? (
-            <button 
+            <button
               onClick={openBannerAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
+              className="h-11 px-5 bg-primary text-white font-label-caps text-[11px] tracking-[0.2em] uppercase hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              ADD NEW BANNER
+              Add banner
             </button>
           ) : activeTab === 'coupons' ? (
-            <button 
+            <button
               onClick={openCouponAddModal}
-              className="px-6 py-3.5 bg-primary text-white font-label-caps text-xs tracking-widest rounded-xl hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer font-bold"
+              className="h-11 px-5 bg-primary text-white font-label-caps text-[11px] tracking-[0.2em] uppercase hover:bg-primary-container transition-colors flex items-center gap-2 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              ADD NEW COUPON
+              Add coupon
             </button>
           ) : null}
           </div>
@@ -276,196 +290,83 @@ export default function AdminShell({ children }) {
 
         {/* Feedback Messages */}
         {successMsg && (
-          <div className="mb-8 p-4 bg-green-50 text-green-700 text-sm rounded-xl border border-green-200 flex justify-between items-center">
+          <div role="status" className="mb-6 px-4 py-3 bg-green-50/70 text-green-800 text-sm border-l-2 border-green-700 flex justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">check_circle</span>
+              <span className="material-symbols-outlined text-[18px]">check_circle</span>
               {successMsg}
             </div>
-            <button onClick={() => setSuccessMsg('')} className="material-symbols-outlined text-base cursor-pointer opacity-60 hover:opacity-100">close</button>
+            <button onClick={() => setSuccessMsg('')} aria-label="Dismiss" className="material-symbols-outlined text-base cursor-pointer opacity-60 hover:opacity-100">close</button>
           </div>
         )}
         {/* The product form shows its own error next to the fields */}
         {errorMsg && !isProductForm && (
-          <div className="mb-8 p-4 bg-error-container text-error text-sm rounded-xl border border-error/20 flex justify-between items-center">
+          <div role="alert" className="mb-6 px-4 py-3 bg-error-container/60 text-error text-sm border-l-2 border-error flex justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-lg">error</span>
+              <span className="material-symbols-outlined text-[18px]">error</span>
               {errorMsg}
             </div>
-            <button onClick={() => setErrorMsg('')} className="material-symbols-outlined text-base cursor-pointer opacity-60 hover:opacity-100">close</button>
+            <button onClick={() => setErrorMsg('')} aria-label="Dismiss" className="material-symbols-outlined text-base cursor-pointer opacity-60 hover:opacity-100">close</button>
           </div>
         )}
 
-        {/* Stats Grid - 5 Columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-gutter mb-12">
-          {/* Card 1 */}
-          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL PRODUCTS</span>
-              <span className="font-display-lg text-3xl font-bold text-primary">{totalProducts}</span>
-            </div>
-            <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">apparel</span>
-            </div>
-          </div>
-          {/* Card 2 */}
-          <div className={`border rounded-2xl p-6 flex items-center justify-between transition-all ${
-            lowStockAlertCount > 0 ? 'bg-red-50/50 border-red-200' : 'bg-white border-outline-variant/30'
-          }`}>
-            <div className="space-y-1">
-              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">LOW STOCK ALERTS</span>
-              <span className={`font-display-lg text-3xl font-bold ${lowStockAlertCount > 0 ? 'text-error' : 'text-primary'}`}>
-                {lowStockAlertCount}
-              </span>
-            </div>
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              lowStockAlertCount > 0 ? 'bg-red-100 text-error' : 'bg-primary/5 text-primary'
-            }`}>
-              <span className="material-symbols-outlined">warning</span>
-            </div>
-          </div>
-          {/* Card 3 */}
-          <div className={`border rounded-2xl p-6 flex items-center justify-between transition-all ${
-            pendingOrdersCount > 0 ? 'bg-amber-50/50 border-amber-200 font-bold' : 'bg-white border-outline-variant/30'
-          }`}>
-            <div className="space-y-1">
-              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">PENDING FULFILLMENT</span>
-              <span className={`font-display-lg text-3xl font-bold ${pendingOrdersCount > 0 ? 'text-amber-700' : 'text-primary'}`}>
-                {pendingOrdersCount}
-              </span>
-            </div>
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              pendingOrdersCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-primary/5 text-primary'
-            }`}>
-              <span className="material-symbols-outlined">pending_actions</span>
-            </div>
-          </div>
-          {/* Card 4 */}
-          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL ORDERS</span>
-              <span className="font-display-lg text-3xl font-bold text-primary">{totalOrdersCount}</span>
-            </div>
-            <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">local_mall</span>
-            </div>
-          </div>
-          {/* Card 5 */}
-          <div className="bg-white border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block">TOTAL REVENUE</span>
-              <span className="font-display-lg text-2xl font-bold text-primary">
-                {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(totalRevenue)}
-              </span>
-            </div>
-            <div className="w-12 h-12 bg-primary/5 rounded-full flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined">payments</span>
-            </div>
-          </div>
-        </div>
+        {/* Store summary — list pages only, so a single order or product gets the full width */}
+        {!isDetail && (
+          // Hairline dividers come from the 1px gaps over an outline-coloured background
+          <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-outline-variant/50 border border-outline-variant/50 mb-8">
+            {/* The last tile fills the row's leftover space on 2- and 3-column layouts */}
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                className={`bg-surface-container-lowest px-5 py-4 ${i === stats.length - 1 ? 'col-span-2 sm:col-span-1 sm:max-lg:col-span-2 lg:col-span-1' : ''}`}
+              >
+                <dt className="font-label-caps text-[10px] tracking-[0.25em] uppercase text-on-surface-variant flex items-center gap-1.5">
+                  {s.alert && <span className={`w-1.5 h-1.5 rounded-full bg-current ${s.tone}`} aria-hidden="true" />}
+                  {s.label}
+                </dt>
+                <dd className={`font-display-lg text-[1.75rem] leading-tight mt-1 tabular-nums ${s.alert ? s.tone : 'text-on-surface'}`}>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
-        {/* Mobile Navigation Tabs (Hidden on Desktop) */}
-        <div className="md:hidden flex overflow-x-auto gap-4 pb-4 mb-6 border-b border-outline-variant/30 scrollbar-hide">
-          <Link
-            href="/products"
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
-              activeTab === 'products' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
-            }`}
-          >
-            PRODUCTS
-          </Link>
-          <Link
-            href="/inventory"
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
-              activeTab === 'inventory' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
-            }`}
-          >
-            INVENTORY
-          </Link>
-          <Link
-            href="/orders"
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
-              activeTab === 'orders' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
-            }`}
-          >
-            ORDERS
-          </Link>
-          <Link
-            href="/categories"
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
-              activeTab === 'categories' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
-            }`}
-          >
-            CATEGORIES
-          </Link>
-          <Link
-            href="/reviews"
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
-              activeTab === 'reviews' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
-            }`}
-          >
-            REVIEWS
-          </Link>
-          <Link
-            href="/customers"
-            className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-label-caps font-bold transition-colors ${
-              activeTab === 'customers' ? 'bg-primary/10 text-primary' : 'bg-surface-container/50 text-on-surface-variant'
-            }`}
-          >
-            CUSTOMERS
-          </Link>
-        </div>
-
-        {/* Dashboard Controls (Search & Filters) — hidden on a single order or product */}
-        {!isOrderDetail && !isProductForm && (
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-          <h2 className="font-display-lg text-2xl font-bold text-primary hidden md:block">
-            {activeTab === 'products' && 'Products Directory'}
-            {activeTab === 'inventory' && 'Inventory Management'}
-            {activeTab === 'orders' && 'Orders Management'}
-            {activeTab === 'categories' && 'Categories'}
-            {activeTab === 'reviews' && 'Reviews Moderation'}
-            {activeTab === 'customers' && 'Customers Directory'}
-          </h2>
-
-          {/* Quick Search & Rating Filter */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto ml-auto">
+        {/* Search & filters — only where they filter the list */}
+        {showSearch && (
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-5">
+            <div className="relative w-full sm:w-80">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-[18px]">
+                search
+              </span>
+              <input
+                type="text"
+                placeholder={
+                  activeTab === 'orders'
+                    ? 'Search by order ID, name or phone'
+                    : activeTab === 'customers'
+                    ? 'Search by name or email'
+                    : activeTab === 'reviews'
+                    ? 'Search reviews'
+                    : `Search ${section.title.toLowerCase()}`
+                }
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-10 pl-9 pr-3 bg-surface-container-lowest border border-outline-variant text-sm focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
             {activeTab === 'reviews' && (
               <select
                 value={ratingFilter}
                 onChange={(e) => setRatingFilter(e.target.value)}
-                className="px-3 py-2 bg-white border border-outline-variant/40 rounded-xl text-xs font-semibold focus:outline-none cursor-pointer"
+                className="h-10 px-3 bg-surface-container-lowest border border-outline-variant text-sm focus:outline-none focus:border-primary cursor-pointer"
               >
-                <option value="all">All Ratings</option>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
+                <option value="all">All ratings</option>
+                <option value="5">5 stars</option>
+                <option value="4">4 stars</option>
+                <option value="3">3 stars</option>
+                <option value="2">2 stars</option>
+                <option value="1">1 star</option>
               </select>
             )}
-
-            <div className="relative w-full md:w-80">
-              <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-lg">
-                search
-              </span>
-              <input 
-                type="text" 
-                placeholder={
-                  activeTab === 'orders' 
-                    ? "Search by Order ID or User..." 
-                    : activeTab === 'customers'
-                    ? "Search by Name or Email..."
-                    : activeTab === 'reviews'
-                    ? "Search reviews..."
-                    : "Search directory..."
-                }
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-outline-variant/40 rounded-xl text-sm focus:border-primary focus:outline-none transition-colors"
-              />
-            </div>
           </div>
-        </div>
         )}
 
         {/* Section content */}
