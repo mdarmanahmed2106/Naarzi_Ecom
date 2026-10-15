@@ -55,7 +55,7 @@ export default function ProductForm() {
   }, [errorMsg]);
 
   return (
-    <div className="max-w-3xl bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8">
+    <div className="w-full bg-white border border-outline-variant/30 rounded-2xl p-6 md:p-8">
         {/* Title */}
         <div className="flex justify-between items-center border-b border-outline-variant/20 pb-4 mb-6">
           <h2 className="font-display-lg text-2xl text-primary font-bold">
