@@ -1,12 +1,12 @@
-import { Bodoni_Moda, Jost } from 'next/font/google';
+import { Cormorant_Garamond, Jost } from 'next/font/google';
 import './globals.css';
 
-// Same type system as the storefront: Bodoni Moda for headings and figures, Jost for UI text.
+// Same type system as the storefront: Cormorant Garamond for headings and figures, Jost for UI text.
 // (The admin previously referenced fonts it never loaded, so it fell back to Times and Arial.)
-const bodoniModa = Bodoni_Moda({
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
   style: ['normal', 'italic'],
-  axes: ['opsz'],
   variable: '--font-display',
 });
 
@@ -22,7 +22,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${bodoniModa.variable} ${jost.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
       <head>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
       </head>

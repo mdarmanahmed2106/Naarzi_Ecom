@@ -1,14 +1,13 @@
-import { Bodoni_Moda, Jost } from "next/font/google";
+import { Cormorant_Garamond, Jost } from "next/font/google";
 import { AppProvider } from "@/context/AppContext";
 import "./globals.css";
 
-// Type system: Bodoni Moda (high-contrast Didone, set light) for headings and italic accents;
-// Jost (geometric sans) for body, UI, labels and prices. The opsz axis is loaded so globals.css
-// can pin it to a size where the hairlines survive on screen.
-const bodoniModa = Bodoni_Moda({
+// Type system (from the client's brand reference): Cormorant Garamond for headings and italic
+// accents, Jost for body, UI, labels and prices.
+const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
-  axes: ["opsz"],
   variable: "--font-display",
 });
 
@@ -28,7 +27,7 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${bodoniModa.variable} ${jost.variable} h-full antialiased overflow-x-clip`}
+      className={`${cormorant.variable} ${jost.variable} h-full antialiased overflow-x-clip`}
     >
       <head>
         <link

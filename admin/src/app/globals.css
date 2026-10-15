@@ -57,44 +57,41 @@
   --spacing-section-gap: 120px;
 
   /* Typography mapping to loaded next/font google variables:
-     Bodoni Moda for headings and italic accents; Jost for body, labels, buttons,
+     Cormorant Garamond for headings and italic accents; Jost for body, labels, buttons,
      navigation and prices. */
-  --font-display-lg: var(--font-display), 'Didot', Georgia, serif;
-  --font-headline-md: var(--font-display), 'Didot', Georgia, serif;
-  --font-headline-sm: var(--font-display), 'Didot', Georgia, serif;
+  --font-display-lg: var(--font-display), 'Cormorant', Garamond, Georgia, serif;
+  --font-headline-md: var(--font-display), 'Cormorant', Garamond, Georgia, serif;
+  --font-headline-sm: var(--font-display), 'Cormorant', Garamond, Georgia, serif;
   --font-body-lg: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
   --font-body-md: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
   --font-label-caps: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
   --font-label-sm: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
-  /* Override Tailwind's generic families so `font-serif` italic accents use Bodoni and
+  /* Override Tailwind's generic families so `font-serif` italic accents use Cormorant and
      `font-sans` uses Jost */
-  --font-serif: var(--font-display), 'Didot', Georgia, serif;
+  --font-serif: var(--font-display), 'Cormorant', Garamond, Georgia, serif;
   --font-sans: var(--font-sans-body), 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* Premium type rules. Deliberately unlayered so they win over Tailwind's font-bold utilities
-   scattered through the components: Didone display type is set light (bold Bodoni reads heavy
-   and festive), and tracked caps labels sit at medium weight. */
+/* Brand type rules. Deliberately unlayered so they win over Tailwind's font-bold utilities
+   scattered through the components: Cormorant headings sit at medium weight (as in the brand
+   reference), and tracked caps labels at medium too. */
 .font-display-lg,
 .font-headline-md,
 .font-headline-sm,
 .font-serif {
-  font-weight: 400;
-  letter-spacing: -0.012em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-wrap: balance;
-  /* Cap the optical size: at Bodoni's display end the hairlines vanish on screens */
-  font-variation-settings: 'opsz' 28;
 }
 .font-label-caps {
   font-weight: 500;
 }
-/* The NAARZI masthead: a lower optical size and a touch more weight so its hairlines hold */
+/* The NAARZI masthead */
 .brand-wordmark {
-  font-weight: 500;
-  font-variation-settings: 'opsz' 14;
+  font-weight: 600;
 }
 
-/* Admin only: icons drawn a little lighter to sit with the thin Bodoni / Jost type */
+/* Admin only: icons drawn a little lighter to sit with the Cormorant / Jost type */
 .material-symbols-outlined {
   font-variation-settings: 'wght' 300, 'opsz' 20;
 }
