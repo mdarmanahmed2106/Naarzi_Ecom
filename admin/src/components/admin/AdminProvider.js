@@ -30,6 +30,8 @@ export default function AdminProvider({ children }) {
   const pathname = usePathname();
   const activeTab = pathname.split('/')[1] || 'products';
   const isOrderDetail = /^\/orders\/[^/]+/.test(pathname);
+  // /products/new and /products/<id> show the product form
+  const isProductForm = /^\/products\/[^/]+/.test(pathname);
 
   // Store Settings State
   const [settingsForm, setSettingsForm] = useState({ freeShippingThreshold: 0, shippingCost: 0 });
@@ -46,7 +48,6 @@ export default function AdminProvider({ children }) {
   }
 
   // Modals & Forms State
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('add'); // 'add' | 'edit'
   const [currentProductId, setCurrentProductId] = useState(null);
 
@@ -295,8 +296,8 @@ export default function AdminProvider({ children }) {
     }
   };
 
-  // Pre-fill form fields for Editing Product
-  const openEditModal = (product) => {
+  // Pre-fill the product form for editing (used by /products/<id>)
+  const loadProductIntoForm = (product) => {
     setModalMode('edit');
     setCurrentProductId(product._id);
     setName(product.name);
@@ -351,10 +352,10 @@ export default function AdminProvider({ children }) {
     
     setErrorMsg('');
     setSuccessMsg('');
-    setIsFormModalOpen(true);
   };
 
-  const openAddModal = () => {
+  // Blank product form with sensible defaults (used by /products/new)
+  const resetProductForm = () => {
     setModalMode('add');
     setCurrentProductId(null);
     setName('');
@@ -382,7 +383,6 @@ export default function AdminProvider({ children }) {
     setIsBestSeller(false);
     setErrorMsg('');
     setSuccessMsg('');
-    setIsFormModalOpen(true);
   };
 
   // Color Handlers
@@ -557,14 +557,14 @@ export default function AdminProvider({ children }) {
         response = await productsApi.create(payload);
         if (response.success) {
           setSuccessMsg('Product created successfully!');
-          setIsFormModalOpen(false);
+          router.push('/products');
           loadData();
         }
       } else {
         response = await productsApi.update(currentProductId, payload);
         if (response.success) {
           setSuccessMsg('Product updated successfully!');
-          setIsFormModalOpen(false);
+          router.push('/products');
           loadData();
         }
       }
@@ -1146,6 +1146,7 @@ export default function AdminProvider({ children }) {
   const value = {
     activeTab,
     isOrderDetail,
+    isProductForm,
     pathname,
     products,
     setProducts,
@@ -1173,8 +1174,6 @@ export default function AdminProvider({ children }) {
     setSavingSettings,
     searchTerm,
     setSearchTerm,
-    isFormModalOpen,
-    setIsFormModalOpen,
     modalMode,
     setModalMode,
     currentProductId,
@@ -1290,8 +1289,8 @@ export default function AdminProvider({ children }) {
     openStockEditModal,
     closeStockEditModal,
     handleSaveStock,
-    openEditModal,
-    openAddModal,
+    loadProductIntoForm,
+    resetProductForm,
     handleColorChange,
     handleAddColor,
     handleRemoveColor,

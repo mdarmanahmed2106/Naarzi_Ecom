@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { EmptyState } from '@/components/admin/shared';
 import { useAdmin } from '@/components/admin/AdminProvider';
 
 export default function ProductsPage() {
   const {
-    openEditModal,
     handleDeleteProduct,
     filteredProducts,
   } = useAdmin();
@@ -72,13 +72,13 @@ export default function ProductsPage() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-3">
-                        <button 
-                          onClick={() => openEditModal(p)}
-                          className="w-9 h-9 rounded-lg border border-outline-variant/40 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors cursor-pointer bg-transparent"
+                        <Link
+                          href={`/products/${p._id}`}
+                          className="w-9 h-9 rounded-lg border border-outline-variant/40 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-colors bg-transparent"
                           title="Edit product"
                         >
                           <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
+                        </Link>
                         <button 
                           onClick={() => handleDeleteProduct(p._id, p.name)}
                           className="w-9 h-9 rounded-lg border border-outline-variant/40 flex items-center justify-center text-on-surface-variant hover:text-error hover:border-error transition-colors cursor-pointer bg-transparent"
