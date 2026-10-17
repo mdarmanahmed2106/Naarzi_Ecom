@@ -11,6 +11,8 @@ import { useApp } from '@/context/AppContext';
 import { productsApi, reviewsApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import ProductImageZoom from '@/components/ProductImageZoom';
+import ImageLightbox from '@/components/ImageLightbox';
 
 export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
@@ -23,6 +25,8 @@ export default function ProductDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
   const [activeImage, setActiveImage] = useState(0);
+  // Index of the photo open in the full-screen viewer, or null when it's closed
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   // Layout & Interactive States matching mockups
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState('');
@@ -233,7 +237,13 @@ export default function ProductDetailPage({ params }) {
               {/* Mobile Swipeable Gallery */}
               <div className="md:hidden flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-6 px-6 gap-4 pb-4">
                 {currentColorVariant?.images?.map((img, index) => (
-                  <div key={index} className="w-full shrink-0 snap-center aspect-[3/4] rounded-xl overflow-hidden relative bg-surface-container">
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => setLightboxIndex(index)}
+                    aria-label={`Open ${product.name} photo ${index + 1} full screen`}
+                    className="block w-full shrink-0 snap-center aspect-[3/4] rounded-xl overflow-hidden relative bg-surface-container"
+                  >
                     {product.isOnSale && index === 0 && (
                       <div className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
                         SALE
@@ -244,25 +254,28 @@ export default function ProductDetailPage({ params }) {
                       alt={`${product.name} view ${index + 1}`} 
                       className="w-full h-full object-cover" 
                     />
-                  </div>
+                    <span aria-hidden="true" className="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-surface/90 inline-flex items-center justify-center text-on-surface">
+                      <Icon name="zoom_in" size="sm" />
+                    </span>
+                  </button>
                 ))}
               </div>
 
               {/* Desktop Gallery (Active + Thumbnails) */}
               <div className="hidden md:flex flex-row-reverse gap-4">
                 {/* Main Active Image */}
-                <div className="flex-1 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
+                <ProductImageZoom
+                  src={currentColorVariant?.images?.[activeImage]}
+                  alt={product.name}
+                  onOpen={() => setLightboxIndex(activeImage)}
+                  className="flex-1 aspect-[3/4] rounded-2xl shadow-sm bg-surface-container"
+                >
                   {product.isOnSale && (
-                    <div className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
-                        SALE
-                      </div>
+                    <span className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
+                      SALE
+                    </span>
                   )}
-                  <img 
-                    src={currentColorVariant?.images?.[activeImage]} 
-                    alt={`${product.name} active`} 
-                    className="w-full h-full object-cover transition-all duration-500" 
-                  />
-                </div>
+                </ProductImageZoom>
                 
                 {/* Gallery Thumbnails */}
                 {currentColorVariant?.images?.length > 1 && (
@@ -281,6 +294,15 @@ export default function ProductDetailPage({ params }) {
                   </div>
                 )}
               </div>
+
+              {lightboxIndex !== null && currentColorVariant?.images?.length > 0 && (
+                <ImageLightbox
+                  images={currentColorVariant.images}
+                  startIndex={lightboxIndex}
+                  alt={product.name}
+                  onClose={() => setLightboxIndex(null)}
+                />
+              )}
             </div>
 
             {/* Details & Action Column */}
