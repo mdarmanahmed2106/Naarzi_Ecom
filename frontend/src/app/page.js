@@ -19,6 +19,8 @@ import HighlightsStrip from '@/components/HighlightsStrip';
 import RevealFooter from '@/components/RevealFooter';
 import ReviewsSection from '@/components/ReviewsSection';
 import OccasionEdits from '@/components/OccasionEdits';
+import HeroCapsule from '@/components/HeroCapsule';
+import CapsuleBand from '@/components/CapsuleBand';
 
 // Horizontal Marquee Badge Component (e.g. SELLING FAST / STAFF PICK)
 function MarqueeBadge({ text }) {
@@ -146,28 +148,6 @@ function HomePageContent() {
   };
 
 
-  // Staggered load animation variants for Hero
-  const heroContainerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.12
-      }
-    }
-  };
-
-  const heroChildVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 25 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.65,
-        ease: [0.215, 0.61, 0.355, 1] // cubic easeOut
-      }
-    }
-  };
-
   // Scroll Triggered Fade-In Variants
   const scrollFadeInVariants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 30 },
@@ -235,81 +215,8 @@ function HomePageContent() {
     <div className="flex flex-col min-h-screen bg-surface">
       <Header />
 
-      {/* Hero Banner with Page Load Animations */}
-      <section className="sticky top-0 w-full h-dvh flex items-end md:items-center overflow-hidden z-0">
-        <div className="absolute inset-0 z-0">
-          <img
-            alt="Naarzi Resort Collection Hero"
-            className="w-full h-full object-cover object-[30%_center] md:object-center"
-            src="/hero_image.png"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-surface/90 via-surface/30 to-transparent hidden md:block"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/60 to-transparent md:hidden"></div>
-          <div
-            className="absolute inset-0 opacity-[0.04] pointer-events-none mix-blend-overlay"
-            style={{
-              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-            }}
-          />
-        </div>
-
-        <div className="relative z-10 w-full max-w-container-max mx-auto px-6 md:px-margin-desktop">
-          <motion.div
-            className="max-w-xl pb-40 md:pb-0 md:-translate-y-8"
-            initial="hidden"
-            animate="visible"
-            variants={heroContainerVariants}
-          >
-            <motion.div variants={heroChildVariants} className="w-12 h-px bg-primary/60 mb-5" />
-            <motion.span
-              variants={heroChildVariants}
-              className="font-label-caps text-[11px] text-primary tracking-[0.35em] block mb-5"
-            >
-              LAUNCH CAPSULE
-            </motion.span>
-            <motion.h1
-              variants={heroChildVariants}
-              className="font-display-lg text-[2.75rem] md:text-7xl text-on-surface mb-4 md:mb-6 leading-[1.02] tracking-[-0.02em]"
-            >
-              <span className="italic font-serif text-primary">Expression</span>,<br />Not Just Fashion
-            </motion.h1>
-            <motion.p
-              variants={heroChildVariants}
-              className="font-body-lg text-base md:text-lg font-light text-on-surface-variant mb-7 md:mb-9 max-w-md"
-            >
-              Wear Your Colour.<br />Feel the Vibe.
-            </motion.p>
-            <motion.div
-              variants={heroChildVariants}
-              className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-3 sm:gap-4"
-            >
-              <Link
-                href="/shop?tag=new-arrival"
-                className="w-full sm:w-auto px-4 sm:px-10 py-4 bg-primary text-white font-label-caps text-[11px] tracking-[0.18em] sm:tracking-[0.25em] uppercase hover:bg-primary-container transition-colors duration-300 cursor-pointer active:scale-[0.98] text-center"
-              >
-                Shop New Arrivals
-              </Link>
-              <Link
-                href="/shop?tag=sale"
-                className="w-full sm:w-auto px-4 sm:px-10 py-4 bg-surface/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none border border-primary/70 hover:bg-primary hover:text-white text-primary font-label-caps text-[11px] tracking-[0.18em] sm:tracking-[0.25em] uppercase transition-colors duration-300 cursor-pointer active:scale-[0.98] text-center"
-              >
-                Shop Sale
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Subtle Scroll Cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: shouldReduceMotion ? 0.6 : [0.4, 1, 0.4] }}
-          transition={shouldReduceMotion ? { duration: 0.4 } : { duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 hidden md:flex flex-col items-center gap-2"
-        >
-          <span className="font-label-caps text-[10px] text-on-surface-variant tracking-widest">SCROLL</span>
-          <div className="w-[1px] h-8 bg-on-surface-variant/40" />
-        </motion.div>
-      </section>
+      {/* Hero: launch capsule looks (from the brand reference) */}
+      <HeroCapsule />
 
       {/* Card + footer share one layer above the sticky hero; the footer sticks to the bottom inside it */}
       <div className="relative z-10 -mt-8 md:-mt-10">
@@ -471,6 +378,9 @@ function HomePageContent() {
 
           </div>
         </section>
+
+        {/* Launch capsule band (from the brand reference), right after the products */}
+        <CapsuleBand />
 
         {/* Shop by Occasion — editorial list with a photo that follows the active occasion */}
         <OccasionEdits products={products} />
