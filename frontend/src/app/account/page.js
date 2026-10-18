@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
@@ -672,8 +670,6 @@ export default function AccountDashboardPage() {
         )}
       </main>
 
-      <CartDrawer />
-      <AuthModal />
       <Toast toast={toast} onClose={dismissToast} />
       <Footer />
     </div>

@@ -9,6 +9,7 @@ import { promoBannersApi, productsApi, categoriesApi, couponsApi } from '@/lib/a
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 import { OCCASIONS } from '@/lib/occasions';
+import { lockPageScroll } from '@/lib/scrollLock';
 
 // Shown when the admin hasn't set any promo banners
 const ANNOUNCEMENT_FALLBACK = 'Join the list for capsule drops, private previews & 10% off your first order';
@@ -209,17 +210,7 @@ export default function Header() {
   // The desktop inline dropdown (lg+) isn't a full takeover, so it leaves scroll alone.
   useEffect(() => {
     const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 1024px)').matches;
-    if (searchOpen && !isDesktop) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
+    if (searchOpen && !isDesktop) return lockPageScroll();
   }, [searchOpen]);
 
   const closeSearch = () => {

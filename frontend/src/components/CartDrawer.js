@@ -8,14 +8,14 @@ import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
 import confettiAnimation from '../../public/animations/Confetti.json';
 import Icon from '@/components/Icon';
+import { lockPageScroll } from '@/lib/scrollLock';
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function CartDrawer() {
   const router = useRouter();
   const {
     user,
-    setIsAuthOpen,
-    setAuthModalTab,
+    requireLogin,
     cartItems,
     isCartOpen,
     setIsCartOpen,
@@ -83,17 +83,7 @@ export default function CartDrawer() {
   };
 
   React.useEffect(() => {
-    if (isCartOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
+    if (isCartOpen) return lockPageScroll();
   }, [isCartOpen]);
 
   if (!isCartOpen) return null;
@@ -374,8 +364,8 @@ export default function CartDrawer() {
               onClick={() => {
                 setIsCartOpen(false);
                 if (!user) {
-                  setAuthModalTab('login');
-                  setIsAuthOpen(true);
+                  // Back to the cart once they've logged in
+                  requireLogin(() => setIsCartOpen(true));
                   return;
                 }
                 router.push('/checkout');

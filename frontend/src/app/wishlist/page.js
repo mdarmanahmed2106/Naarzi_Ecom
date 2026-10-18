@@ -4,8 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
@@ -151,8 +149,6 @@ export default function WishlistPage() {
         )}
       </main>
 
-      <CartDrawer />
-      <AuthModal />
       <Footer />
     </div>
   );

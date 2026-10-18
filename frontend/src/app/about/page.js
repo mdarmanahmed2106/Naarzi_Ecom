@@ -1,7 +1,5 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import AboutContent from '@/components/about/AboutContent';
 
 export const metadata = {
@@ -16,8 +14,6 @@ export default function AboutPage() {
       <Header />
       <AboutContent />
       <Footer />
-      <CartDrawer />
-      <AuthModal />
     </div>
   );
 }

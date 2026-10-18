@@ -13,9 +13,8 @@ export default function ProductCard({ product, className = '' }) {
     removeFromWishlist, 
     setQuickBuyProduct, 
     setIsQuickBuyOpen, 
-    user, 
-    setIsAuthOpen, 
-    setAuthModalTab 
+    user,
+    requireLogin
   } = useApp();
 
   const [activeColorIdx, setActiveColorIdx] = useState(0);
@@ -78,8 +77,8 @@ export default function ProductCard({ product, className = '' }) {
                 e.preventDefault();
                 e.stopPropagation();
                 if (!user) {
-                  setAuthModalTab('login');
-                  setIsAuthOpen(true);
+                  // Save it to the wishlist once they've logged in
+                  requireLogin(() => addToWishlist(product._id, product.name));
                   return;
                 }
                 setIsPopping(true);
@@ -92,6 +91,7 @@ export default function ProductCard({ product, className = '' }) {
               }}
               className="absolute top-2.5 right-2.5 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
               {isPopping && (
                 <span className="absolute inset-0 rounded-full bg-primary/25 animate-pulse-ring pointer-events-none" />

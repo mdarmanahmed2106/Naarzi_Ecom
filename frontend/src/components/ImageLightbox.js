@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from './Icon';
+import { lockPageScroll } from '@/lib/scrollLock';
 
 const TAP_ZOOM = 2.5;
 const MAX_ZOOM = 4;
@@ -62,8 +63,7 @@ export default function ImageLightbox({ images, startIndex = 0, alt, onClose }) 
   // Scroll lock, keyboard controls and focus handling while open
   useEffect(() => {
     const prevFocus = document.activeElement;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlockScroll = lockPageScroll();
     closeRef.current?.focus();
     const onKey = (e) => {
       if (e.key === 'Escape') onClose();
@@ -73,7 +73,7 @@ export default function ImageLightbox({ images, startIndex = 0, alt, onClose }) 
     window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
+      unlockScroll();
       prevFocus?.focus?.();
     };
   }, [go, onClose]);

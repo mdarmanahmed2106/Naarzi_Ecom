@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import Icon from '@/components/Icon';
 import { SUPPORT_EMAIL, SUPPORT_HOURS } from '@/lib/faqContent';
 
@@ -106,8 +104,6 @@ export default function ContactPage() {
         </section>
       </main>
       <Footer />
-      <CartDrawer />
-      <AuthModal />
     </div>
   );
 }

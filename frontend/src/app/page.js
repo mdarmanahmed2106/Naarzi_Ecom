@@ -6,8 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
@@ -433,8 +431,6 @@ function HomePageContent() {
       </div> {/* Closing the card + footer layer */}
 
       {/* Global Modals / Overlay components */}
-      <CartDrawer />
-      <AuthModal />
     </div>
   );
 }

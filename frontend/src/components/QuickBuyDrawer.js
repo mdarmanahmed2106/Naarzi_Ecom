@@ -6,6 +6,7 @@ import { useApp } from '@/context/AppContext';
 import Icon from '@/components/Icon';
 import { getDefaultSize } from '@/lib/defaultSize';
 import { formatCurrency } from '@/lib/formatCurrency';
+import { lockPageScroll } from '@/lib/scrollLock';
 
 export default function QuickBuyDrawer() {
   const {
@@ -21,20 +22,12 @@ export default function QuickBuyDrawer() {
   // Lock body scroll when drawer is open
   useEffect(() => {
     if (isQuickBuyOpen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
       // Pre-select the first in-stock size (the only size, for single-size products)
       const currentSizes = quickBuyProduct?.colors?.[0]?.sizes || quickBuyProduct?.sizes || [];
       setSelectedSize(getDefaultSize(currentSizes));
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      setTimeout(() => setQuickBuyProduct(null), 300); // Clear product after animation
+      return lockPageScroll();
     }
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-    };
+    setTimeout(() => setQuickBuyProduct(null), 300); // Clear product after animation
   }, [isQuickBuyOpen, quickBuyProduct, setQuickBuyProduct]);
 
   if (!isQuickBuyOpen && !quickBuyProduct) return null;

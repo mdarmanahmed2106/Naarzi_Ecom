@@ -40,6 +40,27 @@ export function AppProvider({ children }) {
   }, []);
   const dismissToast = useCallback(() => setToast(null), []);
 
+  // Login that returns the customer to what they were doing: requireLogin(afterLogin) opens the
+  // login popup and remembers a step (reopen the cart, finish a wishlist tap...) that the popup
+  // runs via completeLogin() once the login succeeds. Closing the popup without logging in drops it.
+  const afterLoginRef = useRef(null);
+  const requireLogin = useCallback((afterLogin) => {
+    afterLoginRef.current = afterLogin || null;
+    setAuthModalTab('login');
+    setIsAuthOpen(true);
+  }, []);
+  const completeLogin = useCallback(() => {
+    const next = afterLoginRef.current;
+    afterLoginRef.current = null;
+    // Next tick, so the popup has closed before the cart (or whatever comes next) opens
+    if (next) setTimeout(next, 0);
+  }, []);
+  // A successful login has already taken the step (completeLogin runs as the popup closes),
+  // so whenever the popup is closed, anything still waiting was abandoned
+  useEffect(() => {
+    if (!isAuthOpen) afterLoginRef.current = null;
+  }, [isAuthOpen]);
+
   // Load store settings (shipping threshold, etc.) on mount
   useEffect(() => {
     async function loadSettings() {
@@ -368,6 +389,8 @@ export function AppProvider({ children }) {
         setQuickBuyProduct,
         settings,
         showToast,
+        requireLogin,
+        completeLogin,
       }}
     >
       {children}

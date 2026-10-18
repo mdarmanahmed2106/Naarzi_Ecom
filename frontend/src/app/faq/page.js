@@ -1,7 +1,5 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import FaqContent from '@/components/faq/FaqContent';
 import { getFaqGroups } from '@/lib/faqContent';
 
@@ -49,8 +47,6 @@ export default async function FaqPage() {
       <Header />
       <FaqContent groups={groups} />
       <Footer />
-      <CartDrawer />
-      <AuthModal />
     </div>
   );
 }

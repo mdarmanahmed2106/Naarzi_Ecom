@@ -22,6 +22,8 @@ export const metadata = {
 };
 
 import QuickBuyDrawer from "@/components/QuickBuyDrawer";
+import CartDrawer from "@/components/CartDrawer";
+import AuthModal from "@/components/AuthModal";
 
 export default function RootLayout({ children }) {
   return (
@@ -38,6 +40,9 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col bg-surface font-body-md text-on-surface overflow-x-clip">
         <AppProvider>
           {children}
+          {/* Site-wide overlays, mounted once so every page (shop, legal pages, 404...) has them */}
+          <CartDrawer />
+          <AuthModal />
           <QuickBuyDrawer />
         </AppProvider>
       </body>

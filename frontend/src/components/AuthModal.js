@@ -8,14 +8,16 @@ import { auth } from '@/lib/firebase';
 import { authApi } from '@/lib/api';
 import Link from 'next/link';
 import Icon from '@/components/Icon';
+import { lockPageScroll } from '@/lib/scrollLock';
 
 export default function AuthModal() {
-  const { isAuthOpen, setIsAuthOpen, setUser, showToast } = useApp();
+  const { isAuthOpen, setIsAuthOpen, setUser, showToast, completeLogin } = useApp();
 
   // New customers see this after the profile step (filled in or skipped)
   const finishNewAccount = () => {
     setIsAuthOpen(false);
     showToast('success', "You're in. Happy shopping.", 'Your Naarzi account is ready.', 3500);
+    completeLogin();
   };
   
   const [step, setStep] = useState('phone');
@@ -23,10 +25,9 @@ export default function AuthModal() {
   const [confirmationResult, setConfirmationResult] = useState(null);
 
   useEffect(() => {
+    let unlockScroll;
     if (isAuthOpen) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.overscrollBehavior = 'none';
-      document.documentElement.style.overflow = 'hidden';
+      unlockScroll = lockPageScroll();
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
           size: 'invisible',
@@ -35,9 +36,6 @@ export default function AuthModal() {
       setStep('phone');
       setPhone('');
     } else {
-      document.body.style.overflow = '';
-      document.body.style.overscrollBehavior = '';
-      document.documentElement.style.overflow = '';
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
@@ -45,9 +43,7 @@ export default function AuthModal() {
     }
 
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.overscrollBehavior = '';
-      document.documentElement.style.overflow = '';
+      unlockScroll?.();
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
@@ -76,6 +72,7 @@ export default function AuthModal() {
       setIsAuthOpen(false);
       const name = firstName(response.user);
       showToast('success', name ? `Welcome back, ${name}` : 'Welcome back', "You're logged in.", 3500);
+      completeLogin();
     }
   };
 

@@ -5,8 +5,6 @@ import { getDefaultSize } from '@/lib/defaultSize';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { productsApi, reviewsApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
@@ -18,7 +16,7 @@ export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
 
-  const { addToCart, user, setIsAuthOpen, setAuthModalTab, wishlistItems, addToWishlist, removeFromWishlist } = useApp();
+  const { addToCart, user, setIsAuthOpen, setAuthModalTab, requireLogin, wishlistItems, addToWishlist, removeFromWishlist } = useApp();
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -69,8 +67,8 @@ export default function ProductDetailPage({ params }) {
 
   const handleWishlistToggle = async () => {
     if (!user) {
-      setAuthModalTab('login');
-      setIsAuthOpen(true);
+      // Save it to the wishlist once they've logged in
+      requireLogin(() => addToWishlist(product._id, product.name));
       return;
     }
 
@@ -702,8 +700,6 @@ export default function ProductDetailPage({ params }) {
       </main>
 
       {/* Global Modals */}
-      <CartDrawer />
-      <AuthModal />
 
       <Footer />
     </div>

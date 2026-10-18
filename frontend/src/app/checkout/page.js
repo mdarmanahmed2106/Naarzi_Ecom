@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Lottie } from 'lottie-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 import { useApp } from '@/context/AppContext';
 import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
 import { loadRazorpayScript } from '@/lib/razorpay';
@@ -500,8 +498,6 @@ export default function CheckoutPage() {
           </div>
         </main>
         <Footer />
-        <CartDrawer />
-        <AuthModal />
       </div>
     );
   }
@@ -1103,8 +1099,6 @@ export default function CheckoutPage() {
         </div>
       </main>
 
-      <CartDrawer />
-      <AuthModal />
       {/* Mobile sticky pay bar: submits the checkout form */}
       {cartItems.length > 0 && (
         <div
