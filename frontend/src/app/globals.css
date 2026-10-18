@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* Screens where the homepage footer fits on one screen, so it can be revealed from under the page:
+   phones/tablets at least 760px tall (the stacked footer is ~700px), or desktop widths at
+   least 600px tall (the footer is ~510px there). Used by RevealFooter. */
+@custom-variant footer-reveal {
+  @media (min-height: 760px) {
+    @slot;
+  }
+  @media (min-width: 1024px) and (min-height: 600px) {
+    @slot;
+  }
+}
+
 @theme {
   /* Brand dusty-rose primary over a quiet palette of warm ivory and stone neutrals: the rose
      stays the one accent; everything around it is restrained. */
