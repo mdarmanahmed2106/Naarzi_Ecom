@@ -27,7 +27,7 @@ export default function Toast({ toast, onClose, duration = 6000 }) {
 
   return (
     <div
-      className="fixed z-[100] left-4 right-4 top-[5.5rem] sm:left-auto sm:right-6 sm:top-24 sm:w-[380px] pointer-events-none"
+      className="fixed z-[100] left-4 right-4 top-28 sm:left-auto sm:right-6 sm:top-[8.25rem] sm:w-[380px] pointer-events-none"
     >
       <div
         key={toast.id}

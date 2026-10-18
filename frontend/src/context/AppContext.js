@@ -1,7 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { authApi, wishlistApi, cartApi, settingsApi } from '@/lib/api';
+import Toast from '@/components/Toast';
+
+// First name for friendly messages; empty until the customer has given a real name
+export const firstName = (user) =>
+  user?.name && user.name !== 'New Customer' ? user.name.trim().split(/\s+/)[0] : '';
 
 const AppContext = createContext(null);
 
@@ -27,6 +32,13 @@ export function AppProvider({ children }) {
   const [settings, setSettings] = useState({ freeShippingThreshold: 999, shippingCost: 99 });
   const quantityDebounceRef = useRef(null);
   const hasSyncedRef = useRef(false);
+
+  // One site-wide toast (login, logout...), so a message survives the modal or menu closing
+  const [toast, setToast] = useState(null);
+  const showToast = useCallback((type, title, message, duration) => {
+    setToast({ id: Date.now(), type, title, message, duration });
+  }, []);
+  const dismissToast = useCallback(() => setToast(null), []);
 
   // Load store settings (shipping threshold, etc.) on mount
   useEffect(() => {
@@ -185,6 +197,7 @@ export function AppProvider({ children }) {
       setUser(null);
       saveCart([]); // clear local cart state AND localStorage
       hasSyncedRef.current = false; // reset sync-guard so a genuinely new login on this device syncs cleanly
+      showToast('info', "You've been logged out", 'See you again soon.', 3500);
     } catch (error) {
       console.error('Logout failed:', error.message);
     }
@@ -354,9 +367,11 @@ export function AppProvider({ children }) {
         quickBuyProduct,
         setQuickBuyProduct,
         settings,
+        showToast,
       }}
     >
       {children}
+      <Toast toast={toast} onClose={dismissToast} duration={toast?.duration} />
     </AppContext.Provider>
   );
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { useApp } from '@/context/AppContext';
+import { useApp, firstName } from '@/context/AppContext';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { authApi } from '@/lib/api';
@@ -10,7 +10,13 @@ import Link from 'next/link';
 import Icon from '@/components/Icon';
 
 export default function AuthModal() {
-  const { isAuthOpen, setIsAuthOpen, setUser } = useApp();
+  const { isAuthOpen, setIsAuthOpen, setUser, showToast } = useApp();
+
+  // New customers see this after the profile step (filled in or skipped)
+  const finishNewAccount = () => {
+    setIsAuthOpen(false);
+    showToast('success', "You're in. Happy shopping.", 'Your Naarzi account is ready.', 3500);
+  };
   
   const [step, setStep] = useState('phone');
   const [phone, setPhone] = useState('');
@@ -68,6 +74,8 @@ export default function AuthModal() {
     } else {
       setUser(response.user);
       setIsAuthOpen(false);
+      const name = firstName(response.user);
+      showToast('success', name ? `Welcome back, ${name}` : 'Welcome back', "You're logged in.", 3500);
     }
   };
 
@@ -119,8 +127,8 @@ export default function AuthModal() {
           )}
           {step === 'profile' && (
             <ProfileCompletionStep 
-              onComplete={() => setIsAuthOpen(false)} 
-              onSkip={() => setIsAuthOpen(false)} 
+              onComplete={finishNewAccount}
+              onSkip={finishNewAccount}
             />
           )}
         </div>
