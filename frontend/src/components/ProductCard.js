@@ -62,7 +62,7 @@ export default function ProductCard({ product, className = '' }) {
                 setQuickBuyProduct(product);
                 setIsQuickBuyOpen(true);
               }}
-              className="group/qb absolute bottom-3.5 right-3.5 h-9 min-w-9 px-[9px] bg-white/95 backdrop-blur-sm text-primary flex items-center justify-center product-quick-add cursor-pointer z-20"
+              className="group/qb absolute bottom-3.5 right-3.5 h-10 min-w-10 px-[10px] bg-white/95 backdrop-blur-sm text-primary flex items-center justify-center product-quick-add cursor-pointer z-20"
               aria-label="Quick buy"
             >
               <Icon name="shopping_bag" size="sm" className="flex-none" />
@@ -90,7 +90,7 @@ export default function ProductCard({ product, className = '' }) {
                   await addToWishlist(product._id, product.name);
                 }
               }}
-              className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
+              className="absolute top-2.5 right-2.5 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm text-primary flex items-center justify-center hover:bg-white transition-all duration-200 z-20 cursor-pointer overflow-visible"
               title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
               {isPopping && (
@@ -106,12 +106,12 @@ export default function ProductCard({ product, className = '' }) {
 
             {/* Floating Badges */}
             {product.isOnSale && (
-              <span className="absolute top-3.5 left-3.5 bg-surface/90 backdrop-blur-sm text-sale text-[9px] font-label-caps tracking-[0.3em] px-2.5 py-1 z-10">
+              <span className="absolute top-3.5 left-3.5 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-2.5 py-1 z-10">
                 SALE
               </span>
             )}
             {!product.isOnSale && product.tags && product.tags.length > 0 && (
-              <span className="absolute top-3.5 left-3.5 bg-surface/90 backdrop-blur-sm text-primary text-[9px] font-label-caps tracking-[0.3em] px-2.5 py-1 z-10">
+              <span className="absolute top-3.5 left-3.5 bg-surface/90 backdrop-blur-sm text-primary text-[10px] font-label-caps tracking-[0.3em] px-2.5 py-1 z-10">
                 {product.tags[0].toUpperCase()}
               </span>
             )}

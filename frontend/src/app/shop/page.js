@@ -321,7 +321,7 @@ function ShopContent() {
               <select
                 value={activeSort}
                 onChange={(e) => updateFilters({ sort: e.target.value })}
-                className="text-sm border-none focus:outline-none cursor-pointer bg-transparent font-body-md text-primary font-medium"
+                className="min-h-10 text-sm border-none focus:outline-none cursor-pointer bg-transparent font-body-md text-primary font-medium"
               >
                 <option value="newest">Newest</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -336,7 +336,7 @@ function ShopContent() {
             <select
               value={activeSort}
               onChange={(e) => updateFilters({ sort: e.target.value })}
-              className="text-sm border-none focus:outline-none cursor-pointer bg-transparent font-body-md text-primary font-medium"
+              className="min-h-10 text-sm border-none focus:outline-none cursor-pointer bg-transparent font-body-md text-primary font-medium"
             >
               <option value="newest">Newest</option>
               <option value="price-asc">Price: Low - High</option>

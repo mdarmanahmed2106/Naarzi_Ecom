@@ -215,8 +215,8 @@ export default function ProductDetailPage({ params }) {
         <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop pb-20">
           
           {/* Breadcrumb Navigation */}
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-label-caps font-label-caps text-on-surface-variant mb-8 text-[10px]">
-            <Link href="/" className="hover:text-primary transition-colors">HOME</Link>
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-2 text-label-caps font-label-caps text-on-surface-variant mb-6 text-[11px]">
+            <Link href="/" className="inline-flex items-center min-h-9 hover:text-primary transition-colors">HOME</Link>
             <span>/</span>
             {product.category && (
               <>
@@ -366,7 +366,7 @@ export default function ProductDetailPage({ params }) {
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">SIZE</span>
-                  <button className="font-label-caps text-xs text-on-surface-variant underline underline-offset-4 hover:text-primary transition-colors cursor-pointer">
+                  <button className="inline-flex items-center min-h-10 font-label-caps text-xs text-on-surface-variant underline underline-offset-4 hover:text-primary transition-colors cursor-pointer">
                     Size Guide
                   </button>
                 </div>

@@ -134,7 +134,7 @@ export default function ScrollStorytellingSection() {
                 <div className="pt-2">
                   <Link
                     href={story.link}
-                    className="inline-flex items-center justify-center px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center justify-center min-h-11 px-7 py-3.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-xs tracking-[0.18em] uppercase font-bold rounded-[6px] shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 active:scale-95 cursor-pointer"
                   >
                     {story.ctaText}
                   </Link>
@@ -283,7 +283,7 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
           <div className="pt-1">
             <Link
               href={story.link}
-              className="inline-flex items-center justify-center px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px] active:scale-95 transition-transform"
+              className="inline-flex items-center justify-center min-h-11 px-6 py-3 bg-[var(--color-primary)] hover:bg-[var(--color-primary-container)] text-white font-label-caps text-[11px] tracking-widest uppercase font-bold rounded-[6px] active:scale-95 transition-transform"
             >
               {story.ctaText}
             </Link>

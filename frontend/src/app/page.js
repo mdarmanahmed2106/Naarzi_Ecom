@@ -274,7 +274,7 @@ function HomePageContent() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/70 transition-all duration-300"></div>
                 <motion.div variants={categoryTextVariants} className="absolute bottom-4 left-4 right-4 md:bottom-8 md:left-8 md:right-8 text-white">
                 <div className="category-tile-text">
-                  <span className="font-label-caps text-[8px] md:text-[9px] text-white/70 tracking-[0.3em] uppercase block mb-1 md:mb-2">
+                  <span className="font-label-caps text-[10px] text-white/75 tracking-[0.25em] uppercase block mb-1 md:mb-2">
                     {item.eyebrow}
                   </span>
                   <h3 className="font-display-lg text-xl md:text-[1.9rem] leading-tight text-white md:mb-2">

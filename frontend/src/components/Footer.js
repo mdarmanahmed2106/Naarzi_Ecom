@@ -24,7 +24,56 @@ const SOCIALS = [
   { label: 'Naarzi WhatsApp', href: 'https://wa.me', path: 'M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z' },
 ];
 
-const PAYMENT_METHODS = ['UPI', 'VISA', 'Mastercard', 'RuPay', 'Netbanking'];
+// Simplified marks in each network's own colours, shown beside its name. Visa's mark is its name,
+// so it shows the wordmark alone; RuPay's arrow sits after the name, as in its logo.
+const PAYMENT_METHODS = [
+  {
+    name: 'UPI',
+    logo: (
+      <svg viewBox="0 0 20 16" className="h-3.5 w-auto" aria-hidden="true">
+        <path d="M4 1l7 7-7 7z" fill="#097939" />
+        <path d="M9 1l7 7-7 7z" fill="#ED752E" />
+      </svg>
+    ),
+  },
+  {
+    name: 'Visa',
+    wordmark: true,
+    logo: (
+      <svg viewBox="0 0 34 12" className="h-3 w-auto" aria-hidden="true">
+        <text x="0" y="10.5" fill="#1A1F71" fontSize="12.5" fontWeight="800" fontStyle="italic" fontFamily="Arial, Helvetica, sans-serif" letterSpacing="0.3">VISA</text>
+      </svg>
+    ),
+  },
+  {
+    name: 'Mastercard',
+    logo: (
+      <svg viewBox="0 0 26 16" className="h-3.5 w-auto" aria-hidden="true">
+        <circle cx="8" cy="8" r="8" fill="#EB001B" />
+        <circle cx="18" cy="8" r="8" fill="#F79E1B" />
+        <path d="M13 1.8a8 8 0 0 1 0 12.4a8 8 0 0 1 0-12.4z" fill="#FF5F00" />
+      </svg>
+    ),
+  },
+  {
+    name: 'RuPay',
+    logoAfter: true,
+    logo: (
+      <svg viewBox="0 0 14 16" className="h-3.5 w-auto" aria-hidden="true">
+        <path d="M2 1l7 7-7 7z" fill="#F58220" />
+        <path d="M6 3.5l4.5 4.5L6 12.5z" fill="#00A651" />
+      </svg>
+    ),
+  },
+  {
+    name: 'Netbanking',
+    logo: (
+      <svg viewBox="0 0 24 24" className="h-3.5 w-auto" fill="currentColor" aria-hidden="true">
+        <path d="M12 2 2 7v2h20V7L12 2zM4 11v7h3v-7H4zm6.5 0v7h3v-7h-3zM17 11v7h3v-7h-3zM2 20v2h20v-2H2z" />
+      </svg>
+    ),
+  },
+];
 
 export default function Footer() {
   const [email, setEmail] = React.useState('');
@@ -44,7 +93,7 @@ export default function Footer() {
   // One screen tall (minus the 80px header); the wordmark absorbs whatever space is left
   return (
     <footer className="bg-primary-container text-surface w-full mt-auto">
-      <div className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop pt-6 md:pt-12 pb-4 md:pb-5 flex flex-col gap-5 md:gap-8 h-[calc(100svh-5rem)] min-h-[32rem]">
+      <div className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop pt-6 md:pt-12 pb-4 md:pb-5 flex flex-col gap-5 md:gap-8 min-h-[max(32rem,calc(100svh-5rem))]">
 
         {/* ── Top row: about · help · company · newsletter ── */}
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-5 md:gap-y-7 lg:gap-10">
@@ -53,17 +102,17 @@ export default function Footer() {
               Contemporary, colour-led ready-to-wear, turning simple fabrics into vibrant stories. Not fashion. Expression.
             </p>
             <p className="text-xs text-surface/70">
-              <a href="mailto:support@naarzi.com" className="underline underline-offset-2 hover:text-surface transition-colors">support@naarzi.com</a>
+              <a href="mailto:support@naarzi.com" className="inline-flex items-center min-h-9 md:min-h-0 underline underline-offset-2 hover:text-surface transition-colors">support@naarzi.com</a>
               {' '}· Mon – Sat, 10am – 7pm IST
             </p>
           </div>
 
           <nav aria-label="Help" className="lg:col-span-2 lg:col-start-6">
             <h4 className="font-label-caps text-xs text-surface font-bold tracking-widest uppercase mb-2 md:mb-4">Help</h4>
-            <ul className="space-y-1.5 md:space-y-2.5">
+            <ul className="md:space-y-2.5">
               {HELP_LINKS.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm md:text-[15px] text-surface/80 hover:text-surface transition-colors">
+                  <Link href={link.href} className="inline-flex items-center min-h-9 md:min-h-0 text-sm md:text-[15px] text-surface/80 hover:text-surface transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -73,10 +122,10 @@ export default function Footer() {
 
           <nav aria-label="Company" className="lg:col-span-2 lg:col-start-8">
             <h4 className="font-label-caps text-xs text-surface font-bold tracking-widest uppercase mb-2 md:mb-4">Company</h4>
-            <ul className="space-y-1.5 md:space-y-2.5">
+            <ul className="md:space-y-2.5">
               {COMPANY_LINKS.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-sm md:text-[15px] text-surface/80 hover:text-surface transition-colors">
+                  <Link href={link.href} className="inline-flex items-center min-h-9 md:min-h-0 text-sm md:text-[15px] text-surface/80 hover:text-surface transition-colors">
                     {link.label}
                   </Link>
                 </li>
@@ -86,10 +135,10 @@ export default function Footer() {
 
           <div className="col-span-2 lg:col-span-3 lg:col-start-10">
             <h4 className="font-display-lg text-lg md:text-2xl font-bold leading-tight uppercase tracking-wide">
-              Sign up for offers &amp; get 10% off
+              Be first to the next drop.
             </h4>
             <p className="hidden sm:block text-sm text-surface/80 leading-relaxed mt-2">
-              Join the circle for capsule drops, private previews and 10% off your first order.
+              Join for capsule drops, private previews, and 10% off your first order.
             </p>
             <form
               onSubmit={handleSubscribe}
@@ -108,7 +157,7 @@ export default function Footer() {
               <button
                 type="submit"
                 aria-label="Subscribe"
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-surface hover:bg-surface/15 transition-colors cursor-pointer flex-none"
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-surface hover:bg-surface/15 transition-colors cursor-pointer flex-none"
               >
                 <Icon name={isSubscribed ? 'check' : 'arrow_forward'} size="md" className={isSubscribed ? 'text-green-300' : ''} />
               </button>
@@ -156,7 +205,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={s.label}
-                className="w-9 h-9 rounded-full bg-surface/10 hover:bg-surface/25 flex items-center justify-center text-surface transition-colors"
+                className="w-11 h-11 rounded-full bg-surface/10 hover:bg-surface/25 flex items-center justify-center text-surface transition-colors"
               >
                 <svg className="w-[18px] h-[18px] fill-current" viewBox="0 0 24 24">
                   <path d={s.path} />
@@ -166,22 +215,24 @@ export default function Footer() {
           </div>
 
           <div className="text-center space-y-1 lg:space-y-1.5 order-last lg:order-none">
-            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] font-label-caps tracking-wide text-surface/75">
-              <Link href="/terms" className="hover:text-surface transition-colors">Terms</Link>
-              <Link href="/privacy" className="hover:text-surface transition-colors">Privacy</Link>
-              <Link href="/faq" className="hover:text-surface transition-colors">Shipping &amp; Returns</Link>
-              <Link href="/contact" className="hover:text-surface transition-colors">Help</Link>
+            <div className="flex flex-wrap justify-center gap-x-2 text-[11px] font-label-caps tracking-wide text-surface/75">
+              <Link href="/terms" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Terms</Link>
+              <Link href="/privacy" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Privacy</Link>
+              <Link href="/faq" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Shipping &amp; Returns</Link>
+              <Link href="/contact" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Help</Link>
             </div>
             <p className="text-xs text-surface/70">© {new Date().getFullYear()} Naarzi. All rights reserved.</p>
           </div>
 
           <ul aria-label="Accepted payment methods" className="flex flex-wrap justify-center lg:justify-end gap-1.5 lg:justify-self-end">
-            {PAYMENT_METHODS.map((m) => (
+            {PAYMENT_METHODS.map(({ name, logo, wordmark, logoAfter }) => (
               <li
-                key={m}
-                className="px-2.5 py-1 rounded-md bg-surface text-primary text-[10px] font-bold tracking-wide leading-none"
+                key={name}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-surface text-primary text-[11px] font-bold tracking-wide leading-none"
               >
-                {m}
+                {!logoAfter && logo}
+                <span className={wordmark ? 'sr-only' : undefined}>{name}</span>
+                {logoAfter && logo}
               </li>
             ))}
           </ul>

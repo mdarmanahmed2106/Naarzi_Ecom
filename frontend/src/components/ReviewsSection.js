@@ -206,7 +206,7 @@ export default function ReviewsSection() {
                   aria-selected={i === active}
                   aria-label={`Review by ${r.author}`}
                   onClick={() => goTo(i)}
-                  className="group flex-1 py-2 cursor-pointer"
+                  className="group flex-1 py-4 cursor-pointer"
                 >
                   <span className="block h-[3px] rounded-full bg-outline-variant/50 overflow-hidden">
                     {i < active && <span className="block h-full w-full bg-primary/60" />}

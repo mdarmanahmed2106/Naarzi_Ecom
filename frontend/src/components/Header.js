@@ -537,24 +537,26 @@ export default function Header() {
         
         <div className="flex-1 overflow-y-auto py-6 px-6 flex flex-col gap-6">
           {/* Main Links */}
-          <nav className="flex flex-col gap-6">
+          <nav className="flex flex-col gap-2">
             <div>
-              <div 
-                className="flex items-center justify-between cursor-pointer font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest"
+              <button
+                type="button"
+                aria-expanded={mobileApparelOpen}
+                className="w-full min-h-11 flex items-center justify-between cursor-pointer font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest"
                 onClick={() => setMobileApparelOpen(!mobileApparelOpen)}
               >
                 <span>APPAREL</span>
                 <Icon name="expand_more" size="md" className="transition-transform duration-300" style={{ transform: mobileApparelOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-              </div>
-              <div className={`overflow-hidden transition-all duration-300 ${mobileApparelOpen ? 'max-h-[500px] mt-4' : 'max-h-0'}`}>
-                <ul className="space-y-4 pl-4 text-sm text-on-surface-variant font-medium">
+              </button>
+              <div className={`overflow-hidden transition-all duration-300 ${mobileApparelOpen ? 'max-h-[500px] mt-1' : 'max-h-0'}`}>
+                <ul className="pl-4 text-sm text-on-surface-variant font-medium">
                   {navCategories.length > 0 ? (
                     navCategories.map((cat) => (
                       <li key={cat._id}>
                         <Link
                           href={`/shop?category=${cat.slug}`}
                           onClick={() => setIsMobileMenuOpen(false)}
-                          className="hover:text-primary transition-colors block"
+                          className="hover:text-primary transition-colors flex items-center min-h-11"
                         >
                           {cat.name}
                         </Link>
@@ -566,16 +568,16 @@ export default function Header() {
                       <li className="h-4 w-24 bg-surface-container rounded animate-pulse" />
                     </>
                   )}
-                  <li><Link href="/shop?tag=trending" onClick={() => setIsMobileMenuOpen(false)}>Trending</Link></li>
-                  <li><Link href="/shop?category=apparel" onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-primary">Shop All Apparel</Link></li>
+                  <li><Link href="/shop?tag=trending" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors flex items-center min-h-11">Trending</Link></li>
+                  <li><Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-primary flex items-center min-h-11">Shop All Apparel</Link></li>
                 </ul>
               </div>
             </div>
-            <Link href="/shop?tag=new-arrival" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest">
+            <Link href="/shop?tag=new-arrival" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-on-surface hover:text-primary transition-colors font-bold tracking-widest flex items-center min-h-11">
               NEW ARRIVAL
             </Link>
 
-            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-sale w-fit font-bold tracking-widest hover:opacity-70 transition-opacity">
+            <Link href="/shop?tag=sale" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-sm text-sale w-fit font-bold tracking-widest hover:opacity-70 transition-opacity flex items-center min-h-11">
               SALE
             </Link>
           </nav>
@@ -583,20 +585,20 @@ export default function Header() {
           <hr className="border-outline-variant/30" />
           
           {/* Secondary Links */}
-          <nav className="flex flex-col gap-4">
-            <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">ABOUT US</Link>
+          <nav className="flex flex-col">
+            <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider flex items-center min-h-11">ABOUT US</Link>
 
-            <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">FAQ</Link>
-            <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider">CONTACT</Link>
+            <Link href="/faq" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider flex items-center min-h-11">FAQ</Link>
+            <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="font-label-caps text-xs text-on-surface-variant hover:text-primary transition-colors tracking-wider flex items-center min-h-11">CONTACT</Link>
           </nav>
         </div>
         
-        <div className="p-6 border-t border-outline-variant/30 bg-surface-container/30 flex flex-col gap-4">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setSearchOpen(true); }}>
+        <div className="p-6 border-t border-outline-variant/30 bg-surface-container/30 flex flex-col gap-1">
+          <div className="flex items-center gap-3 min-h-11 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setSearchOpen(true); }}>
             <Icon name="search" size="lg" className="text-on-surface-variant" />
             <span className="font-label-caps text-xs font-bold">SEARCH</span>
           </div>
-          <Link href="/wishlist" className="flex items-center justify-between cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
+          <Link href="/wishlist" className="flex items-center justify-between min-h-11 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
             <div className="flex items-center gap-3">
               <Icon name="favorite" size="lg" className="text-on-surface-variant" />
               <span className="font-label-caps text-xs font-bold">MY WISHLIST</span>
@@ -609,17 +611,17 @@ export default function Header() {
           </Link>
           {user ? (
             <>
-              <Link href="/account" className="flex items-center gap-3 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link href="/account" className="flex items-center gap-3 min-h-11 cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
                 <Icon name="person" size="lg" className="text-on-surface-variant" />
                 <span className="font-label-caps text-xs font-bold">MY ACCOUNT</span>
               </Link>
-              <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); logout(); }}>
+              <div className="flex items-center gap-3 min-h-11 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); logout(); }}>
                 <Icon name="logout" size="lg" className="text-on-surface-variant" />
                 <span className="font-label-caps text-xs font-bold">LOGOUT</span>
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setAuthModalTab('login'); setIsAuthOpen(true); }}>
+            <div className="flex items-center gap-3 min-h-11 cursor-pointer" onClick={() => { setIsMobileMenuOpen(false); setAuthModalTab('login'); setIsAuthOpen(true); }}>
               <Icon name="person" size="lg" className="text-on-surface-variant" />
               <span className="font-label-caps text-xs font-bold">LOGIN / REGISTER</span>
             </div>
