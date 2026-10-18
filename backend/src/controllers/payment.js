@@ -309,7 +309,7 @@ exports.handleWebhook = async (req, res, next) => {
     res.status(200).json({ success: true, status: 'ok' });
   } catch (error) {
     console.error('Webhook Error:', error);
-    // Return 500 to tell Razorpay to retry later, or just log
-    res.status(500).json({ success: false, error: error.message });
+    // Return 500 so Razorpay retries later; the details stay in the log above, not the response
+    res.status(500).json({ success: false, message: 'Webhook processing failed' });
   }
 };

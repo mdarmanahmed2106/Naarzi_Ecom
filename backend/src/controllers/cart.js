@@ -32,7 +32,7 @@ exports.getCart = async (req, res, next) => {
     cart = await populateCart(cart);
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -67,7 +67,7 @@ exports.addItem = async (req, res, next) => {
     cart = await populateCart(cart);
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -96,7 +96,7 @@ exports.removeItem = async (req, res, next) => {
     
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -112,7 +112,7 @@ exports.clearCart = async (req, res, next) => {
     }
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
@@ -160,6 +160,6 @@ exports.syncCart = async (req, res, next) => {
     cart = await populateCart(cart);
     res.status(200).json({ success: true, data: cart });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

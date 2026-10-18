@@ -76,10 +76,10 @@ router.post(
       });
     } catch (error) {
       console.error('Image Upload Error:', error);
+      // Cloudinary's error details stay in the log above, not the response
       res.status(500).json({
         success: false,
-        message: 'Image upload failed',
-        error: error.message || error
+        message: 'Image upload failed'
       });
     }
   }
