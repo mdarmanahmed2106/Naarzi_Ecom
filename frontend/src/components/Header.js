@@ -509,14 +509,6 @@ export default function Header() {
                   </Link>
                 ))}
               </div>
-
-              <Link href="/shop?tag=new-arrival" onClick={() => setActiveMegaMenu(null)} className="ml-auto flex gap-5 items-center text-on-surface hover:text-primary transition-colors">
-                <img src="/hero/crimson-ruffle-sleeve-kaftan.jpg" alt="Crimson kaftan with tiered ruffle sleeves" className="w-[132px] h-[164px] object-cover rounded-t-full" />
-                <span className="flex flex-col gap-1.5">
-                  <span className={megaLabelClass}>Launch Capsule</span>
-                  <span className="font-display-lg text-[1.6rem] leading-[1.1]">Crimson<br />Ruffle-Sleeve Kaftan</span>
-                </span>
-              </Link>
             </div>
           </div>
         )}
