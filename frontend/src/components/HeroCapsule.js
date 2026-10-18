@@ -98,16 +98,17 @@ export default function HeroCapsule() {
     <section
       aria-roledescription="carousel"
       aria-label="Launch capsule looks"
-      // Pinned just below the sticky header (64px, 80px on desktop) so the page content can slide up over it. The photo
-      // and heading also scale with screen height, so the hero fits under the promo bars on load.
-      className="sticky top-16 lg:top-20 z-0 w-full h-[calc(100dvh-4rem)] lg:h-[calc(100dvh-5rem)] overflow-hidden transition-colors duration-900 ease-out"
+      // Desktop: pinned just below the sticky header so the page content slides up over it; the photo and heading
+      // scale with screen height so it fits under the promo bars on load. Phones / portrait tablets: a normal section
+      // sized by its content, so short screens and landscape never squeeze the photo away.
+      className="relative lg:sticky lg:top-20 z-0 w-full lg:h-[calc(100dvh-5rem)] overflow-hidden transition-colors duration-900 ease-out"
       style={{ backgroundColor: current.bg }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <div className="h-full max-w-container-max mx-auto px-6 md:px-margin-desktop pt-8 pb-14 lg:py-10 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10">
+      <div className="lg:h-full max-w-container-max mx-auto px-6 md:px-margin-desktop pt-8 pb-16 lg:py-10 flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-10">
         {/* Copy */}
         <motion.div
           className="lg:flex-1 lg:max-w-[640px] flex flex-col gap-4 lg:gap-[clamp(1rem,3dvh,1.75rem)] shrink-0"
@@ -156,12 +157,12 @@ export default function HeroCapsule() {
 
         {/* Arched photo */}
         <motion.div
-          className="flex-1 min-h-0 flex flex-col lg:items-center lg:justify-center"
+          className="lg:flex-1 lg:min-h-0 flex flex-col lg:items-center lg:justify-center"
           initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: EASE, delay: reduce ? 0 : 0.25 }}
         >
-          <div className="relative flex-1 min-h-0 lg:flex-none lg:h-[min(640px,calc(100dvh-18rem))] aspect-[25/32] max-w-full mx-auto lg:mx-0">
+          <div className="relative w-[min(78vw,360px)] lg:w-auto lg:h-[min(640px,calc(100dvh-18rem))] aspect-[25/32] mx-auto lg:mx-0">
             {/* Gold offset frame */}
             <div aria-hidden="true" className="absolute left-3.5 top-3.5 -right-3.5 -bottom-3.5 lg:left-[22px] lg:top-[22px] lg:-right-[22px] lg:-bottom-[22px] border border-accent-gold rounded-t-full" />
             <div className="absolute inset-0 rounded-t-full overflow-hidden bg-surface-container">
