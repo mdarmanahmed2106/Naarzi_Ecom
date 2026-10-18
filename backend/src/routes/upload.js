@@ -15,7 +15,9 @@ const upload = multer({
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only images are allowed.'), false);
+      const err = new Error('Invalid file type. Only images are allowed.');
+      err.statusCode = 400;
+      cb(err, false);
     }
   }
 });

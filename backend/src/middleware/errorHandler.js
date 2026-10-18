@@ -1,11 +1,10 @@
+// Stack traces and raw server-error messages are only shown when NODE_ENV is explicitly
+// 'development'. Opt-in, so a host that leaves NODE_ENV unset never leaks them to visitors.
+const isDev = process.env.NODE_ENV === 'development';
+
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
-
-  // Log for development
-  if (process.env.NODE_ENV !== 'production') {
-    console.error(err);
-  }
 
   // Mongoose Bad ObjectId
   if (err.name === 'CastError') {
@@ -26,6 +25,11 @@ const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 400 };
   }
 
+  // Upload errors (file too large, too many files...) are the client's to fix
+  if (err.name === 'MulterError') {
+    error = { message: err.code === 'LIMIT_FILE_SIZE' ? 'Image is too large (max 5MB).' : err.message, statusCode: 400 };
+  }
+
   // JWT Errors
   if (err.name === 'JsonWebTokenError') {
     error = { message: 'Not authorized, invalid token', statusCode: 401 };
@@ -34,13 +38,24 @@ const errorHandler = (err, req, res, next) => {
     error = { message: 'Not authorized, token expired', statusCode: 401 };
   }
 
-  const statusCode = error.statusCode || err.statusCode || 500;
-  const message = error.message || 'Server Error';
+  // Body-parser and the router mark client errors with `status` rather than `statusCode`
+  const statusCode = error.statusCode || err.statusCode || err.status || 500;
+
+  // Always log on the server (Render logs): full stack for real failures, one line for client errors.
+  // The URL is passed as an argument, never in the format string, so a "%f" in it can't garble the log.
+  if (statusCode >= 500) {
+    console.error('%s %s ->', req.method, req.originalUrl, err);
+  } else {
+    console.warn('%s %s -> %d %s', req.method, req.originalUrl, statusCode, error.message);
+  }
+
+  // Client errors (4xx) keep their message; unexpected failures don't expose internals
+  const message = statusCode >= 500 && !isDev ? 'Server Error' : error.message || 'Server Error';
 
   res.status(statusCode).json({
     success: false,
     message,
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack })
+    ...(isDev && { stack: err.stack })
   });
 };
 

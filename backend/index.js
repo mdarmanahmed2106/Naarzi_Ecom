@@ -7,6 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const connectDB = require('./src/config/db');
 const errorHandler = require('./src/middleware/errorHandler');
 const { apiLimiter } = require('./src/middleware/rateLimiter');
+const { isAllowedOrigin } = require('./src/config/origins');
 
 // Load environment variables
 dotenv.config();
@@ -38,22 +39,6 @@ app.set('trust proxy', 1);
 // Set security headers
 app.use(helmet());
 
-// Private LAN IP ranges (RFC 1918), used to allow same-network devices (phones, other
-// machines) to reach this dev server without hardcoding a specific IP that goes stale.
-const isPrivateLanOrigin = (origin) => /^http:\/\/(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+):\d+$/.test(origin);
-
-// Origins of our own storefront and admin. CLIENT_URL / ADMIN_CLIENT_URL may each list several
-// origins, comma-separated (e.g. https://naarzi.com,https://www.naarzi.com,https://naarzi-shop.vercel.app)
-const isAllowedOrigin = (origin) => {
-  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) return true;
-  if (process.env.NODE_ENV === 'development' && isPrivateLanOrigin(origin)) return true;
-  const allowedOrigins = [
-    process.env.CLIENT_URL || 'http://localhost:3000',
-    process.env.ADMIN_CLIENT_URL || 'http://localhost:3007'
-  ].flatMap((list) => list.split(',').map((o) => o.trim().replace(/[/]+$/, '')));
-  return allowedOrigins.includes(origin);
-};
-
 // Enable CORS
 app.use(
   cors({
@@ -61,7 +46,9 @@ app.use(
       if (!origin || isAllowedOrigin(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        const err = new Error('Not allowed by CORS');
+        err.statusCode = 403;
+        callback(err);
       }
     },
     credentials: true

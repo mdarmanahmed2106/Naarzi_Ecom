@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { isAdminOrigin } = require('../config/origins');
 
 // Verifies a JWT and returns its user, or null if the user is gone or the token was revoked
 // (its version no longer matches the user's tokenVersion, e.g. after logout). Tokens issued
@@ -11,19 +12,22 @@ const userFromToken = async (token) => {
   return user;
 };
 
-const requireAuth = async (req, res, next) => {
-  let token;
+// Which credential a request is authenticated with. The Bearer token comes first: it is the one
+// the calling app holds itself. Otherwise the cookie belonging to the calling app is used:
+// admin_token only for requests from the admin site, token for everything else. Without that
+// split, a device logged into the admin would browse the storefront as the admin account.
+const tokenFromRequest = (req) => {
+  const { authorization } = req.headers;
+  if (authorization && authorization.startsWith('Bearer ')) {
+    const bearer = authorization.split(' ')[1];
+    if (bearer && bearer !== 'null' && bearer !== 'undefined') return bearer;
+  }
+  const cookies = req.cookies || {};
+  return isAdminOrigin(req.headers.origin) ? cookies.admin_token : cookies.token;
+};
 
-  // Read token from httpOnly cookie
-  if (req.cookies && req.cookies.admin_token) {
-    token = req.cookies.admin_token;
-  } else if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
-  }
-  // Fallback to Bearer token in headers (useful for testing API)
-  else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
+const requireAuth = async (req, res, next) => {
+  const token = tokenFromRequest(req);
 
   if (!token) {
     return res.status(401).json({
@@ -65,12 +69,7 @@ const requireAdmin = (req, res, next) => {
 };
 
 const optionalAuth = async (req, res, next) => {
-  let token;
-  if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
-  } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
+  const token = tokenFromRequest(req);
 
   if (token) {
     try {
@@ -89,5 +88,6 @@ module.exports = {
   requireAuth,
   requireAdmin,
   optionalAuth,
-  userFromToken
+  userFromToken,
+  tokenFromRequest
 };
