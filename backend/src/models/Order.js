@@ -118,7 +118,7 @@ const orderSchema = new mongoose.Schema({
     default: null
   },
   // Set (atomically) the moment this order's reserved stock is returned, so stock can only
-  // ever be released once — whichever of cancel / admin cancel / abandoned-order job /
+  // ever be released once: whichever of cancel / admin cancel / abandoned-order job /
   // failed-payment webhook gets there first.
   stockReleased: {
     type: Boolean,

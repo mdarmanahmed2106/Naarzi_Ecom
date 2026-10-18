@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Design tokens and type rules shared with the storefront (frontend/src/app/globals.css) —
+/* Design tokens and type rules shared with the storefront (frontend/src/app/globals.css):
    keep the two in sync so the admin looks like the same brand. */
 @theme {
   /* Brand dusty-rose primary over a quiet palette of warm ivory and stone neutrals: the rose

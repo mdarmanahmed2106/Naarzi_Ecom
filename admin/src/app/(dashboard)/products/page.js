@@ -67,7 +67,7 @@ export default function ProductsPage() {
                           FEATURED
                         </span>
                       ) : (
-                        <span className="text-xs text-on-surface-variant/40">—</span>
+                        <span className="text-xs text-on-surface-variant/40">-</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-right">

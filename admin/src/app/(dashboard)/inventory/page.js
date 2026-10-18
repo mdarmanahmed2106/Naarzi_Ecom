@@ -74,7 +74,7 @@ export default function InventoryPage() {
                               {currentStock}
                             </span>
                           ) : (
-                            <span className="text-[10px] text-on-surface-variant/30 font-light">—</span>
+                            <span className="text-[10px] text-on-surface-variant/30 font-light">-</span>
                           )}
                         </td>
                       );

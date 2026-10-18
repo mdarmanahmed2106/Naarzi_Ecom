@@ -55,7 +55,7 @@ export default function CapsuleBand() {
             <span className="block w-14 h-px bg-accent-gold" />
           </motion.div>
           <motion.p {...rise(0.35)} className="text-base md:text-[17px] leading-[1.75] text-on-primary/85">
-            Colour first, always. Flowing silhouettes in crimson, ivory and midnight — made to be worn in the moment, not saved for later.
+            Colour first, always. Flowing silhouettes in crimson, ivory and midnight, made to be worn in the moment, not saved for later.
           </motion.p>
           <motion.div {...rise(0.45)}>
             <Link

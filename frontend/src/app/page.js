@@ -236,7 +236,7 @@ function HomePageContent() {
               Find Your <span className="italic font-normal text-primary">Shape</span>
             </h2>
             <p className="font-body-md text-sm md:text-base font-light text-on-surface-variant mt-4">
-              From tailored shirts to flowing co-ord sets — browse by the silhouette you reach for most.
+              From tailored shirts to flowing co-ord sets, browse by the silhouette you reach for most.
             </p>
           </div>
           {shopCategories.length === 0 ? (
@@ -382,7 +382,7 @@ function HomePageContent() {
         {/* Launch capsule band (from the brand reference), right after the products */}
         <CapsuleBand />
 
-        {/* Shop by Occasion — editorial list with a photo that follows the active occasion */}
+        {/* Shop by Occasion: editorial list with a photo that follows the active occasion */}
         <OccasionEdits products={products} />
 
         {/* Scroll-Driven Text Reveal Manifesto Section */}
@@ -422,7 +422,7 @@ function HomePageContent() {
           </div>
         </section>
 
-        {/* Closing promises strip — the last thing on the card before it lifts away */}
+        {/* Closing promises strip: the last thing on the card before it lifts away */}
         <HighlightsStrip />
 
       </div> {/* Closing the content card */}

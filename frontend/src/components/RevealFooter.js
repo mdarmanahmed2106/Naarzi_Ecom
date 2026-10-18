@@ -3,13 +3,13 @@ import Footer from '@/components/Footer';
 /**
  * Footer that sits "underneath" the page: it is pinned to the bottom of the screen with
  * CSS sticky positioning while the content card above (z-10, rounded bottom) slides up
- * off it — the inverse of the hero → categories transition at the top of the homepage.
+ * off it: the inverse of the hero → categories transition at the top of the homepage.
  *
  * Sticky is handled by the browser's compositor, so the footer stays perfectly still
  * (a scroll-driven JS transform lags a frame behind and makes it judder).
  *
  * The holder is pulled up one screen behind the card, so the footer can only stick within
- * the final screen of the page — it never travels far enough up to peek through the
+ * the final screen of the page: it never travels far enough up to peek through the
  * card's rounded top corners near the hero.
  */
 export default function RevealFooter() {

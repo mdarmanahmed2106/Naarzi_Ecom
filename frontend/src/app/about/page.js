@@ -5,9 +5,9 @@ import AuthModal from '@/components/AuthModal';
 import AboutContent from '@/components/about/AboutContent';
 
 export const metadata = {
-  title: 'Our Story | NAARZI — Beauty Where Others Saw Waste',
+  title: 'Our Story | NAARZI: Beauty Where Others Saw Waste',
   description:
-    'The story behind NAARZI — a design house built on noticing beauty others overlooked, and turning colour into clothing that speaks.',
+    'The story behind NAARZI, a design house built on noticing beauty others overlooked, and turning colour into clothing that speaks.',
 };
 
 export default function AboutPage() {

@@ -7,7 +7,7 @@ import { getFaqGroups } from '@/lib/faqContent';
 
 export const metadata = {
   title: 'FAQs | NAARZI',
-  description: 'Answers to common questions about NAARZI — who we are, what we sell, sizing, fabric, styling and more.',
+  description: 'Answers to common questions about NAARZI: who we are, what we sell, sizing, fabric, styling and more.',
 };
 
 // Free-shipping amount comes from the admin's store settings; refreshed at most hourly

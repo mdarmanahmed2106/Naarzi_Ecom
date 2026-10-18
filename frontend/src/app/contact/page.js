@@ -8,7 +8,7 @@ import { SUPPORT_EMAIL, SUPPORT_HOURS } from '@/lib/faqContent';
 
 export const metadata = {
   title: 'Contact Us | NAARZI',
-  description: `Get in touch with NAARZI — write to ${SUPPORT_EMAIL} for help with orders, sizing, fabric or styling.`,
+  description: `Get in touch with NAARZI. Write to ${SUPPORT_EMAIL} for help with orders, sizing, fabric or styling.`,
 };
 
 const ROUTES = [
@@ -51,7 +51,7 @@ export default function ContactPage() {
               We&apos;d Love to <span className="italic font-normal text-primary">Hear From You</span>
             </h1>
             <p className="font-body-lg text-base md:text-lg text-on-surface-variant leading-relaxed max-w-lg">
-              A question about sizing, a fabric you&apos;d like to know more about, or help with an order — write to us and a
+              A question about sizing, a fabric you&apos;d like to know more about, or help with an order? Write to us and a
               real person from the NAARZI team will get back to you.
             </p>
 

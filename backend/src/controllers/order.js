@@ -25,7 +25,7 @@ const restoreLineStock = async ({ product, color, size, quantity }) => {
   );
 };
 
-// Return an order's reserved stock — at most once per order. The `stockReleased` flag is
+// Return an order's reserved stock: at most once per order. The `stockReleased` flag is
 // claimed atomically first, so concurrent or repeated callers (customer cancel, admin cancel,
 // abandoned-order job, payment.failed webhook, double clicks) can't add the stock back twice.
 // Returns true if this call released the stock.
@@ -69,7 +69,7 @@ const MAX_OPEN_UNPAID_ORDERS = 5;
 // @route   POST /api/orders
 // @access  Private
 exports.createOrder = async (req, res, next) => {
-  // Stock taken so far — rolled back if anything fails before the order is saved
+  // Stock taken so far: rolled back if anything fails before the order is saved
   const succeededDecrements = [];
   let orderSaved = false;
 
@@ -109,7 +109,7 @@ exports.createOrder = async (req, res, next) => {
           return res.status(400).json({ success: false, message: `Size "${item.size}" is not available for "${product.name}".` });
         }
       } else {
-        // Older carts may not carry a colour — fall back to the first variant
+        // Older carts may not carry a colour: fall back to the first variant
         color = item.color || product.colors[0].name;
         const colorObj = product.colors.find((c) => c.name === color);
         if (!colorObj) {
@@ -206,14 +206,14 @@ exports.createOrder = async (req, res, next) => {
       appliedCouponCode = coupon.code;
     }
 
-    // Shipping cost — free once the (pre-discount) items subtotal clears the configured threshold
+    // Shipping cost: free once the (pre-discount) items subtotal clears the configured threshold
     const settings = await Settings.getSingleton();
     const freeShippingThreshold = settings.freeShippingThreshold || 0;
     const qualifiesForFreeShipping = freeShippingThreshold <= 0 || itemsSubtotal >= freeShippingThreshold;
     const shippingCost = qualifiesForFreeShipping ? 0 : (settings.shippingCost || 0);
     const totalAmount = itemsSubtotal - discountAmount + shippingCost;
 
-    // 3. Everything is valid — now reserve stock atomically, line by line
+    // 3. Everything is valid: now reserve stock atomically, line by line
     const orderedItems = [];
     for (const { item, product, isLegacy, color, price } of lines) {
       const updatedProduct = isLegacy
@@ -232,7 +232,7 @@ exports.createOrder = async (req, res, next) => {
           );
 
       if (!updatedProduct) {
-        // Not enough stock — put back what this order already took and report precisely
+        // Not enough stock: put back what this order already took and report precisely
         await rollbackDecrements(succeededDecrements);
         succeededDecrements.length = 0;
         const fresh = await Product.findById(item.product);
@@ -426,7 +426,7 @@ exports.updateOrderStatus = async (req, res, next) => {
       if (!allowedNext.includes(orderStatus)) {
         return res.status(400).json({
           success: false,
-          message: `Cannot change order status from "${order.orderStatus}" to "${orderStatus}". Allowed next steps: ${allowedNext.length ? allowedNext.join(', ') : 'none — this order is in a final state'}.`
+          message: `Cannot change order status from "${order.orderStatus}" to "${orderStatus}". Allowed next steps: ${allowedNext.length ? allowedNext.join(', ') : 'none, this order is in a final state'}.`
         });
       }
     }
@@ -490,12 +490,12 @@ exports.cancelOrder = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Ownership check — a customer can only cancel their own order, never someone else's by guessing an ID
+    // Ownership check: a customer can only cancel their own order, never someone else's by guessing an ID
     if (order.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ success: false, message: 'You are not authorized to cancel this order' });
     }
 
-    // Status window check — only cancellable while still processing, not once shipped/delivered
+    // Status window check: only cancellable while still processing, not once shipped/delivered
     if (order.orderStatus !== 'processing') {
       return res.status(400).json({
         success: false,
@@ -507,7 +507,7 @@ exports.cancelOrder = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'This order is already cancelled.' });
     }
 
-    // Return stock — unless the order already failed payment (its stock was returned then).
+    // Return stock: unless the order already failed payment (its stock was returned then).
     // releaseOrderStock is also atomic, so a double click can't return it twice.
     if (order.paymentStatus !== 'failed') {
       await releaseOrderStock(order);
@@ -546,7 +546,7 @@ exports.cancelOrder = async (req, res, next) => {
         ? `Order cancelled. Your refund of ₹${order.totalAmount} has been processed to your original payment method.`
         : refund.ok
           ? `Order cancelled. Your refund of ₹${order.totalAmount} has been initiated and usually reaches your account in 5–7 working days.`
-          : 'Order cancelled. We could not start your refund automatically — our team has been notified and will process it shortly.';
+          : 'Order cancelled. We could not start your refund automatically. Our team has been notified and will process it shortly.';
     }
 
     res.status(200).json({

@@ -7,7 +7,7 @@ const { releaseOrderStock } = require('./order');
 
 // Mark an order paid exactly once. The status check and the update are one atomic operation,
 // so when the client's /verify call and Razorpay's order.paid webhook arrive together only one
-// of them wins — and only the winner counts the coupon redemption.
+// of them wins: and only the winner counts the coupon redemption.
 // Returns the updated order if this call made the change, otherwise null.
 const markOrderPaid = async (filter, razorpayPaymentId) => {
   const update = { paymentStatus: 'paid' };
@@ -101,7 +101,7 @@ exports.createRazorpayOrder = async (req, res, next) => {
         razorpayOrder = await razorpayInstance.orders.create(options);
       } catch (rzpErr) {
         console.error('Razorpay Order Creation Error:', rzpErr);
-        // Razorpay rejects bad/mismatched API keys with 401 — surface that distinctly
+        // Razorpay rejects bad/mismatched API keys with 401: surface that distinctly
         const isAuthFailure = rzpErr.statusCode === 401;
         return res.status(isAuthFailure ? 401 : 500).json({
           success: false,
@@ -182,7 +182,7 @@ exports.verifyPayment = async (req, res, next) => {
       });
     }
 
-    // Already confirmed (e.g. by the webhook) — succeed without double-counting the coupon
+    // Already confirmed (e.g. by the webhook): succeed without double-counting the coupon
     if (order.paymentStatus === 'paid') {
       return res.status(200).json({
         success: true,
@@ -203,7 +203,7 @@ exports.verifyPayment = async (req, res, next) => {
       });
     } else {
       // Signature mismatch: reject without touching the order. A forged or corrupted request
-      // must not cancel a real order — if the payment genuinely succeeded, the webhook still
+      // must not cancel a real order: if the payment genuinely succeeded, the webhook still
       // confirms it; if not, the abandoned-stock job releases the reserved stock later.
       return res.status(400).json({
         success: false,

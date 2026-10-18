@@ -120,7 +120,7 @@ export default function NaarziStorySection() {
 
         <motion.p {...fadeUp(0.35)} className="font-body-lg text-[15px] md:text-base text-on-surface-variant leading-relaxed max-w-xl">
           Naarzi was born from a singular belief: that art lives in the overlooked. We don’t chase transient
-          fashion seasons — we design for pure, unapologetic self-expression. Every garment is colour-led,
+          fashion seasons. We design for pure, unapologetic self-expression. Every garment is colour-led,
           thoughtfully crafted, and cut for effortless confidence. Wear the vibe. Feel the colour.
         </motion.p>
 

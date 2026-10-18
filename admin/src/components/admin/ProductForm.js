@@ -147,7 +147,7 @@ export default function ProductForm() {
 
           {/* Details */}
           <div className="space-y-1">
-            <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DETAILS (ONE PER LINE — SHOWN AS PDP BULLET LIST)</label>
+            <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DETAILS (ONE PER LINE, SHOWN AS BULLET POINTS ON THE PRODUCT PAGE)</label>
             <textarea
               rows={4}
               value={detailsText}

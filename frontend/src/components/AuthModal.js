@@ -95,7 +95,7 @@ export default function AuthModal() {
           />
         </div>
 
-        {/* Bottom/Right panel — form, step-dependent content */}
+        {/* Bottom/Right panel: form, step-dependent content */}
         <div className="w-full md:w-1/2 p-6 md:p-10 flex flex-col justify-center relative bg-surface">
           
           {/* required invisible reCAPTCHA anchor */}

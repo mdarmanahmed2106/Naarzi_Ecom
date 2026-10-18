@@ -1,5 +1,5 @@
 // Defines which status an order is legally allowed to move to FROM its current status.
-// An empty array means that status is terminal — no further transitions allowed.
+// An empty array means that status is terminal: no further transitions allowed.
 // Keep in sync with the copy in admin/src/app/page.js (separate app, no shared package).
 const ALLOWED_TRANSITIONS = {
   processing: ['shipped', 'cancelled'],

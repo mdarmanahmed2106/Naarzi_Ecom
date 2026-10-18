@@ -74,7 +74,7 @@ export default function OrderDetailPage() {
           </div>
         </div>
   
-        {/* Refund — cancelling a paid order refunds it automatically; retry here if it failed */}
+        {/* Refund: cancelling a paid order refunds it automatically; retry here if it failed */}
         {selectedOrder.orderStatus === 'cancelled' && ['paid', 'refunded'].includes(selectedOrder.paymentStatus) && (
           <div className="bg-surface-container/40 border border-outline-variant/20 p-4 rounded-xl mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -87,7 +87,7 @@ export default function OrderDetailPage() {
                 {selectedOrder.refundStatus === 'completed'
                   ? `Refunded${selectedOrder.refundedAt ? ` on ${new Date(selectedOrder.refundedAt).toLocaleDateString()}` : ''} to the original payment method.`
                   : selectedOrder.refundStatus === 'pending'
-                  ? 'Initiated with Razorpay — it completes automatically.'
+                  ? 'Initiated with Razorpay. It completes automatically.'
                   : selectedOrder.refundStatus === 'failed'
                   ? 'The automatic refund failed. Retry it, or refund from the Razorpay dashboard.'
                   : 'Not refunded yet.'}
@@ -109,7 +109,7 @@ export default function OrderDetailPage() {
           </div>
         )}
   
-        {/* Tracking Details — powers the customer-facing order tracker */}
+        {/* Tracking Details: powers the customer-facing order tracker */}
         <div className="bg-surface-container/40 border border-outline-variant/20 p-4 rounded-xl mb-6">
           <span className="text-[10px] font-label-caps text-on-surface-variant tracking-wider block font-bold mb-3">
             TRACKING DETAILS

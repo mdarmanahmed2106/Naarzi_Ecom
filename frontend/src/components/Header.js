@@ -423,7 +423,7 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <Link href="/" aria-label="Naarzi — Own the moment, home" className="flex flex-col items-center gap-1 py-2">
+              <Link href="/" aria-label="Naarzi, Own the moment: home" className="flex flex-col items-center gap-1 py-2">
                 <img src="/brand/naarzi-monogram.png" alt="" className="h-6 lg:h-8 w-auto" />
                 <img src="/brand/naarzi-wordmark.png" alt="Naarzi" className="h-5 lg:h-[30px] w-auto" />
               </Link>

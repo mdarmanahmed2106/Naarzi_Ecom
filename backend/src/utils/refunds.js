@@ -30,7 +30,7 @@ const issueRefund = async (order) => {
     order.refundStatus = 'failed';
     await order.save();
     await notifyFailure(order, 'No Razorpay payment ID is recorded for this order.');
-    return { ok: false, status: 'failed', message: 'No payment ID recorded — refund it from the Razorpay dashboard.' };
+    return { ok: false, status: 'failed', message: 'No payment ID recorded. Refund it from the Razorpay dashboard.' };
   }
 
   // Claim the refund so two simultaneous cancellations can't both refund

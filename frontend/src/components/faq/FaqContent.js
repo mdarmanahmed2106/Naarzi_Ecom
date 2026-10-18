@@ -95,7 +95,7 @@ export default function FaqContent({ groups }) {
           transition={{ duration: 0.7, ease: EASE, delay: 0.16 }}
           className="font-body-lg text-base md:text-lg text-on-surface-variant mt-4"
         >
-          Sizing, fabric, styling — answered honestly below.
+          Sizing, fabric, styling: answered honestly below.
         </motion.p>
       </section>
 

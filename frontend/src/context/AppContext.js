@@ -139,7 +139,7 @@ export function AppProvider({ children }) {
   }, []);
 
   // Save cart to localStorage when it changes. Lines whose product no longer exists
-  // (deleted in the admin) arrive with `product: null` — drop them so totals never crash.
+  // (deleted in the admin) arrive with `product: null`: drop them so totals never crash.
   const saveCart = (items) => {
     const clean = sanitizeCart(items);
     setCartItems(clean);

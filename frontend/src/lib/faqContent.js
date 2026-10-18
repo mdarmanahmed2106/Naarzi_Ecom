@@ -25,7 +25,7 @@ export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
         },
         {
           q: 'What kind of clothing does NAARZI sell?',
-          a: 'NAARZI’s edit spans shirts, kurtis and tunics, co-ord sets, suit sets and skirts — designed in soft, breathable fabrics with a consistent colour-first point of view.',
+          a: 'NAARZI’s edit spans shirts, kurtis and tunics, co-ord sets, suit sets and skirts, designed in soft, breathable fabrics with a consistent colour-first point of view.',
         },
         {
           q: 'Who is NAARZI for?',
@@ -37,7 +37,7 @@ export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
         },
         {
           q: 'Who designs NAARZI?',
-          a: 'NAARZI is built around a founder’s personal point of view — noticing beauty where others saw waste, and carrying that instinct for colour and detail into every collection.',
+          a: 'NAARZI is built around a founder’s personal point of view: noticing beauty where others saw waste, and carrying that instinct for colour and detail into every collection.',
           link: { href: '/about', label: 'Read our story' },
         },
       ],
@@ -60,7 +60,7 @@ export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
         },
         {
           q: 'How should I style a NAARZI co-ord set?',
-          a: 'Wear the two pieces together for a complete look, or separate them — the top with denim, the bottoms with a plain tee — for everyday versatility.',
+          a: 'Wear the two pieces together for a complete look, or separate them (the top with denim, the bottoms with a plain tee) for everyday versatility.',
         },
       ],
     },
@@ -71,11 +71,11 @@ export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
         { q: 'How much does shipping cost, and how long does delivery take?', a: shippingAnswer },
         {
           q: 'How do I pay?',
-          a: 'Payments are processed securely through Razorpay at checkout — UPI, cards, net banking and wallets are all supported.',
+          a: 'Payments are processed securely through Razorpay at checkout. UPI, cards, net banking and wallets are all supported.',
         },
         {
           q: 'Can I cancel my order?',
-          a: 'Yes, while it is still processing. You can cancel it yourself from the orders section of your account. Once an order has shipped it can no longer be cancelled online — write to us and we’ll help.',
+          a: 'Yes, while it is still processing. You can cancel it yourself from the orders section of your account. Once an order has shipped it can no longer be cancelled online, but write to us and we’ll help.',
           link: { href: '/account', label: 'Go to my orders' },
         },
         {

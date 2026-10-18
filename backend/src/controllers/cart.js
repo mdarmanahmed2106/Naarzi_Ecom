@@ -127,7 +127,7 @@ exports.syncCart = async (req, res, next) => {
 
     if (items && Array.isArray(items) && items.length > 0) {
       for (const localItem of items) {
-        // A browser cart can still hold lines whose product was deleted (`product: null`) — skip them.
+        // A browser cart can still hold lines whose product was deleted (`product: null`): skip them.
         // Lines for products that no longer exist are also dropped later by populateCart.
         const productId = localItem?.product && typeof localItem.product === 'object'
           ? localItem.product._id
@@ -139,7 +139,7 @@ exports.syncCart = async (req, res, next) => {
         );
 
         if (existingItemIndex > -1) {
-          // Use max rather than sum — makes repeated/duplicate sync calls idempotent,
+          // Use max rather than sum: makes repeated/duplicate sync calls idempotent,
           // while still correctly combining genuinely different local vs server quantities
           cart.items[existingItemIndex].quantity = Math.max(
             cart.items[existingItemIndex].quantity,

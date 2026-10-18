@@ -309,7 +309,7 @@ export default function AdminShell({ children }) {
           </div>
         )}
 
-        {/* Store summary — list pages only, so a single order or product gets the full width */}
+        {/* Store summary: list pages only, so a single order or product gets the full width */}
         {!isDetail && (
           // Hairline dividers come from the 1px gaps over an outline-coloured background
           <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-px bg-outline-variant/50 border border-outline-variant/50 mb-8">
@@ -329,7 +329,7 @@ export default function AdminShell({ children }) {
           </dl>
         )}
 
-        {/* Search & filters — only where they filter the list */}
+        {/* Search & filters: only where they filter the list */}
         {showSearch && (
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-5">
             <div className="relative w-full sm:w-80">

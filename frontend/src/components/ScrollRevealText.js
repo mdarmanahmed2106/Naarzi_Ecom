@@ -47,7 +47,7 @@ function RevealWord({ word, progress, start, end, shouldReduceMotion }) {
 }
 
 export default function ScrollRevealText({
-  text = "Born from a love of movement and quiet confidence, Naarzi exists to create pieces that feel effortless, not accidental. Every silhouette is designed with intention — balancing ease and elegance, comfort and character, so you feel like yourself, only more so.",
+  text = "Born from a love of movement and quiet confidence, Naarzi exists to create pieces that feel effortless, not accidental. Every silhouette is designed with intention, balancing ease and elegance, comfort and character, so you feel like yourself, only more so.",
   ctaText = "SHOP ALL PRODUCTS",
   ctaLink = "/shop"
 }) {

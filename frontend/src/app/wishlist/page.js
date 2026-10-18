@@ -65,7 +65,7 @@ export default function WishlistPage() {
           <div className="max-w-md mx-auto text-center py-20 bg-surface-container/20 rounded-xl p-8 border border-outline-variant/30">
             <Icon name="favorite" size="xl" className="text-on-surface-variant/40 mb-4 block" />
             <p className="font-body-md text-on-surface-variant mb-6 text-sm">
-              Your wishlist is empty — start saving items you love.
+              Your wishlist is empty. Start saving items you love.
             </p>
             <Link 
               href="/" 

@@ -10,7 +10,7 @@ const BELIEFS = [
   { title: 'Colour comes first.', body: 'Every collection begins with a palette, not a trend forecast.' },
   { title: 'Design should have a reason.', body: 'Every seam, loop and cuff is considered, not decorative.' },
   { title: "Confidence shouldn't need an occasion.", body: 'Our pieces move from the desk to the evening without asking you to change.' },
-  { title: 'Small runs matter.', body: "We design in limited collections — curated, not mass-produced — because expression doesn't scale the way inventory does." },
+  { title: 'Small runs matter.', body: "We design in limited collections, curated rather than mass-produced, because expression doesn't scale the way inventory does." },
   { title: 'Clothing should say something true.', body: 'Not a slogan. Something real about the woman wearing it.' },
 ];
 
@@ -61,7 +61,7 @@ export default function AboutContent() {
               possibility. Colour always spoke louder than the object it was sitting on.
             </p>
             <p>
-              Years later, that same instinct became NAARZI. Every garment starts the same way — not with a trend, but
+              Years later, that same instinct became NAARZI. Every garment starts the same way: not with a trend, but
               with a colour, a feeling, a sketch that slowly turns into something someone can actually wear.
             </p>
           </motion.div>
@@ -73,7 +73,7 @@ export default function AboutContent() {
           transition={{ duration: 1, ease: EASE, delay: 0.2 }}
           className="lg:col-span-6 relative rounded-[3px] overflow-hidden aspect-[4/3] lg:aspect-[5/4] bg-surface-container shadow-[0_24px_60px_-30px_rgba(28,26,23,0.45)]"
         >
-          <img src="/hero_image.png" alt="Inside the NAARZI studio — colour, sketches and fabric" className="w-full h-full object-cover" />
+          <img src="/hero_image.png" alt="Inside the NAARZI studio: colour, sketches and fabric" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
           <figcaption className="absolute bottom-4 left-5 right-5 text-white font-label-caps text-[10px] tracking-widest font-bold">
             WHERE EVERY COLLECTION BEGINS
@@ -99,11 +99,11 @@ export default function AboutContent() {
         {[
           {
             label: 'OUR VISION',
-            body: 'A wardrobe where colour is never diluted for mass appeal — where every piece a woman wears reads as unmistakably hers.',
+            body: 'A wardrobe where colour is never diluted for mass appeal, where every piece a woman wears reads as unmistakably hers.',
           },
           {
             label: 'OUR MISSION',
-            body: 'To design limited, colour-first collections that help women dress like themselves, every day — honest in fabric, considered in cut, without asking anyone to choose between comfort and statement.',
+            body: 'To design limited, colour-first collections that help women dress like themselves, every day: honest in fabric, considered in cut, without asking anyone to choose between comfort and statement.',
           },
         ].map((card, i) => (
           <motion.div
@@ -155,7 +155,7 @@ export default function AboutContent() {
             <path fill="currentColor" d="M12 0c.6 6.2 1.8 8.4 12 12-10.2 3.6-11.4 5.8-12 12-.6-6.2-1.8-8.4-12-12C10.2 8.4 11.4 6.2 12 0Z" />
           </svg>
           <p className="font-display-lg text-2xl sm:text-3xl md:text-[2.5rem] leading-snug max-w-3xl mx-auto">
-            We are the dreamers, the trendsetters, the unapologetic generation — we don&apos;t just follow what&apos;s next,
+            We are the dreamers, the trendsetters, the unapologetic generation. We don&apos;t just follow what&apos;s next,
             we colour it ourselves.
           </p>
           <p className="font-label-caps text-xs tracking-[0.3em] text-white/80 font-bold mt-8">

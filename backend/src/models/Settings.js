@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Singleton document — always fetched/updated as the one row in this collection.
+// Singleton document: always fetched/updated as the one row in this collection.
 const settingsSchema = new mongoose.Schema({
   freeShippingThreshold: {
     type: Number,

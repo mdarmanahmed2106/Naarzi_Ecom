@@ -111,7 +111,7 @@ export function AdminHeader({ user, logout, notifications, unreadCount, markAsRe
 }
 
 // Which status an order may move to FROM its current status; [] = final state.
-// Mirrors backend/src/utils/orderStatusTransitions.js (the backend is the real enforcement —
+// Mirrors backend/src/utils/orderStatusTransitions.js (the backend is the real enforcement : 
 // this just keeps the UI from offering a change the API will reject).
 export const ALLOWED_TRANSITIONS = {
   processing: ['shipped', 'cancelled'],

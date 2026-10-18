@@ -409,7 +409,7 @@ export default function AccountDashboardPage() {
                     <div className="space-y-6">
                       {orders.map((order) => (
                         <div key={order._id} className="bg-surface border border-outline-variant/50 rounded-xl shadow-sm overflow-hidden">
-                          {/* Order Summary Header — order status itself is conveyed by the tracker below, so it's not repeated here */}
+                          {/* Order Summary Header: order status itself is conveyed by the tracker below, so it's not repeated here */}
                           <div className="p-5 sm:p-6 flex items-start justify-between gap-4 border-b border-outline-variant/20">
                             <div>
                               <p className="text-xs text-on-surface-variant">
@@ -534,7 +534,7 @@ export default function AccountDashboardPage() {
                         <div className="space-y-1 md:col-span-2">
                           <label className="text-xs font-label-caps text-on-surface-variant flex justify-between">
                             <span>Contact Phone for this Address</span>
-                            <span className="text-[10px] lowercase text-on-surface-variant/70 font-normal">Optional — defaults to your account phone</span>
+                            <span className="text-[10px] lowercase text-on-surface-variant/70 font-normal">Optional, defaults to your account phone</span>
                           </label>
                           <input 
                             type="tel" 

@@ -103,7 +103,7 @@ export default function CheckoutPage() {
     loadRazorpayScript();
   }, []);
 
-  // The customer pays from the bottom of the page — bring the confirmation screen into view
+  // The customer pays from the bottom of the page: bring the confirmation screen into view
   useEffect(() => {
     if (orderSuccess) {
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -361,7 +361,7 @@ export default function CheckoutPage() {
             confirm_close: true,
             ondismiss: function () {
               setLoading(false);
-              notify('warning', 'Payment cancelled', "You closed the payment window before completing it. Your cart is saved — try again whenever you're ready.");
+              notify('warning', 'Payment cancelled', "You closed the payment window before completing it. Your cart is saved. Try again whenever you're ready.");
             },
           },
         };
@@ -388,7 +388,7 @@ export default function CheckoutPage() {
   };
 
   // If order was successfully completed, show success panel
-  // Full-screen confirmation on its own — no site header, menu or footer competing for attention
+  // Full-screen confirmation on its own: no site header, menu or footer competing for attention
   if (orderSuccess) {
     return (
       <div className="min-h-dvh flex flex-col bg-surface">
@@ -1006,7 +1006,7 @@ export default function CheckoutPage() {
                 {appliedCoupon && (
                   <div className="flex items-center gap-1.5 text-xs text-green-700 mt-1 font-medium">
                     <Icon name="check_circle" size="sm" />
-                    <span>Coupon <strong>{appliedCoupon.code}</strong> applied — you saved {formatCurrency(appliedCoupon.discountAmount)}!</span>
+                    <span>Coupon <strong>{appliedCoupon.code}</strong> applied. You saved {formatCurrency(appliedCoupon.discountAmount)}!</span>
                   </div>
                 )}
 
@@ -1105,7 +1105,7 @@ export default function CheckoutPage() {
 
       <CartDrawer />
       <AuthModal />
-      {/* Mobile sticky pay bar — submits the checkout form */}
+      {/* Mobile sticky pay bar: submits the checkout form */}
       {cartItems.length > 0 && (
         <div
           className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-surface/95 backdrop-blur-md border-t border-outline-variant/40 shadow-[0_-8px_24px_-12px_rgba(30,25,27,0.25)]"

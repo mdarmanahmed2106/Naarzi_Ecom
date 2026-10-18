@@ -199,7 +199,7 @@ export default function ScrollStorytellingSection() {
         </div>
       </div>
 
-      {/* MOBILE / TABLET FLOW (< 1024px): sticky card deck — each card pins under the
+      {/* MOBILE / TABLET FLOW (< 1024px): sticky card deck: each card pins under the
           header and the next one slides up over it while the one behind shrinks back */}
       <div
         ref={mobileDeckRef}
@@ -270,7 +270,7 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
           )}
         </div>
 
-        {/* Text & CTA — fixed min-height keeps every card the same size so none peeks out behind another */}
+        {/* Text & CTA: fixed min-height keeps every card the same size so none peeks out behind another */}
         <div className="p-5 space-y-3 min-h-[15rem]">
           {story.topTag && (
             <span className="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">

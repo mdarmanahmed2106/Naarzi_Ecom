@@ -127,7 +127,7 @@ export default function HeroCapsule() {
             <span className="italic text-primary">moment.</span>
           </motion.h1>
           <motion.p variants={child} className="max-w-[460px] text-base lg:text-lg leading-relaxed text-on-surface-variant">
-            Contemporary, colour-led ready-to-wear — simple fabrics turned into vibrant stories.
+            Contemporary, colour-led ready-to-wear: simple fabrics turned into vibrant stories.
           </motion.p>
           <motion.div variants={child} className="flex flex-wrap items-center gap-x-8 gap-y-3">
             <Link

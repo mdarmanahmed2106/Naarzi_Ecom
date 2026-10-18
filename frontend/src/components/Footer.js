@@ -50,7 +50,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-5 md:gap-y-7 lg:gap-10">
           <div className="col-span-2 lg:col-span-4 space-y-1.5 md:space-y-3">
             <p className="font-body-lg text-sm md:text-lg leading-relaxed text-surface/90 max-w-sm">
-              Contemporary, colour-led ready-to-wear — turning simple fabrics into vibrant stories. Not fashion. Expression.
+              Contemporary, colour-led ready-to-wear, turning simple fabrics into vibrant stories. Not fashion. Expression.
             </p>
             <p className="text-xs text-surface/70">
               <a href="mailto:support@naarzi.com" className="underline underline-offset-2 hover:text-surface transition-colors">support@naarzi.com</a>
