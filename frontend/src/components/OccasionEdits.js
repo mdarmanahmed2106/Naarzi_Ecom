@@ -76,7 +76,7 @@ export default function OccasionEdits({ products = [] }) {
                     aria-current={isActive ? 'true' : undefined}
                     className={`block py-1.5 md:py-2 font-display-lg text-[1.6rem] sm:text-[1.9rem] lg:text-[2.1rem] leading-tight transition-all duration-300 focus:outline-none ${
                       isActive
-                        ? 'text-on-surface font-bold pl-4 md:pl-6'
+                        ? 'text-primary font-bold pl-4 md:pl-6'
                         : 'text-on-surface-variant/55 font-semibold hover:text-on-surface-variant'
                     }`}
                   >
