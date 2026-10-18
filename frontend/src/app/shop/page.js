@@ -103,6 +103,9 @@ function ShopContent() {
   }, []);
 
   useEffect(() => {
+    // Set when the filters change again before this request answers, so a slow, older
+    // response can't overwrite the results of a newer one.
+    let stale = false;
     async function fetchProducts() {
       setLoading(true);
       try {
@@ -116,23 +119,25 @@ function ShopContent() {
         if (activeOccasion) params.occasion = activeOccasion;
         if (inStockOnly) params.inStock = 'true';
         else if (outOfStockOnly) params.inStock = 'false';
-        if (activeSizes.length > 0) params.size = activeSizes.join(',');
-        if (activeColors.length > 0) params.color = activeColors.join(',');
+        if (sizeParam) params.size = sizeParam;
+        if (colorParam) params.color = colorParam;
         if (activeSearch) params.search = activeSearch;
 
         const response = await productsApi.getAll(params);
+        if (stale) return;
         if (response.success) {
           setProducts(response.data);
           setTotalProducts(response.count || response.data.length);
         }
       } catch (err) {
-        console.error('Failed to load products', err);
+        if (!stale) console.error('Failed to load products', err);
       } finally {
-        setLoading(false);
+        if (!stale) setLoading(false);
       }
     }
     fetchProducts();
-  }, [activeCategory, activeTag, activeOccasion, inStockOnly, outOfStockOnly, sizeParam, colorParam, activeSort]);
+    return () => { stale = true; };
+  }, [activeCategory, activeTag, activeOccasion, inStockOnly, outOfStockOnly, sizeParam, colorParam, activeSort, activeSearch]);
 
   const handleSizeToggle = (size) => {
     const newSizes = activeSizes.includes(size)
