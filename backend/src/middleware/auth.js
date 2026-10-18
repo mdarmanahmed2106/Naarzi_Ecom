@@ -1,6 +1,16 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Verifies a JWT and returns its user, or null if the user is gone or the token was revoked
+// (its version no longer matches the user's tokenVersion, e.g. after logout). Tokens issued
+// before versioning carry no `v` and count as version 0.
+const userFromToken = async (token) => {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.id);
+  if (!user || (decoded.v || 0) !== (user.tokenVersion || 0)) return null;
+  return user;
+};
+
 const requireAuth = async (req, res, next) => {
   let token;
 
@@ -23,16 +33,13 @@ const requireAuth = async (req, res, next) => {
   }
 
   try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Fetch user and attach to request (excluding password)
-    const user = await User.findById(decoded.id);
+    // Verify token, fetch user and attach to request (excluding password)
+    const user = await userFromToken(token);
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'The user belonging to this token no longer exists'
+        message: 'Session has ended, please log in again'
       });
     }
 
@@ -67,8 +74,7 @@ const optionalAuth = async (req, res, next) => {
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id);
+      const user = await userFromToken(token);
       if (user) {
         req.user = user;
       }
@@ -82,5 +88,6 @@ const optionalAuth = async (req, res, next) => {
 module.exports = {
   requireAuth,
   requireAdmin,
-  optionalAuth
+  optionalAuth,
+  userFromToken
 };

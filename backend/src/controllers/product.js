@@ -2,6 +2,15 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Review = require('../models/Review');
 
+// User-typed search text is matched literally: regex characters are escaped (so "(" can't
+// throw a 500 and patterns like "(a+)+" can't hang the database) and length is capped.
+const MAX_SEARCH_LENGTH = 64;
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const cleanSearch = (value) => {
+  const raw = Array.isArray(value) ? value[0] : value; // ?search=a&search=b arrives as an array
+  return typeof raw === 'string' ? raw.trim().slice(0, MAX_SEARCH_LENGTH) : '';
+};
+
 // @desc    Get all products (with pagination, filters, sorting)
 // @route   GET /api/products
 // @access  Public
@@ -44,7 +53,7 @@ exports.getProducts = async (req, res, next) => {
       // Tags are free text in the admin ("new arrival", "New-Arrival"...), so match ignoring case
       // and treating hyphens and spaces as the same: ?tag=new-arrival finds "new arrival".
       const tagPattern = (t) => {
-        const words = t.split(/[-\s]+/).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const words = t.split(/[-\s]+/).map(escapeRegex);
         return new RegExp(`^${words.join('[-\\s]+')}$`, 'i');
       };
       if (tagsArray.some(t => t.toLowerCase() === 'sale')) {
@@ -91,8 +100,7 @@ exports.getProducts = async (req, res, next) => {
     if (occasion) {
       // Handles single string or array of occasion strings. Case-insensitive exact match,
       // so "Workwear" typed in the admin still matches ?occasion=workwear.
-      const escapeRegex = (str) => String(str).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const toPattern = (o) => new RegExp(`^${escapeRegex(o)}$`, 'i');
+      const toPattern = (o) => new RegExp(`^${escapeRegex(String(o).trim())}$`, 'i');
       query.occasion = Array.isArray(occasion) ? { $in: occasion.map(toPattern) } : toPattern(occasion);
     }
 
@@ -122,12 +130,17 @@ exports.getProducts = async (req, res, next) => {
     }
 
     // 4. Text Search Filter (name/description indexes)
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
+    const searchText = cleanSearch(search);
+    if (searchText) {
+      const pattern = new RegExp(escapeRegex(searchText), 'i');
+      const searchOr = [{ name: pattern }, { tags: pattern }, { description: pattern }];
+      // The price filter also uses $or; combine the two instead of overwriting it
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: searchOr }];
+        delete query.$or;
+      } else {
+        query.$or = searchOr;
+      }
     }
 
     // 5. Sorting
@@ -423,18 +436,18 @@ exports.deleteProduct = async (req, res, next) => {
 // @access  Public
 exports.getSearchSuggestions = async (req, res, next) => {
   try {
-    const { q } = req.query;
-    if (!q || q.length < 2) {
+    const q = cleanSearch(req.query.q);
+    if (q.length < 2) {
       return res.status(200).json({ success: true, data: [] });
     }
 
-    const regex = new RegExp('^' + q, 'i');
+    const regex = new RegExp('^' + escapeRegex(q), 'i');
 
     // Find tags that match
     const products = await Product.find({
       $or: [
         { tags: regex },
-        { name: { $regex: q, $options: 'i' } }
+        { name: new RegExp(escapeRegex(q), 'i') }
       ]
     }, 'name tags').limit(50);
 

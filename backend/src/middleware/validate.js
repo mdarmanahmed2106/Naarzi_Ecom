@@ -11,11 +11,13 @@ const validate = (schema) => async (req, res, next) => {
     if (parsed.params) req.params = parsed.params;
     next();
   } catch (error) {
-    if (error.errors) {
+    // Zod 4 lists problems on `issues` (Zod 3 used `errors`)
+    const issues = error.issues || error.errors;
+    if (issues) {
       return res.status(400).json({
         success: false,
         message: 'Validation error',
-        errors: error.errors.map((err) => ({
+        errors: issues.map((err) => ({
           location: err.path[0],
           field: err.path.slice(1).join('.'),
           message: err.message

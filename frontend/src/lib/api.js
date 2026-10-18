@@ -65,12 +65,12 @@ export const authApi = {
   login: (credentials) => fetchApi('/auth/login', { method: 'POST', body: credentials }),
   phoneAuth: (idToken) => fetchApi('/auth/phone', { method: 'POST', body: { idToken } }),
   completeProfile: (data) => fetchApi('/auth/complete-profile', { method: 'PUT', body: data }),
-  logout: () => {
+  // Send the stored token with the logout call so the server can revoke it, then drop it
+  logout: () => fetchApi('/auth/logout', { method: 'POST' }).finally(() => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
     }
-    return fetchApi('/auth/logout', { method: 'POST' });
-  },
+  }),
   getMe: () => fetchApi('/auth/me'),
   updateProfile: (profileData) => fetchApi('/auth/me', { method: 'PUT', body: profileData }),
   addAddress: (addressData) => fetchApi('/auth/me/addresses', { method: 'POST', body: addressData }),

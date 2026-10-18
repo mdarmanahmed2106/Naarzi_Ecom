@@ -47,9 +47,20 @@ const userSchema = new mongoose.Schema({
   profileComplete: {
     type: Boolean,
     default: false
+  },
+  // Stamped into every JWT; bumping it (on logout) makes all of this user's existing tokens invalid
+  tokenVersion: {
+    type: Number,
+    default: 0
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: {
+    transform: (doc, ret) => {
+      delete ret.tokenVersion;
+      return ret;
+    }
+  }
 });
 
 // Encrypt password before saving

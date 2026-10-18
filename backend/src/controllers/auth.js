@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { auth: firebaseAuth } = require('../config/firebaseAdmin');
-const { sendTokenResponse } = require('../utils/helpers');
+const { sendTokenResponse, authCookieOptions } = require('../utils/helpers');
+const { userFromToken } = require('../middleware/auth');
 
 // @desc    Phone Auth (Firebase OTP)
 // @route   POST /api/auth/phone
@@ -45,7 +46,10 @@ exports.phoneAuth = async (req, res, next) => {
 // @access  Public
 exports.signup = async (req, res, next) => {
   try {
-    const { name, email, password, phone } = req.body;
+    // phone is deliberately not accepted here: a phone number is only ever attached from a
+    // verified Firebase OTP token (phoneAuth). Taking it unverified would let someone sign up
+    // with a victim's number, and the victim's later OTP login would land in their account.
+    const { name, email, password } = req.body;
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -62,8 +66,7 @@ exports.signup = async (req, res, next) => {
     const user = await User.create({
       name,
       email,
-      password,
-      phone
+      password
     });
 
     sendTokenResponse(user, 201, res);
@@ -113,10 +116,24 @@ exports.login = async (req, res, next) => {
 exports.logout = async (req, res, next) => {
   try {
     const cookieName = req.body.source === 'admin' ? 'admin_token' : 'token';
-    res.cookie(cookieName, 'none', {
-      expires: new Date(Date.now() + 10 * 1000),
-      httpOnly: true
-    });
+
+    // Revoke the session server-side: bumping tokenVersion invalidates every token this user
+    // holds (cookie or the Bearer copy kept in localStorage), so a copied token stops working too.
+    const bearer = req.headers.authorization && req.headers.authorization.startsWith('Bearer')
+      ? req.headers.authorization.split(' ')[1]
+      : null;
+    const token = req.cookies[cookieName] || bearer;
+    if (token) {
+      try {
+        const user = await userFromToken(token);
+        if (user) await User.updateOne({ _id: user._id }, { $inc: { tokenVersion: 1 } });
+      } catch {
+        // invalid or expired token: nothing to revoke
+      }
+    }
+
+    // Clear with the same attributes the cookie was set with, or production browsers keep it
+    res.clearCookie(cookieName, authCookieOptions());
 
     res.status(200).json({
       success: true,

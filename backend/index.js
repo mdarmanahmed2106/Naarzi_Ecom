@@ -42,26 +42,26 @@ app.use(helmet());
 // machines) to reach this dev server without hardcoding a specific IP that goes stale.
 const isPrivateLanOrigin = (origin) => /^http:\/\/(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+):\d+$/.test(origin);
 
+// Origins of our own storefront and admin. CLIENT_URL / ADMIN_CLIENT_URL may each list several
+// origins, comma-separated (e.g. https://naarzi.com,https://www.naarzi.com,https://naarzi-shop.vercel.app)
+const isAllowedOrigin = (origin) => {
+  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) return true;
+  if (process.env.NODE_ENV === 'development' && isPrivateLanOrigin(origin)) return true;
+  const allowedOrigins = [
+    process.env.CLIENT_URL || 'http://localhost:3000',
+    process.env.ADMIN_CLIENT_URL || 'http://localhost:3007'
+  ].flatMap((list) => list.split(',').map((o) => o.trim().replace(/[/]+$/, '')));
+  return allowedOrigins.includes(origin);
+};
+
 // Enable CORS
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
-        callback(null, true);
-      } else if (process.env.NODE_ENV === 'development' && isPrivateLanOrigin(origin)) {
+      if (!origin || isAllowedOrigin(origin)) {
         callback(null, true);
       } else {
-        // CLIENT_URL / ADMIN_CLIENT_URL may each list several origins, comma-separated
-        // (e.g. https://naarzi.com,https://www.naarzi.com,https://naarzi-shop.vercel.app)
-        const allowedOrigins = [
-          process.env.CLIENT_URL || 'http://localhost:3000',
-          process.env.ADMIN_CLIENT_URL || 'http://localhost:3007'
-        ].flatMap((list) => list.split(',').map((o) => o.trim().replace(/[/]+$/, '')));
-        if (allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error('Not allowed by CORS'));
-        }
+        callback(new Error('Not allowed by CORS'));
       }
     },
     credentials: true
@@ -70,6 +70,28 @@ app.use(
 
 // Cookie parser
 app.use(cookieParser());
+
+// CSRF protection. The login cookie is SameSite=None (the shop and API are on different sites),
+// so the browser attaches it even to requests another website triggers. Any state-changing
+// request that carries a login cookie must therefore come from one of our own origins, judged
+// by the Origin header (or Referer when a browser leaves Origin out). Requests without a login
+// cookie (Razorpay webhooks, Bearer-token calls) are not at risk and pass through.
+const SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS'];
+const requestOrigin = (req) => {
+  if (req.headers.origin) return req.headers.origin;
+  try {
+    return req.headers.referer ? new URL(req.headers.referer).origin : null;
+  } catch {
+    return null;
+  }
+};
+app.use((req, res, next) => {
+  const hasAuthCookie = req.cookies && (req.cookies.token || req.cookies.admin_token);
+  if (SAFE_METHODS.includes(req.method) || !hasAuthCookie) return next();
+  const origin = requestOrigin(req);
+  if (origin && isAllowedOrigin(origin)) return next();
+  return res.status(403).json({ success: false, message: 'Request blocked: unrecognised origin' });
+});
 
 // Body parser (JSON parser with verify option to capture raw body for Razorpay webhooks)
 app.use(
@@ -80,8 +102,14 @@ app.use(
   })
 );
 
-// URL Encoded parser
-app.use(express.urlencoded({ extended: true }));
+// No urlencoded parser: both apps send JSON (and multipart for uploads). Form-encoded bodies are
+// what a plain cross-site <form> posts, so the API doesn't accept them at all.
+// Express 5 leaves req.body undefined when no parser ran (no body, or a type we don't parse);
+// default it so handlers and validation answer with a clean 4xx instead of crashing with a 500.
+app.use((req, res, next) => {
+  if (req.body === undefined) req.body = {};
+  next();
+});
 
 // Express 5 query getter compatibility workaround for express-mongo-sanitize
 app.use((req, res, next) => {
