@@ -12,7 +12,8 @@ const { requireAuth, requireAdmin, optionalAuth } = require('../middleware/auth'
 const router = express.Router();
 
 // Public routes
-router.post('/validate', optionalAuth, validateCoupon);
+// Coupons are for logged-in customers only (the storefront shows offers locked until login)
+router.post('/validate', requireAuth, validateCoupon);
 router.get('/active', optionalAuth, getActiveCoupons);
 
 // Admin-only CRUD

@@ -217,6 +217,7 @@ export function AppProvider({ children }) {
       await authApi.logout();
       setUser(null);
       saveCart([]); // clear local cart state AND localStorage
+      setAppliedCoupon(null); // coupons belong to the account that applied them
       hasSyncedRef.current = false; // reset sync-guard so a genuinely new login on this device syncs cleanly
       showToast('info', "You've been logged out", 'See you again soon.', 3500);
     } catch (error) {

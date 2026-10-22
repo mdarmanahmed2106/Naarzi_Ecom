@@ -76,6 +76,21 @@ export default function CartDrawer() {
     }
   };
 
+  // Coupons are for logged-in customers. Logged out, tapping an offer (or the unlock prompt) opens
+  // the login popup; afterwards the cart reopens and the tapped offer, if any, is applied.
+  // The ref always points at the latest apply handler, so it runs with the logged-in session.
+  const applyCouponRef = React.useRef(handleApplyCoupon);
+  React.useEffect(() => {
+    applyCouponRef.current = handleApplyCoupon;
+  });
+  const unlockCoupons = (code) => {
+    setIsCartOpen(false);
+    requireLogin(() => {
+      setIsCartOpen(true);
+      if (code) applyCouponRef.current(code);
+    });
+  };
+
   const removeCoupon = () => {
     setAppliedCoupon(null);
     setPromoCode('');
@@ -248,7 +263,25 @@ export default function CartDrawer() {
               </div>
 
               <div className={`overflow-hidden transition-all duration-300 ${isDiscountsOpen ? 'max-h-[600px] mb-4' : 'max-h-0'}`}>
+                {/* Logged out: offers are visible but locked until login */}
+                {!user && (
+                  <div className="mb-3 flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                    <Icon name="lock" size="sm" className="text-primary flex-none" />
+                    <p className="flex-1 text-xs text-on-surface leading-snug">
+                      Log in to unlock offers and apply coupons to your order.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => unlockCoupons()}
+                      className="flex-none min-h-9 px-3 rounded bg-primary text-white text-[11px] font-bold tracking-wider uppercase hover:bg-primary-container transition-colors cursor-pointer"
+                    >
+                      Log in
+                    </button>
+                  </div>
+                )}
+
                 {/* Manual coupon input */}
+                {user && (
                 <div className="flex gap-2 relative mb-2">
                   <input 
                     type="text" 
@@ -266,6 +299,7 @@ export default function CartDrawer() {
                     {couponLoading ? '...' : 'Apply'}
                   </button>
                 </div>
+                )}
                 {couponError && <p className="text-error text-xs mb-3">{couponError}</p>}
                 
                 {/* Applied coupon pill */}
@@ -327,7 +361,17 @@ export default function CartDrawer() {
                               )}
                             </div>
                             
-                            {qualifies ? (
+                            {!user ? (
+                              <button
+                                type="button"
+                                onClick={() => unlockCoupons(qualifies ? c.code : null)}
+                                aria-label={`Log in to unlock ${c.code}`}
+                                className="inline-flex items-center gap-1 font-label-caps text-[11px] text-primary hover:text-white hover:bg-primary font-bold uppercase tracking-wider py-1 px-3 rounded bg-white border border-primary/30 transition-all cursor-pointer shadow-xs"
+                              >
+                                <Icon name="lock" size="sm" />
+                                UNLOCK
+                              </button>
+                            ) : qualifies ? (
                               <button
                                 onClick={() => handleApplyCoupon(c.code)}
                                 disabled={couponLoading}
