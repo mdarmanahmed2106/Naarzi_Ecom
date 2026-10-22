@@ -10,6 +10,7 @@ export default function InventoryPage() {
     editingStockId,
     openStockEditModal,
     filteredProducts,
+    lowStockThreshold,
   } = useAdmin();
 
   if (filteredProducts.length === 0) return <EmptyState />;
@@ -67,7 +68,7 @@ export default function InventoryPage() {
                             <span className={`inline-block font-semibold px-2 py-0.5 rounded text-xs ${
                               currentStock <= 0 
                                 ? 'bg-red-50 text-red-700 border border-red-100 line-through'
-                                : currentStock <= 3
+                                : currentStock <= lowStockThreshold
                                 ? 'bg-amber-50 text-amber-700 border border-amber-100 font-bold'
                                 : 'text-on-surface'
                             }`}>

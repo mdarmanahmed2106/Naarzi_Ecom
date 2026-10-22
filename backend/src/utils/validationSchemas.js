@@ -137,7 +137,8 @@ const createReviewSchema = z.object({
 const updateSettingsSchema = z.object({
   body: z.object({
     freeShippingThreshold: z.number().min(0, 'Free shipping threshold cannot be negative').optional(),
-    shippingCost: z.number().min(0, 'Shipping cost cannot be negative').optional()
+    shippingCost: z.number().min(0, 'Shipping cost cannot be negative').optional(),
+    lowStockThreshold: z.number().int('Low stock threshold must be a whole number').min(0, 'Low stock threshold cannot be negative').max(1000, 'Low stock threshold is too high').optional()
   })
 });
 

@@ -34,7 +34,9 @@ export default function AdminProvider({ children }) {
   const isProductForm = /^\/products\/[^/]+/.test(pathname);
 
   // Store Settings State
-  const [settingsForm, setSettingsForm] = useState({ freeShippingThreshold: 0, shippingCost: 0 });
+  const [settingsForm, setSettingsForm] = useState({ freeShippingThreshold: 0, shippingCost: 0, lowStockThreshold: 3 });
+  // The saved threshold (not the form's unsaved value) drives low-stock alerts
+  const [lowStockThreshold, setLowStockThreshold] = useState(3);
   const [savingSettings, setSavingSettings] = useState(false);
   
   // Search & Filters
@@ -243,8 +245,10 @@ export default function AdminProvider({ children }) {
       if (settingsResponse.success) {
         setSettingsForm({
           freeShippingThreshold: settingsResponse.data.freeShippingThreshold ?? 0,
-          shippingCost: settingsResponse.data.shippingCost ?? 0
+          shippingCost: settingsResponse.data.shippingCost ?? 0,
+          lowStockThreshold: settingsResponse.data.lowStockThreshold ?? 3
         });
+        setLowStockThreshold(settingsResponse.data.lowStockThreshold ?? 3);
       }
 
       await fetchNotifications();
@@ -911,9 +915,11 @@ export default function AdminProvider({ children }) {
     try {
       const response = await settingsApi.update({
         freeShippingThreshold: Number(settingsForm.freeShippingThreshold) || 0,
-        shippingCost: Number(settingsForm.shippingCost) || 0
+        shippingCost: Number(settingsForm.shippingCost) || 0,
+        lowStockThreshold: Math.max(0, Math.round(Number(settingsForm.lowStockThreshold) || 0))
       });
       if (response.success) {
+        setLowStockThreshold(response.data.lowStockThreshold ?? 3);
         setSuccessMsg('Settings saved.');
       }
     } catch (err) {
@@ -1006,10 +1012,10 @@ export default function AdminProvider({ children }) {
     let lowCount = 0;
     if (p.colors && p.colors.length > 0) {
       p.colors.forEach(c => {
-        lowCount += c.sizes.filter(s => s.stock <= 3).length;
+        lowCount += c.sizes.filter(s => s.stock <= lowStockThreshold).length;
       });
     } else if (p.sizes) {
-      lowCount += p.sizes.filter(s => s.stock <= 3).length;
+      lowCount += p.sizes.filter(s => s.stock <= lowStockThreshold).length;
     }
     return count + lowCount;
   }, 0);
@@ -1319,6 +1325,7 @@ export default function AdminProvider({ children }) {
     handleToggleBanner,
     handleDeleteBanner,
     handleSaveSettings,
+    lowStockThreshold,
     handleToggleCoupon,
     handleDeleteCoupon,
     handleSubmitBanner,

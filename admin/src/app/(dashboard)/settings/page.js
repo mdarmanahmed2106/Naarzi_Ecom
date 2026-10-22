@@ -46,7 +46,29 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-  
+
+          <div className="pt-8 border-t border-outline-variant/20">
+            <h3 className="text-xl font-display-md text-on-surface font-bold">Inventory</h3>
+            <p className="text-on-surface-variant text-sm mt-1">A size is flagged as low stock (dashboard alert, amber in Inventory) at or below this many units.</p>
+            <div className="grid sm:grid-cols-2 gap-6 mt-5">
+              <div>
+                <label htmlFor="lowStockThreshold" className="block text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-2">
+                  LOW STOCK THRESHOLD (UNITS)
+                </label>
+                <input
+                  id="lowStockThreshold"
+                  type="number"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value={settingsForm.lowStockThreshold}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, lowStockThreshold: e.target.value })}
+                  className="w-full border border-outline-variant rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="flex justify-end pt-2 border-t border-outline-variant/20">
             <button
               type="submit"

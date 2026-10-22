@@ -11,6 +11,12 @@ const settingsSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     min: [0, 'Shipping cost cannot be negative']
+  },
+  // A size counts as low stock (admin alerts, amber in Inventory) at or below this many units
+  lowStockThreshold: {
+    type: Number,
+    default: 3,
+    min: [0, 'Low stock threshold cannot be negative']
   }
 }, {
   timestamps: true
