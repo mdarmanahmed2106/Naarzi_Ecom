@@ -260,6 +260,8 @@ body {
 }
 
 .animate-shimmer {
+  /* Base colour under the sweeping highlight, so blocks wider than the 400px band stay filled */
+  background-color: var(--color-surface-container);
   background-image: linear-gradient(
     90deg,
     var(--color-surface-container) 0px,

@@ -169,9 +169,7 @@ export default function ProductDetailPage({ params }) {
     return (
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
-        <div className="flex-1 flex items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
-        </div>
+        <ProductPageSkeleton />
         <Footer />
       </div>
     );
@@ -706,3 +704,60 @@ export default function ProductDetailPage({ params }) {
   );
 }
 
+// Loading placeholder shaped like the product page: gallery (thumbnails on desktop) beside
+// title, price, description, colour, size and add-to-cart, so nothing jumps when it loads.
+function ProductPageSkeleton() {
+  const bar = 'rounded animate-shimmer';
+  return (
+    <main className="w-full pt-8 bg-surface" aria-busy="true" aria-label="Loading product">
+      <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop pb-20">
+        <div className="flex items-center gap-2 mb-6 min-h-9">
+          <div className={`h-3 w-12 ${bar}`} />
+          <div className={`h-3 w-16 ${bar}`} />
+          <div className={`h-3 w-28 ${bar}`} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start mb-24">
+          <div className="lg:col-span-7">
+            <div className="md:hidden w-full aspect-[3/4] rounded-xl animate-shimmer" />
+            <div className="hidden md:flex flex-row-reverse gap-4">
+              <div className="flex-1 aspect-[3/4] rounded-2xl animate-shimmer" />
+              <div className="flex flex-col gap-4 w-24 shrink-0">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="w-full aspect-[3/4] rounded-xl animate-shimmer" />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-5 lg:pl-8 flex flex-col pt-8 lg:pt-0">
+            <div className={`h-3 w-24 mb-5 ${bar}`} />
+            <div className={`h-9 md:h-10 w-4/5 mb-3 ${bar}`} />
+            <div className={`h-6 w-28 mb-8 ${bar}`} />
+            <div className="space-y-2.5 mb-8">
+              <div className={`h-3.5 w-full ${bar}`} />
+              <div className={`h-3.5 w-11/12 ${bar}`} />
+              <div className={`h-3.5 w-2/3 ${bar}`} />
+            </div>
+            <div className={`h-3 w-20 mb-4 ${bar}`} />
+            <div className="flex gap-4 mb-8">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="w-10 h-10 rounded-full animate-shimmer" />
+              ))}
+            </div>
+            <div className={`h-3 w-12 mb-4 ${bar}`} />
+            <div className="flex flex-wrap gap-3 mb-8">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} className="w-12 h-12 rounded-xl animate-shimmer" />
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <div className="w-32 h-14 rounded-xl animate-shimmer" />
+              <div className="flex-1 h-14 rounded-xl animate-shimmer" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
