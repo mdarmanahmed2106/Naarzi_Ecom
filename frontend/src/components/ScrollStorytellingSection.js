@@ -206,15 +206,20 @@ export default function ScrollStorytellingSection() {
         className="lg:hidden relative py-12 px-4 sm:px-10 max-w-xl mx-auto"
       >
         {STORIES_DATA.map((story, idx) => (
-          <MobileStoryCard
-            key={story.id}
-            story={story}
-            index={idx}
-            total={STORIES_DATA.length}
-            progress={mobileProgress}
-            reduceMotion={shouldReduceMotion}
-            videoRef={idx === 1 ? mobileVideoRef : undefined}
-          />
+          <React.Fragment key={story.id}>
+            <MobileStoryCard
+              story={story}
+              index={idx}
+              total={STORIES_DATA.length}
+              progress={mobileProgress}
+              reduceMotion={shouldReduceMotion}
+              videoRef={idx === 1 ? mobileVideoRef : undefined}
+            />
+            {/* The scroll gap between cards is its own element, not a margin on the card: a sticky
+                card lets go when its box (margin included) reaches the end of the deck, so cards
+                with a margin would unpin early and slide out above the last card */}
+            {idx < STORIES_DATA.length - 1 && <div aria-hidden="true" className="h-[18vh]" />}
+          </React.Fragment>
         ))}
         {/* Hold so the last card pins and fully covers the deck before the section scrolls away */}
         <div aria-hidden="true" className="h-[30vh]" />
@@ -236,7 +241,7 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
     <div
       className="sticky"
       // Every card pins at the same spot under the 80px header so the next one fully covers it
-      style={{ top: '5.5rem', marginBottom: isLast ? 0 : '18vh' }}
+      style={{ top: '5.5rem' }}
     >
       <motion.div
         style={{ scale: reduceMotion ? 1 : scale, transformOrigin: 'center center' }}
