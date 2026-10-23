@@ -71,6 +71,17 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
+  // Compact logo (monogram only) once the page has scrolled past the announcement bar
+  const [isCompact, setIsCompact] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setIsCompact(window.scrollY > 40);
+    const frame = requestAnimationFrame(onScroll); // pages that open already scrolled
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [wordSuggestions, setWordSuggestions] = useState([]);
@@ -415,8 +426,18 @@ export default function Header() {
               </div>
             ) : (
               <Link href="/" aria-label="Naarzi, Own the moment: home" className="flex flex-col items-center gap-1 py-2">
-                <img src="/brand/naarzi-monogram.png" alt="" className="h-6 lg:h-8 w-auto" />
-                <img src="/brand/naarzi-wordmark.png" alt="Naarzi" className="h-5 lg:h-[30px] w-auto" />
+                {/* Once scrolled, only the monogram shows: the wordmark fades out and the monogram
+                    slides down to the centre (by half the wordmark + gap), so the header height never changes */}
+                <img
+                  src="/brand/naarzi-monogram.png"
+                  alt=""
+                  className={`h-6 lg:h-8 w-auto transition-transform duration-300 ease-out ${isCompact ? 'translate-y-3 lg:translate-y-[17px] scale-125' : ''}`}
+                />
+                <img
+                  src="/brand/naarzi-wordmark.png"
+                  alt="Naarzi"
+                  className={`h-5 lg:h-[30px] w-auto transition-all duration-300 ease-out ${isCompact ? 'opacity-0 -translate-y-1' : ''}`}
+                />
               </Link>
             )}
           </div>
