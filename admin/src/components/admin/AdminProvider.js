@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi, adminToken, authHeaders } from '@/lib/api';
 import { exportRowsAsCsv } from '@/lib/csv';
+import { compressImage, runWithLimit } from '@/lib/compressImage';
 
 const AdminContext = createContext(null);
 
@@ -418,47 +419,43 @@ export default function AdminProvider({ children }) {
     setColors(updated);
   };
 
-  // Same limit as the API (backend/src/routes/upload.js), checked here so a big photo fails at once
+  // Same limit as the API (backend/src/routes/upload.js). Photos are shrunk in the browser first
+  // (lib/compressImage), so this only catches the rare file still too big after that.
   const MAX_IMAGE_MB = 10;
   const handleFileUpload = async (colorIndex, files) => {
-    const filesArray = Array.from(files);
-    const tooBig = (file) => file.size > MAX_IMAGE_MB * 1024 * 1024;
-    const newItems = filesArray.map(file => {
-      const id = `upload-${Date.now()}-${Math.random()}`;
-      return tooBig(file)
-        ? { id, file, name: file.name, status: 'failed', error: `Larger than ${MAX_IMAGE_MB}MB (${(file.size / 1024 / 1024).toFixed(1)}MB)` }
-        : { id, file, name: file.name, status: 'uploading' };
-    });
-    const oversized = newItems.filter(item => item.status === 'failed');
-    if (oversized.length) {
-      setErrorMsg(`${oversized.map(i => `"${i.name}"`).join(', ')} ${oversized.length > 1 ? 'are' : 'is'} over ${MAX_IMAGE_MB}MB. Please resize or compress ${oversized.length > 1 ? 'them' : 'it'} and upload again.`);
-    }
-    
+    const newItems = Array.from(files).map(file => ({
+      id: `upload-${Date.now()}-${Math.random()}`, file, name: file.name, status: 'uploading'
+    }));
+
     const updated = [...colors];
     updated[colorIndex].uploadedImages = [...updated[colorIndex].uploadedImages, ...newItems];
     setColors(updated);
 
-    newItems.filter(item => item.status === 'uploading').forEach(async (item) => {
-      const formData = new FormData();
-      formData.append('image', item.file);
+    const setItem = (id, patch) => setColors(prev => {
+      const arr = [...prev];
+      arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => img.id === id ? { ...img, ...patch } : img);
+      return arr;
+    });
+
+    // Two at a time: each large photo needs a lot of memory while it's being shrunk
+    await runWithLimit(newItems, 2, async (item) => {
       try {
+        const ready = await compressImage(item.file);
+        if (ready.size > MAX_IMAGE_MB * 1024 * 1024) {
+          const reason = `Larger than ${MAX_IMAGE_MB}MB even after optimising (${(ready.size / 1024 / 1024).toFixed(1)}MB)`;
+          setErrorMsg(`"${item.name}" didn't upload: ${reason}`);
+          setItem(item.id, { status: 'failed', error: reason });
+          return;
+        }
+        const formData = new FormData();
+        formData.append('image', ready);
         const response = await uploadApi.uploadImage(formData);
-        setColors(prev => {
-          const arr = [...prev];
-          arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => 
-            img.id === item.id ? (response.success && response.url ? { ...img, url: response.url, status: 'success' } : { ...img, status: 'failed', error: 'Upload failed' }) : img
-          );
-          return arr;
-        });
+        setItem(item.id, response.success && response.url ? { url: response.url, status: 'success' } : { status: 'failed', error: 'Upload failed' });
       } catch (err) {
         // Keep the server's reason (too large, storage not set up, keys rejected...) so it can be shown
         const reason = err.message || 'Upload failed';
         setErrorMsg(`"${item.name}" didn't upload: ${reason}`);
-        setColors(prev => {
-          const arr = [...prev];
-          arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => img.id === item.id ? { ...img, status: 'failed', error: reason } : img);
-          return arr;
-        });
+        setItem(item.id, { status: 'failed', error: reason });
       }
     });
   };
@@ -732,7 +729,7 @@ export default function AdminProvider({ children }) {
     if (!file) return;
     setCategoryUploading(true);
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', await compressImage(file));
     try {
       const response = await uploadApi.uploadImage(formData);
       if (response.success && response.url) {
