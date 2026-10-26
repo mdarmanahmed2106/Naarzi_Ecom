@@ -56,15 +56,16 @@ exports.getProducts = async (req, res, next) => {
         const words = t.split(/[-\s]+/).map(escapeRegex);
         return new RegExp(`^${words.join('[-\\s]+')}$`, 'i');
       };
-      if (tagsArray.some(t => t.toLowerCase() === 'sale')) {
-        query.isOnSale = true;
-        // Remove 'sale' from array to check other tags
-        const otherTags = tagsArray.filter(t => t.toLowerCase() !== 'sale');
-        if (otherTags.length > 0) {
-          query.tags = { $in: otherTags.map(tagPattern) };
-        }
-      } else {
-        query.tags = { $in: tagsArray.map(tagPattern) };
+      // Some "tags" are really product flags set by checkboxes in the admin
+      const FLAG_TAGS = { 'sale': 'isOnSale', 'best-sellers': 'isBestSeller', 'bestsellers': 'isBestSeller' };
+      const otherTags = [];
+      tagsArray.forEach(t => {
+        const flag = FLAG_TAGS[t.toLowerCase()];
+        if (flag) query[flag] = true;
+        else otherTags.push(t);
+      });
+      if (otherTags.length > 0) {
+        query.tags = { $in: otherTags.map(tagPattern) };
       }
     }
 
@@ -298,7 +299,7 @@ exports.getFeaturedProducts = async (req, res, next) => {
 // @access  Public
 exports.getBestSellers = async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 8;
+    const limit = Math.min(parseInt(req.query.limit) || 8, 24);
     const products = await Product.find({ isBestSeller: true })
       .populate('category', 'name slug')
       .limit(limit);

@@ -63,6 +63,8 @@ export default function Header() {
   const [banners, setBanners] = useState([]);
   const [promoCoupons, setPromoCoupons] = useState([]);
   const [navCategories, setNavCategories] = useState([]);
+  // Products ticked "Best seller" in the admin, listed in the Apparel mega menu
+  const [bestSellers, setBestSellers] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeMegaMenu, setActiveMegaMenu] = useState(null);
   const [mobileApparelOpen, setMobileApparelOpen] = useState(false);
@@ -143,9 +145,18 @@ export default function Header() {
         console.error('Failed to load categories for nav:', err);
       }
     }
+    async function fetchBestSellers() {
+      try {
+        const res = await productsApi.getBestSellers();
+        if (res.success) setBestSellers((res.data || []).slice(0, 4));
+      } catch (err) {
+        console.error('Failed to load best sellers for nav:', err);
+      }
+    }
     fetchBanners();
     fetchPromoCoupons();
     fetchNavCategories();
+    fetchBestSellers();
   }, []);
 
   useEffect(() => {
@@ -509,9 +520,23 @@ export default function Header() {
               <div className="flex flex-col gap-3.5 min-w-[160px]">
                 <p className={megaLabelClass}>Explore</p>
                 <Link href="/shop?tag=new-arrival" onClick={() => setActiveMegaMenu(null)} className={megaLinkClass}>New Arrival</Link>
-                <Link href="/shop?tag=bestsellers" onClick={() => setActiveMegaMenu(null)} className={megaLinkClass}>Best Sellers</Link>
                 <Link href="/shop?tag=sale" onClick={() => setActiveMegaMenu(null)} className={megaLinkClass}>Sale</Link>
               </div>
+
+              {/* Only when at least one product is ticked "Best seller" in the admin */}
+              {bestSellers.length > 0 && (
+                <div className="flex flex-col gap-3.5 min-w-[180px]">
+                  <p className={megaLabelClass}>Best Sellers</p>
+                  {bestSellers.map((p) => (
+                    <Link key={p._id} href={`/products/${p.slug}`} onClick={() => setActiveMegaMenu(null)} className={megaLinkClass}>
+                      {p.name}
+                    </Link>
+                  ))}
+                  <Link href="/shop?tag=best-sellers" onClick={() => setActiveMegaMenu(null)} className="text-[13px] font-label-caps tracking-[0.16em] uppercase text-primary hover:opacity-70 transition-opacity">
+                    Shop all best sellers
+                  </Link>
+                </div>
+              )}
 
               <div className="flex flex-col gap-3.5 min-w-[160px]">
                 <p className={megaLabelClass}>Occasion</p>
@@ -581,6 +606,9 @@ export default function Header() {
                     </>
                   )}
                   <li><Link href="/shop?tag=trending" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors flex items-center min-h-11">Trending</Link></li>
+                  {bestSellers.length > 0 && (
+                    <li><Link href="/shop?tag=best-sellers" onClick={() => setIsMobileMenuOpen(false)} className="hover:text-primary transition-colors flex items-center min-h-11">Best Sellers</Link></li>
+                  )}
                   <li><Link href="/shop" onClick={() => setIsMobileMenuOpen(false)} className="font-bold text-primary flex items-center min-h-11">Shop All Apparel</Link></li>
                 </ul>
               </div>
