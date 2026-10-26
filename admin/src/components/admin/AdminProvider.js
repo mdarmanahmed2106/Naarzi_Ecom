@@ -133,6 +133,12 @@ export default function AdminProvider({ children }) {
 
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  // Success messages clear themselves after a few seconds; errors stay until dismissed so they aren't missed
+  useEffect(() => {
+    if (!successMsg) return;
+    const timer = setTimeout(() => setSuccessMsg(''), 4000);
+    return () => clearTimeout(timer);
+  }, [successMsg]);
 
   const router = useRouter();
   const [user, setUser] = useState(null);
