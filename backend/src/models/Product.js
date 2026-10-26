@@ -62,8 +62,15 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Product description is required']
   },
   details: {
-    type: [String], // Bullet points: material, fit, care instructions, origin, etc.
+    type: [String], // Bullet points: material, fit, origin, etc.
     default: []
+  },
+  // Washing / care guidance, shown in its own section on the product page
+  careInstructions: {
+    type: String,
+    trim: true,
+    maxlength: [1000, 'Care instructions must be 1000 characters or fewer'],
+    default: ''
   },
   price: {
     type: Number,

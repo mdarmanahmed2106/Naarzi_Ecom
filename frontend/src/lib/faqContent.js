@@ -48,7 +48,7 @@ export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
       items: [
         {
           q: 'What sizes does NAARZI offer?',
-          a: 'Sizing currently ranges from SX to XXL depending on the style. Each product page lists the exact sizes available for that piece, and shows which ones are in stock.',
+          a: 'Sizing currently ranges from XS to XXL depending on the style. Each product page lists the exact sizes available for that piece, and shows which ones are in stock.',
         },
         {
           q: 'What fabrics does NAARZI use?',

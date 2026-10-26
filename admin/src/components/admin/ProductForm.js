@@ -32,8 +32,8 @@ export default function ProductForm() {
     setTagsText,
     detailsText,
     setDetailsText,
-    isFeatured,
-    setIsFeatured,
+    careInstructions,
+    setCareInstructions,
     isBestSeller,
     setIsBestSeller,
     errorMsg,
@@ -152,7 +152,21 @@ export default function ProductForm() {
               rows={4}
               value={detailsText}
               onChange={(e) => setDetailsText(e.target.value)}
-              placeholder={'100% Organic Cotton\nConcealed side zipper\nDry clean only\nMade in India'}
+              placeholder={'100% Organic Cotton\nConcealed side zipper\nMade in India'}
+              className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs leading-relaxed"
+            />
+          </div>
+
+          {/* Care instructions */}
+          <div className="space-y-1">
+            <label htmlFor="careInstructions" className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">CARE INSTRUCTIONS (SHOWN IN ITS OWN SECTION ON THE PRODUCT PAGE)</label>
+            <textarea
+              id="careInstructions"
+              rows={3}
+              maxLength={1000}
+              value={careInstructions}
+              onChange={(e) => setCareInstructions(e.target.value)}
+              placeholder="Gentle cold hand wash or dry clean only. Dry in the shade and iron on medium heat."
               className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors text-xs leading-relaxed"
             />
           </div>
@@ -315,25 +329,13 @@ export default function ProductForm() {
             <div className="flex items-center gap-2">
               <input 
                 type="checkbox" 
-                id="chk-featured"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="w-4 h-4 text-primary focus:ring-primary border-outline-variant/50 rounded cursor-pointer"
-              />
-              <label htmlFor="chk-featured" className="text-xs font-label-caps tracking-wider text-on-surface-variant font-bold cursor-pointer">
-                FEATURED EDITORIAL ITEM
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input 
-                type="checkbox" 
                 id="chk-bestseller"
                 checked={isBestSeller}
                 onChange={(e) => setIsBestSeller(e.target.checked)}
                 className="w-4 h-4 text-primary focus:ring-primary border-outline-variant/50 rounded cursor-pointer"
               />
               <label htmlFor="chk-bestseller" className="text-xs font-label-caps tracking-wider text-on-surface-variant font-bold cursor-pointer">
-                BEST SELLER CATALOGUE ITEM
+                BEST SELLER (LISTED IN THE MENU UNDER BEST SELLERS)
               </label>
             </div>
           </div>

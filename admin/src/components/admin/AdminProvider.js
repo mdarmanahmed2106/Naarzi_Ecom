@@ -90,6 +90,7 @@ export default function AdminProvider({ children }) {
   const [occasionsText, setOccasionsText] = useState('');
   const [tagsText, setTagsText] = useState('');
   const [detailsText, setDetailsText] = useState('');
+  const [careInstructions, setCareInstructions] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBestSeller, setIsBestSeller] = useState(false);
 
@@ -308,6 +309,7 @@ export default function AdminProvider({ children }) {
     setName(product.name);
     setDescription(product.description);
     setDetailsText(product.details && product.details.length > 0 ? product.details.join('\n') : '');
+    setCareInstructions(product.careInstructions || '');
     setPrice(product.price);
     setDiscountedPrice(product.discountedPrice !== undefined && product.discountedPrice !== null ? product.discountedPrice : '');
     setIsOnSale(product.isOnSale || false);
@@ -366,6 +368,7 @@ export default function AdminProvider({ children }) {
     setName('');
     setDescription('');
     setDetailsText('');
+    setCareInstructions('');
     setPrice(0);
     setDiscountedPrice('');
     setIsOnSale(false);
@@ -554,6 +557,7 @@ export default function AdminProvider({ children }) {
       name,
       description,
       details: detailsText ? detailsText.split('\n').map(s => s.trim()).filter(s => s !== '') : [],
+      careInstructions: careInstructions.trim(),
       price: Number(price),
       discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : undefined,
       isOnSale,
@@ -1235,6 +1239,8 @@ export default function AdminProvider({ children }) {
     setTagsText,
     detailsText,
     setDetailsText,
+    careInstructions,
+    setCareInstructions,
     isFeatured,
     setIsFeatured,
     isBestSeller,

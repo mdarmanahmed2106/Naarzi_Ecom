@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useState, useEffect } from 'react';
+import React, { use, useState, useEffect, useCallback } from 'react';
 import { getDefaultSize } from '@/lib/defaultSize';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -11,12 +11,13 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 import ProductImageZoom from '@/components/ProductImageZoom';
 import ImageLightbox from '@/components/ImageLightbox';
+import SizeGuideModal from '@/components/SizeGuideModal';
 
 export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
 
-  const { addToCart, user, setIsAuthOpen, setAuthModalTab, requireLogin, wishlistItems, addToWishlist, removeFromWishlist } = useApp();
+  const { addToCart, user, setIsAuthOpen, setAuthModalTab, requireLogin, wishlistItems, addToWishlist, removeFromWishlist, settings } = useApp();
 
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -30,6 +31,9 @@ export default function ProductDetailPage({ params }) {
   const [selectedColor, setSelectedColor] = useState('');
   const [currentColorVariant, setCurrentColorVariant] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [careOpen, setCareOpen] = useState(false);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const closeSizeGuide = useCallback(() => setSizeGuideOpen(false), []);
   const [shippingOpen, setShippingOpen] = useState(false);
   const [returnsOpen, setReturnsOpen] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -200,6 +204,12 @@ export default function ProductDetailPage({ params }) {
 
   // Check stock of selected size
   const selectedSizeObj = currentColorVariant?.sizes?.find(s => s.size === selectedSize);
+
+  const freeShippingThreshold = Number(settings?.freeShippingThreshold) || 0;
+  const shippingCost = Number(settings?.shippingCost) || 0;
+  const shippingText = freeShippingThreshold > 0
+    ? `Free shipping on orders over ${formatCurrency(freeShippingThreshold)}${shippingCost > 0 ? `; below that, delivery is ${formatCurrency(shippingCost)}` : ''}.`
+    : shippingCost > 0 ? `Delivery is ${formatCurrency(shippingCost)} per order.` : 'Free shipping on every order.';
   const isOutOfStock = selectedSizeObj ? selectedSizeObj.stock <= 0 : false;
 
   return (
@@ -216,7 +226,7 @@ export default function ProductDetailPage({ params }) {
             <span>/</span>
             {product.category && (
               <>
-                <Link href={`/?category=${product.category.slug}`} className="hover:text-primary transition-colors uppercase">
+                <Link href={`/shop?category=${product.category.slug}`} className="hover:text-primary transition-colors uppercase">
                   {product.category.name}
                 </Link>
                 <span>/</span>
@@ -303,7 +313,9 @@ export default function ProductDetailPage({ params }) {
 
             {/* Details & Action Column */}
             <div className="lg:col-span-5 lg:pl-8 flex flex-col pt-8 lg:pt-0">
-              <span className="text-secondary font-label-caps text-label-caps mb-4 tracking-widest text-xs">RESORT 2024</span>
+              {product.category?.name && (
+                <span className="text-secondary font-label-caps text-label-caps mb-4 tracking-widest text-xs uppercase">{product.category.name}</span>
+              )}
               <h1 className="font-display-lg text-3xl md:text-4xl text-primary mb-2">
                 {product.name}
               </h1>
@@ -362,7 +374,7 @@ export default function ProductDetailPage({ params }) {
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">SIZE</span>
-                  <button className="inline-flex items-center min-h-10 font-label-caps text-xs text-on-surface-variant underline underline-offset-4 hover:text-primary transition-colors cursor-pointer">
+                  <button type="button" onClick={() => setSizeGuideOpen(true)} aria-haspopup="dialog" className="inline-flex items-center min-h-10 font-label-caps text-xs text-on-surface-variant underline underline-offset-4 hover:text-primary transition-colors cursor-pointer">
                     Size Guide
                   </button>
                 </div>
@@ -450,31 +462,49 @@ export default function ProductDetailPage({ params }) {
 
               {/* Accordions */}
               <div className="border-t border-outline-variant/30 space-y-1">
-                {/* Details Accordion */}
-                <div className="border-b border-outline-variant/30">
-                  <button 
-                    onClick={() => setDetailsOpen(!detailsOpen)}
-                    className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
-                  >
-                    <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">DETAILS</span>
-                    <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${detailsOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {detailsOpen && (
-                    <div className="pb-5 transition-all duration-300">
-                      {product.details && product.details.length > 0 ? (
+                {/* Details Accordion: only when the product has detail points */}
+                {product.details && product.details.length > 0 && (
+                  <div className="border-b border-outline-variant/30">
+                    <button
+                      onClick={() => setDetailsOpen(!detailsOpen)}
+                      aria-expanded={detailsOpen}
+                      className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
+                    >
+                      <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">DETAILS</span>
+                      <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${detailsOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {detailsOpen && (
+                      <div className="pb-5 transition-all duration-300">
                         <ul className="list-disc pl-5 font-body-md text-sm text-on-surface-variant space-y-2">
                           {product.details.map((detail, i) => (
                             <li key={i}>{detail}</li>
                           ))}
                         </ul>
-                      ) : (
-                        <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                          {product.description}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Care Accordion: only when the product has care instructions */}
+                {product.careInstructions && (
+                  <div className="border-b border-outline-variant/30">
+                    <button
+                      onClick={() => setCareOpen(!careOpen)}
+                      aria-expanded={careOpen}
+                      className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
+                    >
+                      <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">CARE INSTRUCTIONS</span>
+                      <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${careOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {careOpen && (
+                      <div className="pb-5 transition-all duration-300">
+                        <p className="font-body-md text-sm text-on-surface-variant leading-relaxed whitespace-pre-line">
+                          {product.careInstructions}
                         </p>
-                      )}
-                    </div>
-                  )}
-                </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Shipping Accordion */}
                 <div className="border-b border-outline-variant/30">
@@ -488,7 +518,7 @@ export default function ProductDetailPage({ params }) {
                   {shippingOpen && (
                     <div className="pb-5 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                        Complimentary express shipping on all orders over $250. Standard delivery takes 3-5 business days.
+                        {shippingText} We deliver across India, and checkout shows an estimated delivery date before you pay.
                       </p>
                     </div>
                   )}
@@ -506,7 +536,7 @@ export default function ProductDetailPage({ params }) {
                   {returnsOpen && (
                     <div className="pb-5 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                        We accept returns within 30 days of delivery. Items must be unworn with original tags attached.
+                        Items can be returned within 7 days of delivery, provided they are unused and in their original packaging. Return shipping costs are the customer’s responsibility.
                       </p>
                     </div>
                   )}
@@ -696,6 +726,12 @@ export default function ProductDetailPage({ params }) {
           </div>
         )}
       </main>
+
+      <SizeGuideModal
+        open={sizeGuideOpen}
+        onClose={closeSizeGuide}
+        availableSizes={(currentColorVariant?.sizes || []).map((sz) => sz.size)}
+      />
 
       {/* Global Modals */}
 
