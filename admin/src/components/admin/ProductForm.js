@@ -213,7 +213,7 @@ export default function ProductForm() {
                 <div className="space-y-3">
                   <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">IMAGES FOR {color.name.toUpperCase()} *</label>
                   <div onDragEnter={(e) => handleDrag(colorIdx, e)} onDragOver={(e) => handleDrag(colorIdx, e)} onDragLeave={(e) => handleDrag(colorIdx, e)} onDrop={(e) => handleDrop(colorIdx, e)} className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-colors ${color.dragActive ? 'border-primary bg-primary/5' : 'border-outline-variant/60 bg-surface hover:bg-surface-container/20'}`} onClick={() => document.getElementById(`file-upload-${colorIdx}`).click()}>
-                    <input id={`file-upload-${colorIdx}`} type="file" accept="image/*" multiple className="hidden" onChange={(e) => e.target.files && handleFileUpload(colorIdx, e.target.files)} />
+                    <input id={`file-upload-${colorIdx}`} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { if (e.target.files) handleFileUpload(colorIdx, e.target.files); e.target.value = ''; }} />
                     <span className="material-symbols-outlined text-2xl text-on-surface-variant/50 mb-1">cloud_upload</span>
                     <p className="text-xs text-on-surface">Click or drag images</p>
                   </div>
@@ -228,6 +228,13 @@ export default function ProductForm() {
                             </>
                           )}
                           {img.status === 'uploading' && <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-primary"></div></div>}
+                          {img.status === 'failed' && (
+                            <div title={`${img.name}: ${img.error}`} className="flex flex-col items-center justify-center h-full gap-1 p-1.5 text-center bg-error-container/60 border border-error/30 rounded-lg">
+                              <span className="material-symbols-outlined text-base text-error">error</span>
+                              <span className="text-[9px] leading-tight text-error font-medium line-clamp-3">{img.error || 'Upload failed'}</span>
+                              <button type="button" onClick={(e) => { e.stopPropagation(); handleRemoveImage(colorIdx, img.id); }} className="text-[9px] underline text-on-surface-variant hover:text-error cursor-pointer">Remove</button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>

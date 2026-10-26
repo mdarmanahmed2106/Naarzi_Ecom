@@ -5,11 +5,14 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
+// 10MB per image: Cloudinary's free-plan limit, and enough for straight-from-camera photos
+const MAX_IMAGE_MB = 10;
+
 // Multer memory storage configuration
 const storage = multer.memoryStorage();
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+  limits: { fileSize: MAX_IMAGE_MB * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     // Only accept image files
     if (file.mimetype.startsWith('image/')) {
@@ -67,6 +70,15 @@ router.post(
         });
       }
 
+      // Without Cloudinary keys the upload would "succeed" with a fake URL that shows as a broken
+      // image on the live site, so production refuses instead
+      if (isMock && process.env.NODE_ENV === 'production') {
+        return res.status(503).json({
+          success: false,
+          message: "Image storage isn't set up on the server (Cloudinary keys are missing), so the photo wasn't saved."
+        });
+      }
+
       const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
 
       res.status(200).json({
@@ -76,10 +88,13 @@ router.post(
       });
     } catch (error) {
       console.error('Image Upload Error:', error);
-      // Cloudinary's error details stay in the log above, not the response
-      res.status(500).json({
+      // Cloudinary's error details stay in the log above; the response only says what to do about it
+      const keysRejected = error.http_code === 401 || error.http_code === 403 || /api[_ ]?key|signature|cloud[_ ]?name/i.test(error.message || '');
+      res.status(keysRejected ? 502 : 500).json({
         success: false,
-        message: 'Image upload failed'
+        message: keysRejected
+          ? 'Cloudinary rejected the upload. Check the Cloudinary cloud name, API key and secret on the server.'
+          : 'Image upload failed. Please try again.'
       });
     }
   }

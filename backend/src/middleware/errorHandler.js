@@ -27,7 +27,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Upload errors (file too large, too many files...) are the client's to fix
   if (err.name === 'MulterError') {
-    error = { message: err.code === 'LIMIT_FILE_SIZE' ? 'Image is too large (max 5MB).' : err.message, statusCode: 400 };
+    error = { message: err.code === 'LIMIT_FILE_SIZE' ? 'Image is too large (max 10MB).' : err.message, statusCode: 400 };
   }
 
   // JWT Errors

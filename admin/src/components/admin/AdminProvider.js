@@ -418,17 +418,27 @@ export default function AdminProvider({ children }) {
     setColors(updated);
   };
 
+  // Same limit as the API (backend/src/routes/upload.js), checked here so a big photo fails at once
+  const MAX_IMAGE_MB = 10;
   const handleFileUpload = async (colorIndex, files) => {
     const filesArray = Array.from(files);
+    const tooBig = (file) => file.size > MAX_IMAGE_MB * 1024 * 1024;
     const newItems = filesArray.map(file => {
-      return { id: `upload-${Date.now()}-${Math.random()}`, file, name: file.name, status: 'uploading' };
+      const id = `upload-${Date.now()}-${Math.random()}`;
+      return tooBig(file)
+        ? { id, file, name: file.name, status: 'failed', error: `Larger than ${MAX_IMAGE_MB}MB (${(file.size / 1024 / 1024).toFixed(1)}MB)` }
+        : { id, file, name: file.name, status: 'uploading' };
     });
+    const oversized = newItems.filter(item => item.status === 'failed');
+    if (oversized.length) {
+      setErrorMsg(`${oversized.map(i => `"${i.name}"`).join(', ')} ${oversized.length > 1 ? 'are' : 'is'} over ${MAX_IMAGE_MB}MB. Please resize or compress ${oversized.length > 1 ? 'them' : 'it'} and upload again.`);
+    }
     
     const updated = [...colors];
     updated[colorIndex].uploadedImages = [...updated[colorIndex].uploadedImages, ...newItems];
     setColors(updated);
 
-    newItems.forEach(async (item) => {
+    newItems.filter(item => item.status === 'uploading').forEach(async (item) => {
       const formData = new FormData();
       formData.append('image', item.file);
       try {
@@ -441,9 +451,12 @@ export default function AdminProvider({ children }) {
           return arr;
         });
       } catch (err) {
+        // Keep the server's reason (too large, storage not set up, keys rejected...) so it can be shown
+        const reason = err.message || 'Upload failed';
+        setErrorMsg(`"${item.name}" didn't upload: ${reason}`);
         setColors(prev => {
           const arr = [...prev];
-          arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => img.id === item.id ? { ...img, status: 'failed', error: 'Upload failed' } : img);
+          arr[colorIndex].uploadedImages = arr[colorIndex].uploadedImages.map(img => img.id === item.id ? { ...img, status: 'failed', error: reason } : img);
           return arr;
         });
       }
