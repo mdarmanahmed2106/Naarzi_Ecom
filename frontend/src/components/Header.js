@@ -436,18 +436,18 @@ export default function Header() {
                 )}
               </div>
             ) : (
-              <Link href="/" aria-label="Naarzi, Own the moment: home" className="flex flex-col items-center gap-1 py-2">
-                {/* Once scrolled, only the monogram shows: the wordmark fades out and the monogram
-                    slides down to the centre (by half the wordmark + gap), so the header height never changes */}
-                <img
-                  src="/brand/naarzi-monogram.png"
-                  alt=""
-                  className={`h-6 lg:h-8 w-auto transition-transform duration-300 ease-out ${isCompact ? 'translate-y-3 lg:translate-y-[17px] scale-125' : ''}`}
-                />
+              <Link href="/" aria-label="Naarzi, Own the moment: home" className="relative flex items-center justify-center h-12 lg:h-[66px] my-2">
+                {/* At the top of the page only the NAARZI wordmark shows; once scrolled it crossfades to the
+                    monogram. Both sit in the same fixed-height box, so the header height never changes. */}
                 <img
                   src="/brand/naarzi-wordmark.png"
                   alt="Naarzi"
-                  className={`h-5 lg:h-[30px] w-auto transition-all duration-300 ease-out ${isCompact ? 'opacity-0 -translate-y-1' : ''}`}
+                  className={`h-6 lg:h-9 w-auto transition-all duration-300 ease-out ${isCompact ? 'opacity-0 scale-95' : ''}`}
+                />
+                <img
+                  src="/brand/naarzi-monogram.png"
+                  alt=""
+                  className={`absolute inset-0 m-auto h-[30px] lg:h-10 w-auto transition-all duration-300 ease-out ${isCompact ? '' : 'opacity-0 scale-90'}`}
                 />
               </Link>
             )}
