@@ -6,6 +6,19 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import { EmptyState } from '@/components/admin/shared';
 import { useAdmin } from '@/components/admin/AdminProvider';
 
+// What a product still needs before the shop shows it (same rule as the API's isListed)
+const missingForShop = (p) => {
+  const missing = [];
+  if (!p.description) missing.push('description');
+  if (!p.category) missing.push('category');
+  if (!p.colors || p.colors.length === 0) missing.push('colours');
+  else {
+    if (p.colors.some((c) => !c.images || c.images.length === 0)) missing.push('photos');
+    if (p.colors.some((c) => !c.sizes || c.sizes.length === 0)) missing.push('sizes');
+  }
+  return missing;
+};
+
 export default function ProductsPage() {
   const {
     handleDeleteProduct,
@@ -24,7 +37,7 @@ export default function ProductsPage() {
                 <th className="py-4 px-6">Product</th>
                 <th className="py-4 px-6">Category</th>
                 <th className="py-4 px-6">Price</th>
-                <th className="py-4 px-6">Featured</th>
+                <th className="py-4 px-6">Shop</th>
                 <th className="py-4 px-6 text-right">Actions</th>
               </tr>
             </thead>
@@ -49,7 +62,7 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="py-4 px-6 text-on-surface-variant">
-                      {p.category?.name || 'APPAREL'}
+                      {p.category?.name || <span className="text-on-surface-variant/50">Not set</span>}
                     </td>
                     <td className="py-4 px-6">
                       {hasDisc ? (
@@ -62,12 +75,17 @@ export default function ProductsPage() {
                       )}
                     </td>
                     <td className="py-4 px-6">
-                      {p.isFeatured ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-label-caps text-primary bg-primary/5 px-2.5 py-1 rounded border border-primary/20 tracking-wider font-bold">
-                          FEATURED
+                      {missingForShop(p).length === 0 ? (
+                        <span className="inline-flex items-center text-[10px] font-label-caps text-green-800 bg-green-50 px-2.5 py-1 rounded border border-green-200 tracking-wider font-bold">
+                          LIVE
                         </span>
                       ) : (
-                        <span className="text-xs text-on-surface-variant/40">-</span>
+                        <div title="Shoppers can't see this product until it has these">
+                          <span className="inline-flex items-center text-[10px] font-label-caps text-amber-800 bg-amber-50 px-2.5 py-1 rounded border border-amber-200 tracking-wider font-bold">
+                            HIDDEN
+                          </span>
+                          <span className="block text-[10px] text-on-surface-variant mt-1">Needs {missingForShop(p).join(', ')}</span>
+                        </div>
                       )}
                     </td>
                     <td className="py-4 px-6 text-right">

@@ -25,25 +25,15 @@ const colorVariantSchema = new mongoose.Schema({
     trim: true,
     default: '#000000'
   },
+  // Images and sizes may be empty while a product is still being prepared; such a product
+  // stays hidden from the shop (see isListed below). The admin form still requires them.
   images: {
     type: [String],
-    required: [true, 'At least one product image is required for each color'],
-    validate: {
-      validator: function (val) {
-        return val.length > 0;
-      },
-      message: 'At least one image URL must be provided for the color variant'
-    }
+    default: []
   },
   sizes: {
     type: [sizeSchema],
-    required: [true, 'Product sizes are required for each color'],
-    validate: {
-      validator: function (val) {
-        return val.length > 0;
-      },
-      message: 'At least one size stock must be specified for the color variant'
-    }
+    default: []
   }
 });
 
@@ -59,7 +49,7 @@ const productSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: [true, 'Product description is required']
+    default: ''
   },
   details: {
     type: [String], // Bullet points: material, fit, origin, etc.
@@ -97,8 +87,7 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: [true, 'Product category is required']
+    ref: 'Category'
   },
   occasion: {
     type: [String],
@@ -106,13 +95,7 @@ const productSchema = new mongoose.Schema({
   },
   colors: {
     type: [colorVariantSchema],
-    required: [true, 'At least one color variant is required'],
-    validate: {
-      validator: function (val) {
-        return val.length > 0;
-      },
-      message: 'At least one color variant must be provided'
-    }
+    default: []
   },
   stock: {
     type: Number,
@@ -159,4 +142,21 @@ productSchema.pre('save', function () {
   }
 });
 
-module.exports = mongoose.model('Product', productSchema);
+// A product is shown in the shop only once it's complete: a description, a category, and at
+// least one colour where every colour has a photo and a size. Incomplete products (e.g. added
+// from a price list before photos exist) are visible to admins only.
+const LISTED_FILTER = {
+  description: { $nin: [null, ''] },
+  category: { $ne: null },
+  'colors.0': { $exists: true },
+  colors: { $not: { $elemMatch: { $or: [{ 'images.0': { $exists: false } }, { 'sizes.0': { $exists: false } }] } } }
+};
+const isListed = (p) => Boolean(
+  p && p.description && p.category && p.colors && p.colors.length > 0 &&
+  p.colors.every((c) => c.images && c.images.length > 0 && c.sizes && c.sizes.length > 0)
+);
+
+const Product = mongoose.model('Product', productSchema);
+Product.LISTED_FILTER = LISTED_FILTER;
+Product.isListed = isListed;
+module.exports = Product;

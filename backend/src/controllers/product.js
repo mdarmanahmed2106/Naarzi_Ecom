@@ -2,6 +2,10 @@ const Product = require('../models/Product');
 const Category = require('../models/Category');
 const Review = require('../models/Review');
 
+// Shoppers only see complete products; admins (via optionalAuth) also see ones still being prepared
+const isAdmin = (req) => req.user && req.user.role === 'admin';
+const listedOnly = (req, query = {}) => (isAdmin(req) ? query : { $and: [query, Product.LISTED_FILTER] });
+
 // User-typed search text is matched literally: regex characters are escaped (so "(" can't
 // throw a 500 and patterns like "(a+)+" can't hang the database) and length is capped.
 const MAX_SEARCH_LENGTH = 64;
@@ -168,8 +172,9 @@ exports.getProducts = async (req, res, next) => {
     const skipNum = (pageNum - 1) * limitNum;
 
     // Execute query
-    const totalProducts = await Product.countDocuments(query);
-    const products = await Product.find(query)
+    const visibleQuery = listedOnly(req, query);
+    const totalProducts = await Product.countDocuments(visibleQuery);
+    const products = await Product.find(visibleQuery)
       .populate('category', 'name slug')
       .sort(sortBy)
       .skip(skipNum)
@@ -198,7 +203,7 @@ exports.getProducts = async (req, res, next) => {
 // @access  Public
 exports.getFilters = async (req, res, next) => {
   try {
-    const products = await Product.find().select('colors');
+    const products = await Product.find(listedOnly(req)).select('colors');
 
     const colorMap = new Map();
     const sizeSet = new Set();
@@ -249,7 +254,7 @@ exports.getProductBySlug = async (req, res, next) => {
 
     const product = await Product.findOne({ slug }).populate('category', 'name slug parentCategory');
 
-    if (!product) {
+    if (!product || (!isAdmin(req) && !Product.isListed(product))) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
@@ -280,7 +285,7 @@ exports.getProductBySlug = async (req, res, next) => {
 exports.getFeaturedProducts = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 8;
-    const products = await Product.find({ isFeatured: true })
+    const products = await Product.find(listedOnly(req, { isFeatured: true }))
       .populate('category', 'name slug')
       .limit(limit);
 
@@ -300,7 +305,7 @@ exports.getFeaturedProducts = async (req, res, next) => {
 exports.getBestSellers = async (req, res, next) => {
   try {
     const limit = Math.min(parseInt(req.query.limit) || 8, 24);
-    const products = await Product.find({ isBestSeller: true })
+    const products = await Product.find(listedOnly(req, { isBestSeller: true }))
       .populate('category', 'name slug')
       .limit(limit);
 
@@ -320,7 +325,7 @@ exports.getBestSellers = async (req, res, next) => {
 exports.getNewArrivals = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 8;
-    const products = await Product.find()
+    const products = await Product.find(listedOnly(req))
       .populate('category', 'name slug')
       .sort('-createdAt')
       .limit(limit);
@@ -446,6 +451,7 @@ exports.getSearchSuggestions = async (req, res, next) => {
 
     // Find tags that match
     const products = await Product.find({
+      $and: [Product.LISTED_FILTER],
       $or: [
         { tags: regex },
         { name: new RegExp(escapeRegex(q), 'i') }
