@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAdmin } from '@/components/admin/AdminProvider';
 
@@ -42,6 +42,7 @@ export default function ProductForm() {
     handleRemoveColor,
     handleFileUpload,
     handleRemoveImage,
+    handleMoveImage,
     handleDrag,
     handleDrop,
     handleAddPasteUrl,
@@ -50,6 +51,9 @@ export default function ProductForm() {
 
   // The form is long and Save is at the bottom, so bring a new error into view
   const errorRef = useRef(null);
+  // Photo being dragged to a new position ({ colorIdx, idx }), and the tile it's over
+  const dragPhoto = useRef(null);
+  const [dropTarget, setDropTarget] = useState(null);
   useEffect(() => {
     if (errorMsg) errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [errorMsg]);
@@ -233,12 +237,31 @@ export default function ProductForm() {
                   </div>
                   {color.uploadedImages.length > 0 && (
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 pt-2">
-                      {color.uploadedImages.map((img) => (
-                        <div key={img.id} className="relative aspect-[3/4] bg-surface-container rounded-lg overflow-hidden border border-outline-variant/30 group">
+                      {color.uploadedImages.map((img, idx) => (
+                        <div
+                          key={img.id}
+                          draggable={img.status === 'success'}
+                          onDragStart={(e) => { dragPhoto.current = { colorIdx, idx }; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', img.id); }}
+                          onDragOver={(e) => { if (dragPhoto.current?.colorIdx === colorIdx) { e.preventDefault(); setDropTarget(`${colorIdx}-${idx}`); } }}
+                          onDragLeave={() => setDropTarget(null)}
+                          onDrop={(e) => { if (dragPhoto.current?.colorIdx !== colorIdx) return; e.preventDefault(); e.stopPropagation(); handleMoveImage(colorIdx, dragPhoto.current.idx, idx); dragPhoto.current = null; setDropTarget(null); }}
+                          onDragEnd={() => { dragPhoto.current = null; setDropTarget(null); }}
+                          className={`relative aspect-[3/4] bg-surface-container rounded-lg overflow-hidden border group ${img.status === 'success' ? 'cursor-grab active:cursor-grabbing' : ''} ${dropTarget === `${colorIdx}-${idx}` ? 'border-primary ring-2 ring-primary/40' : 'border-outline-variant/30'}`}
+                        >
                           {img.status === 'success' && (
                             <>
-                              <img src={img.url} className="w-full h-full object-cover" alt="Preview" />
-                              <button type="button" onClick={(e) => { e.stopPropagation(); handleRemoveImage(colorIdx, img.id); }} className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"><span className="material-symbols-outlined text-[10px]">close</span></button>
+                              <img src={img.url} draggable={false} className="w-full h-full object-cover" alt={`${color.name || 'Colour'} photo ${idx + 1}`} />
+                              {idx === 0 && (
+                                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-primary text-white text-[8px] font-bold tracking-wider">COVER</span>
+                              )}
+                              <button type="button" onClick={(e) => { e.stopPropagation(); handleRemoveImage(colorIdx, img.id); }} aria-label="Remove photo" className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"><span className="material-symbols-outlined text-[10px]">close</span></button>
+                              {/* Move buttons, for touch screens and keyboards where dragging is awkward */}
+                              {color.uploadedImages.length > 1 && (
+                                <div className="absolute bottom-1 inset-x-1 flex justify-between">
+                                  <button type="button" disabled={idx === 0} onClick={(e) => { e.stopPropagation(); handleMoveImage(colorIdx, idx, idx - 1); }} aria-label="Move photo earlier" className="w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary disabled:opacity-0 transition-colors cursor-pointer"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
+                                  <button type="button" disabled={idx === color.uploadedImages.length - 1} onClick={(e) => { e.stopPropagation(); handleMoveImage(colorIdx, idx, idx + 1); }} aria-label="Move photo later" className="w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-primary disabled:opacity-0 transition-colors cursor-pointer"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
+                                </div>
+                              )}
                             </>
                           )}
                           {img.status === 'uploading' && <div className="flex items-center justify-center h-full"><div className="animate-spin rounded-full h-4 w-4 border-t-2 border-primary"></div></div>}
@@ -252,6 +275,9 @@ export default function ProductForm() {
                         </div>
                       ))}
                     </div>
+                  )}
+                  {color.uploadedImages.length > 1 && (
+                    <p className="text-[10px] text-on-surface-variant">Drag photos (or use the arrows) to reorder. The first photo is the cover shown in the shop.</p>
                   )}
                   <div className="flex gap-2 items-center">
                     <input type="text" placeholder="Or paste image URL..." value={color.pasteUrl} onChange={(e) => handleColorChange(colorIdx, 'pasteUrl', e.target.value)} className="flex-1 px-3 py-1.5 bg-surface border border-outline-variant/40 rounded-lg text-xs" />

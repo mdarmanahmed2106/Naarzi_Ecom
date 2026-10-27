@@ -469,6 +469,18 @@ export default function AdminProvider({ children }) {
     });
   };
 
+  // Reorder a colour's photos; the saved order is the order shown in the shop (first = cover)
+  const handleMoveImage = (colorIndex, from, to) => {
+    setColors(prev => {
+      const list = prev[colorIndex]?.uploadedImages;
+      if (!list || from === to || to < 0 || to >= list.length) return prev;
+      const next = [...list];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return prev.map((c, i) => (i === colorIndex ? { ...c, uploadedImages: next } : c));
+    });
+  };
+
   const handleRemoveImage = (colorIndex, id) => {
     const updated = [...colors];
     updated[colorIndex].uploadedImages = updated[colorIndex].uploadedImages.filter(img => img.id !== id);
@@ -1324,6 +1336,7 @@ export default function AdminProvider({ children }) {
     handleRemoveColor,
     handleFileUpload,
     handleRemoveImage,
+    handleMoveImage,
     handleDrag,
     handleDrop,
     handleAddPasteUrl,
