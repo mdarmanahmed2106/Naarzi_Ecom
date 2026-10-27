@@ -69,16 +69,16 @@ const productSchema = new mongoose.Schema({
   },
   discountedPrice: {
     type: Number,
-    min: [0, 'Discounted price cannot be negative'],
+    default: null,
     validate: {
       validator: function (value) {
-        // If discountedPrice exists, it must be less than price
+        // Null means no discount. A set discount must be above 0 and below the price
         if (value !== undefined && value !== null) {
-          return value <= this.price;
+          return value > 0 && value < this.price;
         }
         return true;
       },
-      message: 'Discounted price must be less than or equal to original price'
+      message: 'Discounted price must be more than 0 and less than the original price'
     }
   },
   isOnSale: {

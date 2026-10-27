@@ -207,21 +207,39 @@ function OtpStep({ phone, sendOtp, verifyOtp, onBack }) {
     return () => clearTimeout(t);
   }, [resendTimer]);
 
-  const handleDigitChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return; // only single digit
+  // Fills boxes from `index` onward. Several digits arrive at once from SMS autofill
+  // (iOS/Android put the whole code in the focused box) or from pasting the code.
+  const fillFrom = (index, value) => {
+    const incoming = value.replace(/\D/g, '');
     const next = [...digits];
-    next[index] = value;
-    setDigits(next);
-    
-    // auto-advance
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+    if (!incoming) {
+      next[index] = '';
+      setDigits(next);
+      return;
     }
-    
-    // Verify when full
-    if (next.every((d) => d !== '') && next.join('').length === 6) {
+    // A full code always fills from the first box, wherever the cursor was
+    const start = incoming.length >= 6 ? 0 : index;
+    const chars = incoming.slice(0, 6 - start).split('');
+    chars.forEach((c, k) => { next[start + k] = c; });
+    setDigits(next);
+
+    const last = start + chars.length - 1;
+    inputRefs.current[Math.min(last + 1, 5)]?.focus();
+
+    if (next.every((d) => d !== '')) {
       handleVerify(next.join(''));
     }
+  };
+
+  const handleDigitChange = (index, value) => {
+    // Typing over a filled box gives two characters; keep the new one
+    if (value.length === 2 && digits[index]) value = value.replace(digits[index], '') || value[1];
+    fillFrom(index, value);
+  };
+
+  const handlePaste = (index, e) => {
+    e.preventDefault();
+    fillFrom(index, e.clipboardData.getData('text'));
   };
 
   const handleKeyDown = (index, e) => {
@@ -272,9 +290,13 @@ function OtpStep({ phone, sendOtp, verifyOtp, onBack }) {
             ref={(el) => (inputRefs.current[i] = el)}
             type="text"
             inputMode="numeric"
-            maxLength={1}
+            pattern="[0-9]*"
+            autoComplete={i === 0 ? 'one-time-code' : 'off'}
+            autoFocus={i === 0}
+            aria-label={`Digit ${i + 1} of 6`}
             value={d}
             onChange={(e) => handleDigitChange(i, e.target.value)}
+            onPaste={(e) => handlePaste(i, e)}
             onKeyDown={(e) => handleKeyDown(i, e)}
             className="w-10 h-12 sm:w-12 sm:h-14 border border-outline-variant rounded-lg text-center text-lg sm:text-xl focus:border-primary outline-none bg-surface text-on-surface transition-colors"
           />

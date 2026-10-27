@@ -533,8 +533,12 @@ export default function AdminProvider({ children }) {
       setErrorMsg('Price must be greater than 0');
       return;
     }
-    if (discountedPrice !== '' && Number(discountedPrice) > Number(price)) {
-      setErrorMsg('Discounted price must be less than or equal to original price');
+    if (discountedPrice !== '' && Number(discountedPrice) <= 0) {
+      setErrorMsg('Discounted price must be more than 0. Leave it empty for no discount.');
+      return;
+    }
+    if (discountedPrice !== '' && Number(discountedPrice) >= Number(price)) {
+      setErrorMsg('Discounted price must be less than the original price');
       return;
     }
     if (!category) {
@@ -577,7 +581,8 @@ export default function AdminProvider({ children }) {
       details: detailsText ? detailsText.split('\n').map(s => s.trim()).filter(s => s !== '') : [],
       careInstructions: careInstructions.trim(),
       price: Number(price),
-      discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : undefined,
+      // null (not undefined) so clearing the field removes an existing discount on edit
+      discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : null,
       isOnSale,
       category,
       colors: formattedColors,
