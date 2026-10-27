@@ -345,11 +345,8 @@ exports.getNewArrivals = async (req, res, next) => {
 // @access  Private/Admin
 exports.createProduct = async (req, res, next) => {
   try {
-    console.log('Incoming product payload:', JSON.stringify(req.body, null, 2));
-
-    // Check if category exists
-    const categoryExists = await Category.findById(req.body.category);
-    if (!categoryExists) {
+    // Category is optional (unfinished products stay hidden), but must exist when given
+    if (req.body.category && !(await Category.findById(req.body.category))) {
       return res.status(400).json({
         success: false,
         message: 'Invalid category. Category does not exist.'

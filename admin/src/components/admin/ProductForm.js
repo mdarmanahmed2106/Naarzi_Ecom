@@ -98,7 +98,7 @@ export default function ProductForm() {
               />
             </div>
             <div className="space-y-1">
-              <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">CATEGORY *</label>
+              <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">CATEGORY</label>
               <div className="relative">
                 <div 
                   onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
@@ -138,9 +138,8 @@ export default function ProductForm() {
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DESCRIPTION (MIN 10 CHARS) *</label>
-            <textarea 
-              required
+            <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DESCRIPTION (MIN 10 CHARS)</label>
+            <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}

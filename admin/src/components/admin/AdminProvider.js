@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBannersApi, couponsApi, notificationsApi, settingsApi, adminToken, authHeaders } from '@/lib/api';
 import { exportRowsAsCsv } from '@/lib/csv';
 import { compressImage, runWithLimit } from '@/lib/compressImage';
+import { missingForShop } from '@/lib/productStatus';
 
 const AdminContext = createContext(null);
 
@@ -525,8 +526,10 @@ export default function AdminProvider({ children }) {
       setErrorMsg('Product name must be at least 2 characters');
       return;
     }
-    if (!description || description.trim().length < 10) {
-      setErrorMsg('Description must be at least 10 characters');
+    // Only name and price are needed to save. Description, category, photos and sizes can be
+    // added later: the shop hides the product until they're all there.
+    if (description.trim() && description.trim().length < 10) {
+      setErrorMsg('Description must be at least 10 characters, or leave it empty for now');
       return;
     }
     if (price <= 0) {
@@ -541,11 +544,6 @@ export default function AdminProvider({ children }) {
       setErrorMsg('Discounted price must be less than the original price');
       return;
     }
-    if (!category) {
-      setErrorMsg('Category is required');
-      return;
-    }
-
     const formattedColors = [];
     for (const c of colors) {
       if (!c.name.trim()) {
@@ -553,20 +551,12 @@ export default function AdminProvider({ children }) {
         return;
       }
       const imageUrls = c.uploadedImages.filter(img => img.status === 'success').map(img => img.url);
-      if (imageUrls.length === 0) {
-        setErrorMsg(`At least one image is required for color variant "${c.name}"`);
-        return;
-      }
       const formattedSizes = Object.entries(c.sizesStock)
         .filter(([_, sizeObj]) => sizeObj.enabled)
         .map(([sizeName, sizeObj]) => ({
           size: sizeName,
           stock: parseInt(sizeObj.stock) || 0
         }));
-      if (formattedSizes.length === 0) {
-        setErrorMsg(`At least one size must be selected with stock for color variant "${c.name}"`);
-        return;
-      }
       formattedColors.push({
         name: c.name.trim(),
         hexCode: c.hexCode,
@@ -577,14 +567,14 @@ export default function AdminProvider({ children }) {
 
     const payload = {
       name,
-      description,
+      description: description.trim(),
       details: detailsText ? detailsText.split('\n').map(s => s.trim()).filter(s => s !== '') : [],
       careInstructions: careInstructions.trim(),
       price: Number(price),
       // null (not undefined) so clearing the field removes an existing discount on edit
       discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : null,
       isOnSale,
-      category,
+      category: category || null,
       colors: formattedColors,
       occasion: occasionsText ? occasionsText.split(',').map(s => s.trim()).filter(s => s !== '') : [],
       tags: tagsText ? tagsText.split(',').map(s => s.trim()).filter(s => s !== '') : [],
@@ -592,19 +582,22 @@ export default function AdminProvider({ children }) {
       isBestSeller
     };
 
+    const missing = missingForShop(payload);
+    const savedNote = missing.length ? ' It stays hidden from the shop until it has: ' + missing.join(', ') + '.' : '';
+
     try {
       let response;
       if (modalMode === 'add') {
         response = await productsApi.create(payload);
         if (response.success) {
-          setSuccessMsg('Product created successfully!');
+          setSuccessMsg('Product created successfully!' + savedNote);
           router.push('/products');
           loadData();
         }
       } else {
         response = await productsApi.update(currentProductId, payload);
         if (response.success) {
-          setSuccessMsg('Product updated successfully!');
+          setSuccessMsg('Product updated successfully!' + savedNote);
           router.push('/products');
           loadData();
         }

@@ -48,21 +48,22 @@ const sizeStockSchema = z.object({
 const colorVariantSchemaInput = z.object({
   name: z.string().min(1, 'Color name is required'),
   hexCode: z.string().optional(),
-  images: z.array(z.string().url('Images must be valid URLs')).min(1, 'At least one image is required'),
-  sizes: z.array(sizeStockSchema).min(1, 'At least one size stock must be specified')
+  // Photos and sizes can be added later; the shop hides the product until they're there
+  images: z.array(z.string().url('Images must be valid URLs')).default([]),
+  sizes: z.array(sizeStockSchema).default([])
 });
 
 const createProductSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Product name must be at least 2 characters'),
-    description: z.string().min(10, 'Description must be at least 10 characters'),
+    description: z.string().refine((d) => d === '' || d.length >= 10, 'Description must be at least 10 characters').default(''),
     details: z.array(z.string()).default([]),
     careInstructions: z.string().max(1000, 'Care instructions must be 1000 characters or fewer').optional(),
     price: z.number().min(0, 'Price cannot be negative'),
     discountedPrice: z.number().positive('Discounted price must be more than 0').nullable().optional(),
-    category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID'),
+    category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID').nullable().optional(),
     occasion: z.array(z.string()).default([]),
-    colors: z.array(colorVariantSchemaInput).min(1, 'At least one color variant must be provided'),
+    colors: z.array(colorVariantSchemaInput).default([]),
     tags: z.array(z.string()).default([]),
     isOnSale: z.boolean().default(false),
     isFeatured: z.boolean().default(false),
@@ -73,14 +74,14 @@ const createProductSchema = z.object({
 const updateProductSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Product name must be at least 2 characters').optional(),
-    description: z.string().min(10, 'Description must be at least 10 characters').optional(),
+    description: z.string().refine((d) => d === '' || d.length >= 10, 'Description must be at least 10 characters').optional(),
     details: z.array(z.string()).optional(),
     careInstructions: z.string().max(1000, 'Care instructions must be 1000 characters or fewer').optional(),
     price: z.number().min(0, 'Price cannot be negative').optional(),
     discountedPrice: z.number().positive('Discounted price must be more than 0').nullable().optional(),
-    category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID').optional(),
+    category: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID').nullable().optional(),
     occasion: z.array(z.string()).optional(),
-    colors: z.array(colorVariantSchemaInput).min(1, 'At least one color variant must be provided').optional(),
+    colors: z.array(colorVariantSchemaInput).optional(),
     tags: z.array(z.string()).optional(),
     isOnSale: z.boolean().optional(),
     isFeatured: z.boolean().optional(),
