@@ -15,7 +15,6 @@ import ScrollStorytellingSection from '@/components/ScrollStorytellingSection';
 import NaarziStorySection from '@/components/NaarziStorySection';
 import HighlightsStrip from '@/components/HighlightsStrip';
 import RevealFooter from '@/components/RevealFooter';
-import ReviewsSection from '@/components/ReviewsSection';
 import OccasionEdits from '@/components/OccasionEdits';
 import HeroCapsule from '@/components/HeroCapsule';
 import CapsuleBand from '@/components/CapsuleBand';
@@ -392,29 +391,43 @@ function HomePageContent() {
         {/* The Naarzi Story: scroll-animated editorial collage */}
         <NaarziStorySection />
 
-        {/* Featured testimonials */}
-        <ReviewsSection />
 
         {/* Instagram Gallery infinite loop marquee ticker */}
         <section className="py-12 md:py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
           <div className="text-center max-w-xl mx-auto mb-6 md:mb-10 px-4">
             <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-4">#NAARZILIFE</span>
             <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">Instagram Gallery</h2>
+            <a
+              href="https://www.instagram.com/naarzi.you/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center min-h-11 mt-3 font-label-caps text-xs tracking-[0.2em] text-primary underline underline-offset-4 hover:text-on-surface transition-colors"
+            >
+              @naarzi.you
+            </a>
           </div>
 
           <div className="w-full relative overflow-hidden py-4">
             <div className="flex gap-4 w-max instagram-marquee-track">
               {instaMarqueeImages.map((img, idx) => (
-                <div key={idx} className="w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 overflow-hidden relative group cursor-pointer">
+                <a
+                  key={idx}
+                  href="https://www.instagram.com/naarzi.you/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Naarzi on Instagram"
+                  tabIndex={idx >= instaImages.length ? -1 : undefined}
+                  className="block w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 overflow-hidden relative group"
+                >
                   <img
                     src={img}
-                    alt={`Instagram photo ${idx}`}
+                    alt=""
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
                     <Icon name="photo_camera" size="xl" className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>
