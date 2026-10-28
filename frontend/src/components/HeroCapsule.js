@@ -193,21 +193,30 @@ export default function HeroCapsule() {
               Our Story
             </Link>
           </motion.div>
-          {/* Current look + picker (desktop; on smaller screens it sits under the arch) */}
-          <motion.div variants={child} className="hidden lg:flex items-center gap-5 mt-2">
-            <Link href={current.href} className="group min-w-0" aria-live="polite">
-              <span className="block font-label-caps text-[10px] lg:text-[11px] tracking-[0.26em] uppercase text-gold-ink lg:text-accent-gold">
-                0{active + 1} / 0{SLIDES.length} &nbsp;·&nbsp; {current.note}
-              </span>
-              <span className="block font-display-lg text-xl lg:text-2xl leading-tight text-on-surface lg:text-white truncate">
-                {current.name}
-              </span>
-              <span className="block font-label-caps text-[11px] tracking-[0.18em] uppercase text-primary lg:text-white/80 mt-1 group-hover:underline underline-offset-4">
-                Shop this look →
-              </span>
-            </Link>
-            <SlideDots active={active} onSelect={setActive} />
-          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* Current look + picker, bottom right over the photo (desktop; on smaller screens it sits under the arch) */}
+      <div className="hidden lg:block absolute inset-x-0 bottom-0 pointer-events-none">
+        <div aria-hidden="true" className="absolute inset-0 -top-24 bg-linear-to-tl from-black/55 via-black/15 via-30% to-transparent to-55%" />
+        <motion.div
+          className="relative max-w-container-max mx-auto px-margin-desktop pb-16 flex items-center justify-end gap-6"
+          initial={reduce ? false : { opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: EASE, delay: reduce ? 0 : 0.6 }}
+        >
+          <div className="pointer-events-auto"><SlideDots active={active} onSelect={setActive} /></div>
+          <Link href={current.href} className="group min-w-0 text-right pointer-events-auto" aria-live="polite">
+            <span className="block font-label-caps text-[11px] tracking-[0.26em] uppercase text-accent-gold">
+              0{active + 1} / 0{SLIDES.length} &nbsp;·&nbsp; {current.note}
+            </span>
+            <span className="block font-display-lg text-2xl leading-tight text-white truncate">
+              {current.name}
+            </span>
+            <span className="block font-label-caps text-[11px] tracking-[0.18em] uppercase text-white/85 mt-1 group-hover:underline underline-offset-4">
+              Shop this look →
+            </span>
+          </Link>
         </motion.div>
       </div>
     </section>
