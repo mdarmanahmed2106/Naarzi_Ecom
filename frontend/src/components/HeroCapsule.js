@@ -14,7 +14,7 @@ const SLIDES = [
     name: 'Mint Green Suit Set',
     note: 'Launch Capsule',
     img: '/hero/mint-suit-dupatta.jpg',
-    pos: '50% 40%',
+    pos: '50% 0%',
     mobilePos: '82% 40%',
     alt: 'Model in a mint green suit set with a flowing organza dupatta',
     href: '/products/mint-green-suit-set',
@@ -32,7 +32,7 @@ const SLIDES = [
     name: 'Mint Green Suit Set',
     note: 'Festive Edit',
     img: '/hero/mint-suit-window.jpg',
-    pos: '50% 30%',
+    pos: '50% 8%',
     mobilePos: '78% 30%',
     alt: 'Smiling model in a mint green kurta and organza dupatta at a teal window',
     href: '/products/mint-green-suit-set',
@@ -136,8 +136,6 @@ export default function HeroCapsule() {
         ))}
         {/* Darkens the open left side so the copy reads on every photo (desktop) */}
         <div aria-hidden="true" className="hidden lg:block absolute inset-0 bg-linear-to-r from-black/60 via-black/30 via-45% to-transparent to-70%" />
-        {/* Thin gold frame (desktop) */}
-        <div aria-hidden="true" className="hidden lg:block absolute inset-6 border border-accent-gold/70 pointer-events-none" />
         </div>
       </motion.div>
 
