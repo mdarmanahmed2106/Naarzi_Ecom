@@ -27,10 +27,42 @@ const orderNumber = (order) => order._id.toString().slice(-8).toUpperCase();
 const rupees = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Render's free plan blocks outgoing SMTP, so an HTTPS email API is used when its key is set:
+//   BREVO_API_KEY or RESEND_API_KEY (the sender domain must be verified with that service).
+// MAIL_FROM_EMAIL sets the sender address for these (default support@naarzi.com).
+const postJson = async (url, headers, body) => {
+  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`${url} answered ${res.status}: ${(await res.text()).slice(0, 300)}`);
+};
+
 const sendMail = async ({ to, subject, html, text }) => {
+  const fromEmail = process.env.MAIL_FROM_EMAIL || SUPPORT_EMAIL;
+
+  if (process.env.BREVO_API_KEY) {
+    return postJson('https://api.brevo.com/v3/smtp/email', { 'api-key': process.env.BREVO_API_KEY }, {
+      sender: { name: 'Naarzi', email: fromEmail },
+      to: [{ email: to }],
+      replyTo: { email: SUPPORT_EMAIL },
+      subject,
+      htmlContent: html,
+      textContent: text
+    });
+  }
+
+  if (process.env.RESEND_API_KEY) {
+    return postJson('https://api.resend.com/emails', { Authorization: `Bearer ${process.env.RESEND_API_KEY}` }, {
+      from: `Naarzi <${fromEmail}>`,
+      to: [to],
+      reply_to: SUPPORT_EMAIL,
+      subject,
+      html,
+      text
+    });
+  }
+
   const t = getTransporter();
   if (!t) {
-    console.log(`Email skipped (SMTP not configured): "${subject}" to ${to}`);
+    console.log(`Email skipped (no email service configured): "${subject}" to ${to}`);
     return;
   }
   await t.sendMail({
