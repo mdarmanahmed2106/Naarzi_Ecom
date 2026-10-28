@@ -4,6 +4,7 @@ const Coupon = require('../models/Coupon');
 const Notification = require('../models/Notification');
 const Settings = require('../models/Settings');
 const { getAllowedNextStatuses } = require('../utils/orderStatusTransitions');
+const { sendOrderStatusEmail } = require('../utils/email');
 
 const { issueRefund } = require('../utils/refunds');
 
@@ -431,7 +432,8 @@ exports.updateOrderStatus = async (req, res, next) => {
       }
     }
 
-    const isCancelling = orderStatus === 'cancelled' && order.orderStatus !== 'cancelled';
+    const statusChanged = orderStatus !== order.orderStatus;
+    const isCancelling = orderStatus === 'cancelled' && statusChanged;
 
     // Return stock on cancel. A failed order's stock was already returned by the abandoned-order
     // job or payment.failed webhook; releaseOrderStock also guards against double releases.
@@ -463,6 +465,8 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (isCancelling && order.paymentStatus === 'paid') {
       refund = await issueRefund(order);
     }
+
+    if (statusChanged) sendOrderStatusEmail(order._id, orderStatus);
 
     res.status(200).json({
       success: true,
@@ -529,6 +533,8 @@ exports.cancelOrder = async (req, res, next) => {
     if (wasAlreadyPaid) {
       refund = await issueRefund(order);
     }
+
+    sendOrderStatusEmail(order._id, 'cancelled');
 
     // Create Notifications
     await Notification.create({

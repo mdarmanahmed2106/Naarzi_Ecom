@@ -4,6 +4,7 @@ const Coupon = require('../models/Coupon');
 const { razorpayInstance, isMock } = require('../config/razorpay');
 const Notification = require('../models/Notification');
 const { releaseOrderStock } = require('./order');
+const { sendOrderPlacedEmails } = require('../utils/email');
 
 // Mark an order paid exactly once. The status check and the update are one atomic operation,
 // so when the client's /verify call and Razorpay's order.paid webhook arrive together only one
@@ -22,6 +23,8 @@ const markOrderPaid = async (filter, razorpayPaymentId) => {
   if (order && order.couponCode) {
     await Coupon.findOneAndUpdate({ code: order.couponCode }, { $inc: { usedCount: 1 } });
   }
+  // Only the call that actually flipped the order to paid gets here, so emails go out once
+  if (order) sendOrderPlacedEmails(order._id);
   return order;
 };
 
