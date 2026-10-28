@@ -15,7 +15,7 @@ const SLIDES = [
     note: 'Launch Capsule',
     img: '/hero/mint-suit-dupatta.jpg',
     pos: '50% 40%',
-    mobilePos: '74% 40%',
+    mobilePos: '82% 40%',
     alt: 'Model in a mint green suit set with a flowing organza dupatta',
     href: '/products/mint-green-suit-set',
   },
@@ -33,7 +33,7 @@ const SLIDES = [
     note: 'Festive Edit',
     img: '/hero/mint-suit-window.jpg',
     pos: '50% 30%',
-    mobilePos: '72% 30%',
+    mobilePos: '78% 30%',
     alt: 'Smiling model in a mint green kurta and organza dupatta at a teal window',
     href: '/products/mint-green-suit-set',
   },
@@ -100,19 +100,22 @@ export default function HeroCapsule() {
       aria-label="Launch capsule looks"
       // Desktop: pinned just below the sticky header so the page content slides up over it, filling the
       // screen. Phones / portrait tablets: photo on top, copy below, sized by content.
-      className="relative lg:sticky lg:top-20 z-0 w-full lg:h-[calc(100dvh-5rem)] overflow-hidden bg-surface"
+      className="relative flex flex-col lg:block lg:sticky lg:top-20 z-0 w-full lg:h-[calc(100dvh-5rem)] overflow-hidden bg-surface"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      {/* Photos */}
+      {/* Photos. Phones / tablets: an arched crop on the model with a gold offset frame, below the
+          copy. Desktop: the full photo behind the copy. */}
       <motion.div
-        className="relative aspect-[4/5] sm:aspect-[16/10] lg:aspect-auto lg:absolute lg:inset-0 overflow-hidden bg-surface-container"
+        className="order-2 lg:order-none relative w-[min(78vw,360px)] aspect-[25/32] mx-auto mt-2 mb-2 lg:m-0 lg:w-auto lg:aspect-auto lg:absolute lg:inset-0"
         initial={reduce ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE }}
       >
+        <div aria-hidden="true" className="lg:hidden absolute left-3.5 top-3.5 -right-3.5 -bottom-3.5 border border-accent-gold rounded-t-full" />
+        <div className="absolute inset-0 overflow-hidden rounded-t-full lg:rounded-none bg-surface-container">
         {SLIDES.map((s, i) => (
           <img
             key={s.img}
@@ -133,12 +136,22 @@ export default function HeroCapsule() {
         ))}
         {/* Darkens the open left side so the copy reads on every photo (desktop) */}
         <div aria-hidden="true" className="hidden lg:block absolute inset-0 bg-linear-to-r from-black/60 via-black/30 via-45% to-transparent to-70%" />
-        {/* Thin gold frame */}
-        <div aria-hidden="true" className="absolute inset-3 sm:inset-4 lg:inset-6 border border-accent-gold/70 pointer-events-none" />
+        {/* Thin gold frame (desktop) */}
+        <div aria-hidden="true" className="hidden lg:block absolute inset-6 border border-accent-gold/70 pointer-events-none" />
+        </div>
       </motion.div>
 
+      {/* Current look + picker under the arch (phones / tablets) */}
+      <div className="order-3 lg:hidden flex items-end justify-between gap-4 w-[min(78vw,360px)] mx-auto mt-6 pb-14">
+        <Link href={current.href} className="min-w-0">
+          <span className="block font-label-caps text-[10px] tracking-[0.26em] uppercase text-gold-ink">{current.note}</span>
+          <span className="block font-display-lg text-xl leading-tight text-on-surface truncate">{current.name}</span>
+        </Link>
+        <SlideDots active={active} onSelect={setActive} />
+      </div>
+
       {/* Copy */}
-      <div className="relative lg:h-full max-w-container-max mx-auto px-6 md:px-margin-desktop pt-8 pb-14 lg:py-10 flex lg:items-center">
+      <div className="order-1 lg:order-none relative w-full lg:h-full max-w-container-max mx-auto px-6 md:px-margin-desktop pt-8 pb-8 lg:py-10 flex lg:items-center">
         <motion.div
           className="w-full lg:max-w-[600px] flex flex-col gap-4 lg:gap-[clamp(1rem,3dvh,1.75rem)]"
           initial="hidden"
@@ -173,8 +186,8 @@ export default function HeroCapsule() {
               Our Story
             </Link>
           </motion.div>
-          {/* Current look + picker */}
-          <motion.div variants={child} className="flex items-center justify-between lg:justify-start gap-5 mt-2">
+          {/* Current look + picker (desktop; on smaller screens it sits under the arch) */}
+          <motion.div variants={child} className="hidden lg:flex items-center gap-5 mt-2">
             <Link href={current.href} className="group min-w-0" aria-live="polite">
               <span className="block font-label-caps text-[10px] lg:text-[11px] tracking-[0.26em] uppercase text-gold-ink lg:text-accent-gold">
                 0{active + 1} / 0{SLIDES.length} &nbsp;·&nbsp; {current.note}
