@@ -20,15 +20,6 @@ const SLIDES = [
     href: '/products/mint-green-suit-set',
   },
   {
-    name: 'Nawab-e-Khas',
-    note: 'Festive Edit',
-    img: '/hero/nawab-maroon-grey-arch.jpg',
-    pos: '50% 20%',
-    mobilePos: '76% 40%',
-    alt: 'Model in a maroon halter kurta and sheer dupatta in front of a carved grey arch',
-    href: '/products/nawab-e-khas',
-  },
-  {
     name: 'Ivory Tunic & Trousers',
     note: 'New Arrival',
     img: '/hero/ivory-tunic-arch.jpg',
@@ -45,15 +36,6 @@ const SLIDES = [
     mobilePos: '78% 30%',
     alt: 'Smiling model in a mint green kurta and organza dupatta at a teal window',
     href: '/products/mint-green-suit-set',
-  },
-  {
-    name: 'Nawab-e-Khas',
-    note: 'Festive Edit',
-    img: '/hero/nawab-maroon-red-arch.jpg',
-    pos: '50% 30%',
-    mobilePos: '76% 40%',
-    alt: 'Model in a maroon halter kurta and dupatta in front of a carved arch on a deep red wall',
-    href: '/products/nawab-e-khas',
   },
   {
     name: 'Ivory Tunic & Trousers',
@@ -98,7 +80,7 @@ function SlideDots({ active, onSelect }) {
 
 /**
  * Homepage hero: a full-width campaign photo with the copy over its open left side, cycling through
- * six looks. On phones the photo crops in on the model and the copy sits below it. Pauses while
+ * four looks. On phones the photo crops in on the model and the copy sits below it. Pauses while
  * hovered or focused, and doesn't auto-advance for visitors who prefer reduced motion.
  */
 export default function HeroCapsule() {
