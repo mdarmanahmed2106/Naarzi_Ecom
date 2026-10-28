@@ -118,7 +118,7 @@ export default function HeroCapsule() {
       {/* Photos. Phones / tablets: an arched crop on the model with a gold offset frame, below the
           copy. Desktop: the full photo behind the copy. */}
       <motion.div
-        className="order-2 lg:order-none relative w-[min(78vw,360px)] aspect-[25/32] mx-auto mt-2 mb-2 lg:m-0 lg:w-auto lg:aspect-auto lg:absolute lg:inset-0"
+        className="order-2 lg:order-none relative w-[min(78vw,360px)] aspect-[25/32] mx-auto max-lg:-translate-x-[7px] mt-2 mb-2 lg:m-0 lg:w-auto lg:aspect-auto lg:absolute lg:inset-0"
         initial={reduce ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9, ease: EASE }}
@@ -149,8 +149,8 @@ export default function HeroCapsule() {
       </motion.div>
 
       {/* Current look + picker under the arch (phones / tablets) */}
-      <div className="order-3 lg:hidden flex items-end justify-between gap-4 w-[min(78vw,360px)] mx-auto mt-6 pb-14">
-        <Link href={current.href} className="min-w-0">
+      <div className="order-3 lg:hidden flex flex-col items-center gap-1 w-[min(78vw,360px)] mx-auto -translate-x-[7px] mt-7 pb-12 text-center">
+        <Link href={current.href} className="max-w-full">
           <span className="block font-label-caps text-[10px] tracking-[0.26em] uppercase text-gold-ink">{current.note}</span>
           <span className="block font-display-lg text-xl leading-tight text-on-surface truncate">{current.name}</span>
         </Link>
