@@ -185,7 +185,11 @@ function HomePageContent() {
     'co-ord-sets': { eyebrow: 'MATCHED SEPARATES', tagline: 'Two pieces, one statement.' },
     'suit-sets': { eyebrow: 'DESK TO EVENING', tagline: 'From the desk to the evening, without changing.' },
     skirts: { eyebrow: 'CLASSIC SHAPES', tagline: 'Classic shapes, NAARZI colour.' },
+    kaftans: { eyebrow: 'FLUID DRAPE', tagline: 'Loose, flowing and made to move.' },
   };
+  // The category is spelt a few ways in the admin; all of them get the kaftan copy
+  CATEGORY_COPY.kaftan = CATEGORY_COPY.kaftans;
+  CATEGORY_COPY.kafatan = CATEGORY_COPY.kaftans;
   const CATEGORY_ORDER = ['shirts', 'kurtis-tunics', 'co-ord-sets', 'suit-sets', 'skirts'];
   // Desktop columns by tile count (full class names so Tailwind generates them)
   const GRID_COLS = { 2: 'lg:grid-cols-2', 3: 'lg:grid-cols-3', 4: 'lg:grid-cols-4', 5: 'lg:grid-cols-5', 6: 'lg:grid-cols-3' };
@@ -194,10 +198,10 @@ function HomePageContent() {
     return i === -1 ? CATEGORY_ORDER.length : i;
   };
 
-  // Once any of the brand's five categories exist, show only those; until then fall back to
-  // whatever categories exist so the section is never empty.
-  const brandCategories = categories.filter((c) => CATEGORY_ORDER.includes(c.slug));
-  const shopCategories = [...(brandCategories.length > 0 ? brandCategories : categories)]
+  // Every top-level category the admin creates gets a tile: the brand's five in their set order,
+  // then any others.
+  const shopCategories = categories
+    .filter((c) => !c.parentCategory)
     .sort((a, b) => rank(a.slug) - rank(b.slug))
     .map((c) => ({
       id: c.slug,
@@ -265,7 +269,7 @@ function HomePageContent() {
                   <img
                     src={item.image}
                     alt={item.name}
-                    className="w-full h-full object-cover category-tile-image"
+                    className="w-full h-full object-cover object-[50%_20%] category-tile-image"
                   />
                 </motion.div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/70 transition-all duration-300"></div>
