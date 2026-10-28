@@ -33,7 +33,7 @@ export default function CapsuleBand() {
             src="/capsule/nawab-maroon-closeup.jpg"
             alt="Close up of the embellished halter neckline on the maroon Nawab-e-Khas kurta"
             loading="lazy"
-            className="absolute right-0 bottom-0 w-[46%] h-[53%] object-cover object-[50%_15%] border-[6px] md:border-8 border-primary"
+            className="absolute right-0 bottom-0 w-[46%] h-[53%] object-cover object-[50%_25%] border-[6px] md:border-8 border-primary"
           />
         </motion.div>
 
