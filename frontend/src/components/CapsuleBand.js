@@ -24,16 +24,16 @@ export default function CapsuleBand() {
         {/* Collage: tall arched photo with a smaller one overlapping its lower right */}
         <motion.div {...rise()} className="relative w-full lg:flex-1 max-w-[600px] mx-auto lg:mx-0 aspect-[15/16]">
           <img
-            src="/capsule/crimson-kaftan-wall.jpg"
-            alt="Model leaning on a white wall in a crimson kaftan"
+            src="/capsule/nawab-maroon-arch.jpg"
+            alt="Model in the maroon Nawab-e-Khas kurta and sheer dupatta in front of a carved arch"
             loading="lazy"
-            className="absolute left-0 top-0 w-[66%] h-[87.5%] object-cover rounded-t-full"
+            className="absolute left-0 top-0 w-[66%] h-[87.5%] object-cover object-[50%_20%] rounded-t-full"
           />
           <img
-            src="/capsule/crimson-kaftan-ledge.jpg"
-            alt="Crimson tiered ruffle sleeves resting on a white ledge"
+            src="/capsule/nawab-maroon-closeup.jpg"
+            alt="Close up of the embellished halter neckline on the maroon Nawab-e-Khas kurta"
             loading="lazy"
-            className="absolute right-0 bottom-0 w-[46%] h-[53%] object-cover object-[30%_40%] border-[6px] md:border-8 border-primary"
+            className="absolute right-0 bottom-0 w-[46%] h-[53%] object-cover object-[50%_30%] border-[6px] md:border-8 border-primary"
           />
         </motion.div>
 
