@@ -64,6 +64,7 @@ export default function SizeGuideModal({ open, onClose, availableSizes = [] }) {
             <thead>
               <tr className="font-label-caps text-[11px] tracking-widest text-on-surface-variant border-b border-outline-variant/40">
                 <th scope="col" className="py-2.5 text-left font-bold">Size</th>
+                <th scope="col" className="py-2.5 text-left font-bold">Size Name</th>
                 <th scope="col" className="py-2.5 font-bold">Bust</th>
                 <th scope="col" className="py-2.5 font-bold">Waist</th>
                 <th scope="col" className="py-2.5 font-bold">Hip</th>
@@ -71,10 +72,13 @@ export default function SizeGuideModal({ open, onClose, availableSizes = [] }) {
             </thead>
             <tbody>
               {SIZE_CHART.map((row) => {
-                const offered = availableSizes.includes(row.size);
+                const offered = row.code && availableSizes.includes(row.code);
                 return (
-                  <tr key={row.size} className={`border-b border-outline-variant/20 ${offered ? 'text-on-surface' : 'text-on-surface-variant/60'}`}>
-                    <th scope="row" className={`py-2.5 text-left ${offered ? 'font-bold text-primary' : 'font-medium'}`}>{row.size}</th>
+                  <tr key={`${row.num}-${row.name}`} className={`border-b border-outline-variant/20 ${offered ? 'text-on-surface bg-primary/5' : 'text-on-surface-variant'}`}>
+                    <th scope="row" className={`py-2.5 pl-2 text-left ${offered ? 'font-bold text-primary' : 'font-bold text-on-surface'}`}>{row.num}</th>
+                    <td className={`py-2.5 text-left ${row.plus ? 'text-gold-ink' : ''} ${offered ? 'font-bold text-primary' : ''}`}>
+                      {row.name}{row.code && <span className="text-on-surface-variant/70 font-normal"> ({row.code})</span>}
+                    </td>
                     <td className="py-2.5">{fmt(row.bust)}</td>
                     <td className="py-2.5">{fmt(row.waist)}</td>
                     <td className="py-2.5">{fmt(row.hip)}</td>
