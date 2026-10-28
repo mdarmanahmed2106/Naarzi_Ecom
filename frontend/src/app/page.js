@@ -402,12 +402,12 @@ function HomePageContent() {
             <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.35em] block mb-4">#NAARZILIFE</span>
             <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">Instagram Gallery</h2>
             <a
-              href="https://www.instagram.com/naarzi.you/"
+              href="https://www.instagram.com/naarzi.official/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center min-h-11 mt-3 font-label-caps text-xs tracking-[0.2em] text-primary underline underline-offset-4 hover:text-on-surface transition-colors"
             >
-              @naarzi.you
+              @naarzi.official
             </a>
           </div>
 
@@ -416,7 +416,7 @@ function HomePageContent() {
               {instaMarqueeImages.map((img, idx) => (
                 <a
                   key={idx}
-                  href="https://www.instagram.com/naarzi.you/"
+                  href="https://www.instagram.com/naarzi.official/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Naarzi on Instagram"
