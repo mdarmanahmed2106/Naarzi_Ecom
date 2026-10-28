@@ -6,15 +6,15 @@ import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion
 import Icon from '@/components/Icon';
 
 const HERO_IMAGE = {
-  src: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
+  src: '/story/red-kurta-blue-panels.jpg',
   label: 'COLOUR FIRST · 2026',
-  alt: 'Naarzi colour-led ready-to-wear',
+  alt: 'Model in a red flared kurta and wide trousers against blue panelled walls',
 };
 
 const SECOND_IMAGE = {
-  src: 'https://images.unsplash.com/photo-1617922001439-4a2e6562f328?q=80&w=1000&auto=format&fit=crop',
+  src: '/story/ivory-set-arch-twirl.jpg',
   label: 'ART FROM THE OVERLOOKED',
-  alt: 'Naarzi atelier and thoughtful design',
+  alt: 'Model twirling in an ivory tunic and trousers in front of a carved arch',
 };
 
 const PILLARS = [
@@ -205,7 +205,7 @@ export default function NaarziStorySection() {
             whileInView={{ scale: 1 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 1.4, ease: EASE }}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-[50%_25%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
           <figcaption className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 text-white font-label-caps text-[9px] md:text-[10px] tracking-widest font-bold">
@@ -225,7 +225,7 @@ export default function NaarziStorySection() {
               whileInView={{ scale: 1 }}
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 1.4, ease: EASE }}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-[50%_35%]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
             <figcaption className="absolute bottom-3 left-3 right-3 md:bottom-4 md:left-4 text-white font-label-caps text-[9px] md:text-[10px] tracking-widest font-bold">
