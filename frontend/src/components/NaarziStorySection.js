@@ -52,13 +52,13 @@ export default function NaarziStorySection() {
     >
       {/* ── Copy ── */}
       <div className="lg:col-span-6 space-y-6">
-        <motion.span {...fadeUp(0)} className="font-label-caps text-[10px] text-primary tracking-[0.25em] flex items-center gap-3 font-bold">
+        <motion.span {...fadeUp(0)} className="font-label-caps text-[10px] text-gold-ink tracking-[0.25em] flex items-center gap-3 font-bold">
           <motion.span
             initial={reduce ? false : { scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: EASE }}
-            className="inline-block w-8 h-[2px] bg-primary origin-left"
+            className="inline-block w-8 h-[2px] bg-accent-gold origin-left"
           />
           THE NAARZI STORY
         </motion.span>
@@ -132,7 +132,7 @@ export default function NaarziStorySection() {
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true, amount: 0.6 }}
             transition={{ duration: 1.1, ease: EASE }}
-            className="hidden sm:block absolute top-[calc(1rem+5px)] left-[5px] right-0 h-px bg-primary/40 origin-left"
+            className="hidden sm:block absolute top-[calc(1rem+5px)] left-[5px] right-0 h-px bg-accent-gold/50 origin-left"
           />
           <motion.span
             aria-hidden="true"
@@ -158,7 +158,7 @@ export default function NaarziStorySection() {
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true, amount: 0.6 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 0.3 + i * 0.18 }}
-                  className="absolute left-0 top-[5px] sm:top-0 w-[11px] h-[11px] rounded-full bg-primary ring-4 ring-surface"
+                  className="absolute left-0 top-[5px] sm:top-0 w-[11px] h-[11px] rounded-full bg-accent-gold ring-4 ring-surface"
                 />
                 <span className="font-label-caps text-xs text-primary font-bold block tracking-wider mb-1">
                   {p.num} · {p.title.toUpperCase()}

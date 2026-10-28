@@ -228,7 +228,7 @@ function HomePageContent() {
           variants={scrollFadeInVariants}
         >
           <div className="text-center max-w-xl mx-auto mb-8 md:mb-14">
-            <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-4">SHOP BY CATEGORY</span>
+            <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.35em] block mb-4">SHOP BY CATEGORY</span>
             <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">
               Find Your <span className="italic font-normal text-primary">Shape</span>
             </h2>
@@ -297,7 +297,7 @@ function HomePageContent() {
             {/* Section Header: Title, CTA Button & Nav Controls */}
             <div className="flex flex-row justify-between items-end gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-outline-variant/30">
               <div>
-                <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-3 uppercase">
+                <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.35em] block mb-3 uppercase">
                   CURATED SELECTION
                 </span>
                 <h2 className="font-display-lg text-[2rem] leading-tight md:text-5xl text-on-surface">
@@ -395,7 +395,7 @@ function HomePageContent() {
         {/* Instagram Gallery infinite loop marquee ticker */}
         <section className="py-12 md:py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
           <div className="text-center max-w-xl mx-auto mb-6 md:mb-10 px-4">
-            <span className="font-label-caps text-[10px] text-primary tracking-[0.35em] block mb-4">#NAARZILIFE</span>
+            <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.35em] block mb-4">#NAARZILIFE</span>
             <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">Instagram Gallery</h2>
             <a
               href="https://www.instagram.com/naarzi.you/"

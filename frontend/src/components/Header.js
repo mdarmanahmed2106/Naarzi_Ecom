@@ -30,7 +30,7 @@ function describeCoupon(c) {
 const navLinkClass = (active) =>
   `inline-flex items-center min-h-11 whitespace-nowrap border-b font-label-caps text-xs xl:text-[13px] tracking-[0.12em] xl:tracking-[0.18em] uppercase text-on-surface hover:border-accent-gold transition-colors ${active ? 'border-accent-gold' : 'border-transparent'}`;
 const iconButtonClass = 'relative w-11 h-11 inline-flex items-center justify-center hover:text-primary transition-colors cursor-pointer';
-const megaLabelClass = 'font-label-caps text-[11px] tracking-[0.28em] uppercase text-primary';
+const megaLabelClass = 'font-label-caps text-[11px] tracking-[0.28em] uppercase text-gold-ink';
 const megaLinkClass = 'text-[15px] text-on-surface hover:text-primary transition-colors';
 
 // Thin outline icons from the brand reference (1.4px stroke)
@@ -412,7 +412,7 @@ export default function Header() {
                       </div>
                     ) : (
                       <div>
-                        <div className="px-4 py-2 border-b border-accent-gold/25 text-[10px] font-label-caps tracking-[0.28em] uppercase text-primary">
+                        <div className="px-4 py-2 border-b border-accent-gold/25 text-[10px] font-label-caps tracking-[0.28em] uppercase text-gold-ink">
                           Suggestions
                         </div>
                         <ul className="max-h-80 overflow-y-auto py-1">

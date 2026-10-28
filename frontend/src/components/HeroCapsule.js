@@ -116,7 +116,7 @@ export default function HeroCapsule() {
           animate="visible"
           variants={container}
         >
-          <motion.p variants={child} className="flex items-center gap-3 font-label-caps text-[11px] lg:text-xs tracking-[0.3em] uppercase text-primary">
+          <motion.p variants={child} className="flex items-center gap-3 font-label-caps text-[11px] lg:text-xs tracking-[0.3em] uppercase text-gold-ink">
             <Sparkle className="w-4 h-4 text-accent-gold" />
             Launch Capsule
           </motion.p>
@@ -189,7 +189,7 @@ export default function HeroCapsule() {
               href={current.href}
               className="hidden lg:flex absolute -left-9 bottom-14 flex-col gap-1 bg-surface px-6 py-[18px] shadow-[0_18px_40px_rgba(143,77,92,0.16)] max-w-60 text-on-surface hover:text-primary transition-colors"
             >
-              <span className="font-label-caps text-[11px] tracking-[0.26em] uppercase text-primary">{current.note}</span>
+              <span className="font-label-caps text-[11px] tracking-[0.26em] uppercase text-gold-ink">{current.note}</span>
               <span className="font-display-lg text-2xl leading-[1.1]">{current.name}</span>
               <span className="font-label-caps text-xs tracking-[0.18em] uppercase text-primary mt-1.5">Shop this look →</span>
             </Link>
@@ -198,7 +198,7 @@ export default function HeroCapsule() {
           {/* Look caption + indicator (small screens) */}
           <div className="lg:hidden flex items-end justify-between gap-4 mt-6 shrink-0">
             <Link href={current.href} className="min-w-0">
-              <span className="block font-label-caps text-[10px] tracking-[0.26em] uppercase text-primary">{current.note}</span>
+              <span className="block font-label-caps text-[10px] tracking-[0.26em] uppercase text-gold-ink">{current.note}</span>
               <span className="block font-display-lg text-xl leading-tight text-on-surface truncate">{current.name}</span>
             </Link>
             <SlideDots active={active} onSelect={setActive} />

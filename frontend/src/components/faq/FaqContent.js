@@ -75,11 +75,11 @@ export default function FaqContent({ groups }) {
           initial={reduce ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: EASE }}
-          className="font-label-caps text-[10px] text-primary tracking-[0.25em] inline-flex items-center gap-3 font-bold mb-4"
+          className="font-label-caps text-[10px] text-gold-ink tracking-[0.25em] inline-flex items-center gap-3 font-bold mb-4"
         >
-          <span className="inline-block w-8 h-[2px] bg-primary" />
+          <span className="inline-block w-8 h-[2px] bg-accent-gold" />
           FAQS
-          <span className="inline-block w-8 h-[2px] bg-primary" />
+          <span className="inline-block w-8 h-[2px] bg-accent-gold" />
         </motion.span>
         <motion.h1
           initial={reduce ? false : { opacity: 0, y: 20 }}

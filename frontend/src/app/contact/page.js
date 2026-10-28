@@ -41,8 +41,8 @@ export default function ContactPage() {
         <section className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop pt-12 md:pt-20 pb-14 md:pb-24 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
           {/* Intro + email card */}
           <div className="lg:col-span-6 space-y-6 toast-enter">
-            <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] flex items-center gap-3 font-bold">
-              <span className="inline-block w-8 h-[2px] bg-primary" />
+            <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.25em] flex items-center gap-3 font-bold">
+              <span className="inline-block w-8 h-[2px] bg-accent-gold" />
               CONTACT
             </span>
             <h1 className="font-display-lg text-[2.25rem] sm:text-5xl text-on-surface font-bold leading-[1.08]">

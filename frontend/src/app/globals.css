@@ -48,7 +48,11 @@
 
   /* Accent colors used loosely across the app outside the core Material palette */
   --color-sale: #b0384f; /* deep rose-red: reads as sale, stays in the Dusty Rose family */
-  --color-accent-gold: #a6906c; /* champagne bronze, used sparingly (stars, quote marks) */
+  /* Antique gold: the small accent (about a tenth of the colour) beside the dusty rose. accent-gold
+     is for lines, icons, stars and large numerals; gold-ink is the deeper shade for small text
+     such as section labels, dark enough to read on the ivory background. */
+  --color-accent-gold: #b8945a;
+  --color-gold-ink: #8a6830;
   --color-first-order-badge: #f1ece4;
 
   /* Tight, tailored corners instead of soft pills */

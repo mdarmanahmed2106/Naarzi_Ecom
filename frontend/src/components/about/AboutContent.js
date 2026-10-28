@@ -29,8 +29,8 @@ export default function AboutContent() {
       {/* ── Story hero ── */}
       <section className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop pt-12 md:pt-20 pb-14 md:pb-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
         <div className="lg:col-span-6 space-y-6">
-          <motion.span {...fadeUp(0)} className="font-label-caps text-[10px] text-primary tracking-[0.25em] flex items-center gap-3 font-bold">
-            <span className="inline-block w-8 h-[2px] bg-primary" />
+          <motion.span {...fadeUp(0)} className="font-label-caps text-[10px] text-gold-ink tracking-[0.25em] flex items-center gap-3 font-bold">
+            <span className="inline-block w-8 h-[2px] bg-accent-gold" />
             OUR STORY
           </motion.span>
 
@@ -112,7 +112,7 @@ export default function AboutContent() {
             className="relative overflow-hidden bg-surface-container-lowest border border-outline-variant/30 rounded-[3px] p-7 md:p-10 shadow-[0_20px_50px_-35px_rgba(28,26,23,0.4)]"
           >
             <span className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
-            <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] font-bold">{card.label}</span>
+            <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.25em] font-bold">{card.label}</span>
             <p className="font-headline-sm text-xl md:text-2xl text-on-surface leading-snug mt-4">{card.body}</p>
           </motion.div>
         ))}
@@ -121,8 +121,8 @@ export default function AboutContent() {
       {/* ── What we believe ── */}
       <section className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop pb-14 md:pb-24">
         <motion.div {...fadeUp(0)} className="max-w-2xl mb-8 md:mb-12">
-          <span className="font-label-caps text-[10px] text-primary tracking-[0.25em] flex items-center gap-3 font-bold mb-3">
-            <span className="inline-block w-8 h-[2px] bg-primary" />
+          <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.25em] flex items-center gap-3 font-bold mb-3">
+            <span className="inline-block w-8 h-[2px] bg-accent-gold" />
             WHAT WE BELIEVE
           </span>
           <h2 className="font-display-lg text-[1.75rem] md:text-4xl text-on-surface font-bold leading-tight">

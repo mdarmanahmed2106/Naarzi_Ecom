@@ -43,7 +43,7 @@ export default function HighlightsStrip() {
                 whileInView={{ scaleY: 1 }}
                 viewport={{ once: true, amount: 0.6 }}
                 transition={{ duration: 0.7, ease: EASE, delay: 0.2 + i * 0.12 }}
-                className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-px bg-on-surface/60 origin-top"
+                className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-px bg-accent-gold origin-top"
               />
             )}
             <p className="font-headline-sm text-lg md:text-2xl text-on-surface font-bold">{item.title}</p>
