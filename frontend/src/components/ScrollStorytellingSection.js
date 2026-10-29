@@ -40,8 +40,8 @@ const STORIES_DATA = [
     title: 'Your next favourite, in the making.',
     body: 'Distinctive prints, expressive colours, and considered silhouettes. Pieces designed to find their place in your wardrobe, and feel entirely your own.',
     mood: 'Expressive. Confident. Individual.',
-    video: clip('v1793273878/IMG_5684'),
-    poster: still('v1793273878/IMG_5684'),
+    video: clip('v1793276071/IMG_5683'),
+    poster: still('v1793276071/IMG_5683'),
     ctaText: 'SHOP THE COLLECTION',
     link: '/shop'
   }
