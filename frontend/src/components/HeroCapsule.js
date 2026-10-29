@@ -95,6 +95,15 @@ export default function HeroCapsule() {
     return () => clearTimeout(t);
   }, [active, paused, reduce]);
 
+  // A reload would restore the old scroll position, leaving the pinned hero half covered by the page
+  // sliding over it. Start a reloaded homepage at the top instead.
+  useEffect(() => {
+    if (performance.getEntriesByType('navigation')[0]?.type !== 'reload') return;
+    history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+    return () => { history.scrollRestoration = 'auto'; };
+  }, []);
+
   const current = SLIDES[active];
 
   const container = { hidden: {}, visible: { transition: { staggerChildren: reduce ? 0 : 0.12 } } };
