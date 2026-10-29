@@ -27,6 +27,8 @@ export default function ProductCard({ product, className = '' }) {
                       product.discountedPrice !== null && 
                       product.discountedPrice < product.price;
   const price = hasDiscount ? product.discountedPrice : product.price;
+  // First tag shown as a badge, except "new arrival": nearly everything is new for now, so it says nothing
+  const badgeTag = (product.tags || []).find((t) => t.trim().toLowerCase().replace(/[-\s]+/g, ' ') !== 'new arrival');
   const originalPrice = product.price;
 
   // Active color images fallback logic
@@ -110,9 +112,9 @@ export default function ProductCard({ product, className = '' }) {
                 SALE
               </span>
             )}
-            {!product.isOnSale && product.tags && product.tags.length > 0 && (
+            {!product.isOnSale && badgeTag && (
               <span className="absolute top-3.5 left-3.5 bg-surface/90 backdrop-blur-sm text-primary text-[10px] font-label-caps tracking-[0.3em] px-2.5 py-1 z-10">
-                {product.tags[0].toUpperCase()}
+                {badgeTag.toUpperCase()}
               </span>
             )}
           </div>
