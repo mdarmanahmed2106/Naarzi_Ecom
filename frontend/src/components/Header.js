@@ -10,9 +10,6 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
 import { lockPageScroll } from '@/lib/scrollLock';
 
-// Shown when the admin hasn't set any promo banners
-const ANNOUNCEMENT_FALLBACK = 'Join the list for capsule drops, private previews & 10% off your first order';
-
 // "50% off on orders over ₹999 (up to ₹1,500 off)" from a coupon's rules
 function describeCoupon(c) {
   if (c.description && c.description.trim()) return c.description.trim();
@@ -96,7 +93,9 @@ export default function Header() {
     ...promoCoupons.map((c) => ({ _id: `coupon-${c._id}`, code: c.code, message: describeCoupon(c) })),
     ...banners,
   ];
-  const announcements = offers.length > 0 ? offers : [{ _id: 'default', message: ANNOUNCEMENT_FALLBACK }];
+  // The bar only appears once there are promo codes or banners from the admin: nothing while they
+  // load, if the request fails, or if none are set
+  const announcements = offers;
   // Shop and product pages sit under Apparel
   const apparelActive = pathname === '/shop' || pathname.startsWith('/products/');
 
@@ -307,7 +306,8 @@ export default function Header() {
 
   return (
     <>
-      {/* Announcement bar: active promo codes and the admin's promo banners (or the brand line) scrolling across */}
+      {/* Announcement bar: active promo codes and the admin's promo banners scrolling across */}
+      {announcements.length > 0 && (
       <aside aria-label="Announcements" className="bg-primary text-on-primary overflow-hidden">
         {/* Each half is at least a screen wide but grows to fit the messages, so they never overlap;
             the halves are identical so the -50% loop is seamless */}
@@ -335,6 +335,7 @@ export default function Header() {
           ))}
         </div>
       </aside>
+      )}
       <header className="sticky top-0 w-full z-50 bg-surface/95 backdrop-blur-md border-b border-accent-gold/35">
         <div className="relative h-16 lg:h-20 max-w-container-max mx-auto px-5 md:px-margin-desktop flex items-center justify-between">
 
