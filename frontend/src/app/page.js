@@ -42,7 +42,7 @@ function HomePageContent() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Trending Carousel Drag Scroll State & Boundary Visibility
+  // New Arrivals Carousel Drag Scroll State & Boundary Visibility
   const carouselRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -86,7 +86,11 @@ function HomePageContent() {
     async function loadProducts() {
       setLoading(true);
       try {
-        const response = await productsApi.getAll({ limit: 12 });
+        // Products tagged "new arrival" in the admin; the latest products if none are tagged yet
+        let response = await productsApi.getAll({ tag: 'new-arrival', limit: 12 });
+        if (response.success && !(response.data || []).length) {
+          response = await productsApi.getAll({ limit: 12 });
+        }
         if (response.success) {
           setProducts(response.data || []);
         }
@@ -282,7 +286,7 @@ function HomePageContent() {
           )}
         </motion.section>
 
-        {/* Main Product Feed & Trending Carousel (Single Row Alignment per Reference) */}
+        {/* New Arrivals Carousel (Single Row Alignment per Reference) */}
         <section className="py-14 md:py-24 bg-surface-container-lowest w-full border-t border-outline-variant/30">
           <div className="max-w-container-max mx-auto px-4 sm:px-6 md:px-margin-desktop">
 
@@ -290,18 +294,18 @@ function HomePageContent() {
             <div className="flex flex-row justify-between items-end gap-4 mb-6 md:mb-8 pb-4 md:pb-6 border-b border-outline-variant/30">
               <div>
                 <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.35em] block mb-3 uppercase">
-                  CURATED SELECTION
+                  JUST IN
                 </span>
                 <h2 className="font-display-lg text-[2rem] leading-tight md:text-5xl text-on-surface">
-                  Trending this <span className="italic font-serif text-primary font-normal">Season</span>
+                  New <span className="italic font-serif text-primary font-normal">Arrivals</span>
                 </h2>
               </div>
               <div className="flex items-center gap-4">
                 <Link
-                  href="/shop?tag=trending"
+                  href="/shop?tag=new-arrival"
                   className="group px-3 py-2 sm:px-0 sm:py-2 text-primary text-[11px] font-label-caps tracking-[0.25em] border-b border-primary/0 hover:border-primary transition-colors duration-300 inline-flex items-center gap-1.5 sm:gap-2 whitespace-nowrap cursor-pointer active:scale-95"
                 >
-                  <span><span className="sm:hidden">VIEW ALL</span><span className="hidden sm:inline">SHOP ALL TRENDING</span></span>
+                  <span><span className="sm:hidden">VIEW ALL</span><span className="hidden sm:inline">SHOP ALL NEW ARRIVALS</span></span>
                   <Icon name="arrow_forward" size="sm" className="transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </div>
