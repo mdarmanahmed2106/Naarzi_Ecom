@@ -6,6 +6,7 @@ import { productsApi, categoriesApi, ordersApi, uploadApi, adminApi, promoBanner
 import { exportRowsAsCsv } from '@/lib/csv';
 import { compressImage, runWithLimit } from '@/lib/compressImage';
 import { missingForShop } from '@/lib/productStatus';
+import { PRESET_TAGS, tagKey, splitList } from '@/lib/productOptions';
 
 const AdminContext = createContext(null);
 
@@ -66,7 +67,6 @@ export default function AdminProvider({ children }) {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
   const [discountedPrice, setDiscountedPrice] = useState('');
-  const [isOnSale, setIsOnSale] = useState(false);
   const [category, setCategory] = useState('');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [colors, setColors] = useState([
@@ -88,7 +88,9 @@ export default function AdminProvider({ children }) {
   const [categoryName, setCategoryName] = useState('');
   const [categoryImage, setCategoryImage] = useState('');
   const [categoryUploading, setCategoryUploading] = useState(false);
-  const [occasionsText, setOccasionsText] = useState('');
+  // Occasion slugs picked from OCCASION_OPTIONS; preset tags toggled on; any other tags as typed text
+  const [occasions, setOccasions] = useState([]);
+  const [presetTags, setPresetTags] = useState([]);
   const [tagsText, setTagsText] = useState('');
   const [detailsText, setDetailsText] = useState('');
   const [careInstructions, setCareInstructions] = useState('');
@@ -319,7 +321,6 @@ export default function AdminProvider({ children }) {
     setCareInstructions(product.careInstructions || '');
     setPrice(product.price);
     setDiscountedPrice(product.discountedPrice !== undefined && product.discountedPrice !== null ? product.discountedPrice : '');
-    setIsOnSale(product.isOnSale || false);
     setCategory(product.category?._id || product.category || '');
     
     if (product.colors && product.colors.length > 0) {
@@ -359,8 +360,10 @@ export default function AdminProvider({ children }) {
       }]);
     }
 
-    setOccasionsText(product.occasion ? product.occasion.join(', ') : '');
-    setTagsText(product.tags ? product.tags.join(', ') : '');
+    setOccasions((product.occasion || []).map((o) => String(o).trim().toLowerCase()));
+    const presetKeys = PRESET_TAGS.map((t) => tagKey(t.value));
+    setPresetTags(PRESET_TAGS.filter((t) => (product.tags || []).some((tag) => tagKey(tag) === tagKey(t.value))).map((t) => t.value));
+    setTagsText((product.tags || []).filter((tag) => !presetKeys.includes(tagKey(tag))).join(', '));
     setIsFeatured(product.isFeatured || false);
     setIsBestSeller(product.isBestSeller || false);
     
@@ -378,7 +381,6 @@ export default function AdminProvider({ children }) {
     setCareInstructions('');
     setPrice(0);
     setDiscountedPrice('');
-    setIsOnSale(false);
     setCategory(categories[0]?._id || '');
     setColors([{
       id: Date.now().toString(),
@@ -392,7 +394,8 @@ export default function AdminProvider({ children }) {
         [size]: { enabled: size === 'S' || size === 'M' || size === 'L', stock: 10 } 
       }), {})
     }]);
-    setOccasionsText('');
+    setOccasions([]);
+    setPresetTags([]);
     setTagsText('');
     setIsFeatured(false);
     setIsBestSeller(false);
@@ -573,11 +576,10 @@ export default function AdminProvider({ children }) {
       price: Number(price),
       // null (not undefined) so clearing the field removes an existing discount on edit
       discountedPrice: discountedPrice !== '' ? Number(discountedPrice) : null,
-      isOnSale,
       category: category || null,
       colors: formattedColors,
-      occasion: occasionsText ? occasionsText.split(',').map(s => s.trim()).filter(s => s !== '') : [],
-      tags: tagsText ? tagsText.split(',').map(s => s.trim()).filter(s => s !== '') : [],
+      occasion: occasions,
+      tags: [...presetTags, ...splitList(tagsText).filter((tag) => !presetTags.some((p) => tagKey(p) === tagKey(tag)))],
       isFeatured,
       isBestSeller
     };
@@ -1229,8 +1231,6 @@ export default function AdminProvider({ children }) {
     setPrice,
     discountedPrice,
     setDiscountedPrice,
-    isOnSale,
-    setIsOnSale,
     category,
     setCategory,
     isCategoryDropdownOpen,
@@ -1249,8 +1249,10 @@ export default function AdminProvider({ children }) {
     setCategoryImage,
     categoryUploading,
     setCategoryUploading,
-    occasionsText,
-    setOccasionsText,
+    occasions,
+    setOccasions,
+    presetTags,
+    setPresetTags,
     tagsText,
     setTagsText,
     detailsText,

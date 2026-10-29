@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAdmin } from '@/components/admin/AdminProvider';
+import { OCCASION_OPTIONS, PRESET_TAGS } from '@/lib/productOptions';
 
 // Product create / edit form, shown on /products/new and /products/<id>. Field state and the
 // submit handler live in AdminProvider; the page decides which product to load into it.
@@ -19,15 +20,15 @@ export default function ProductForm() {
     setPrice,
     discountedPrice,
     setDiscountedPrice,
-    isOnSale,
-    setIsOnSale,
     category,
     setCategory,
     isCategoryDropdownOpen,
     setIsCategoryDropdownOpen,
     colors,
-    occasionsText,
-    setOccasionsText,
+    occasions,
+    setOccasions,
+    presetTags,
+    setPresetTags,
     tagsText,
     setTagsText,
     detailsText,
@@ -188,7 +189,7 @@ export default function ProductForm() {
               />
             </div>
             <div className="space-y-1">
-              <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DISCOUNTED PRICE (₹ - OPTIONAL)</label>
+              <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">DISCOUNTED PRICE (₹, OPTIONAL: SETTING ONE PUTS THE PRODUCT ON SALE)</label>
               <input 
                 type="number" 
                 min="0"
@@ -314,43 +315,55 @@ export default function ProductForm() {
           </div>
 
           {/* Occasions & Tags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">OCCASION (COMMA SEPARATED)</label>
-              <input 
-                type="text" 
-                value={occasionsText}
-                onChange={(e) => setOccasionsText(e.target.value)}
-                placeholder="e.g. Resort, Beach Wear, Casual"
-                className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">TAGS (COMMA SEPARATED)</label>
-              <input 
-                type="text" 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <fieldset className="space-y-2">
+              <legend className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold mb-1">OCCASION (SHOP BY OCCASION)</legend>
+              {OCCASION_OPTIONS.map((opt) => (
+                <label key={opt.value} className="flex items-center gap-2 text-sm text-on-surface cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={occasions.includes(opt.value)}
+                    onChange={(e) => setOccasions(e.target.checked
+                      ? [...occasions, opt.value]
+                      : occasions.filter((o) => o !== opt.value))}
+                    className="w-4 h-4 text-primary focus:ring-primary border-outline-variant/50 rounded cursor-pointer"
+                  />
+                  {opt.label}
+                </label>
+              ))}
+            </fieldset>
+            <div className="space-y-2">
+              <p className="block text-[10px] font-label-caps tracking-wider text-on-surface-variant font-bold">TAGS</p>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Tags the shop links to">
+                {PRESET_TAGS.map((t) => {
+                  const on = presetTags.includes(t.value);
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => setPresetTags(on ? presetTags.filter((p) => p !== t.value) : [...presetTags, t.value])}
+                      className={`px-4 py-2 rounded-full border text-xs font-label-caps tracking-wider font-bold transition-colors cursor-pointer ${on ? 'bg-primary border-primary text-white' : 'border-outline-variant/50 text-on-surface-variant hover:border-primary hover:text-primary'}`}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <input
+                type="text"
                 value={tagsText}
                 onChange={(e) => setTagsText(e.target.value)}
-                placeholder="e.g. new arrival, trending, featured"
+                aria-label="Other tags, comma separated"
+                placeholder="Other tags, comma separated (optional)"
                 className="w-full px-4 py-2.5 bg-surface border border-outline-variant/40 rounded-xl focus:border-primary focus:outline-none transition-colors"
               />
+              <p className="text-[11px] text-on-surface-variant">The first tag shows as a badge on the product card.</p>
             </div>
           </div>
 
           {/* Highlight Toggles */}
           <div className="flex flex-wrap gap-8 border-t border-outline-variant/10 pt-4">
-            <div className="flex items-center gap-2">
-              <input 
-                type="checkbox" 
-                id="chk-onsale"
-                checked={isOnSale}
-                onChange={(e) => setIsOnSale(e.target.checked)}
-                className="w-4 h-4 text-primary focus:ring-primary border-outline-variant/50 rounded cursor-pointer"
-              />
-              <label htmlFor="chk-onsale" className="text-xs font-label-caps tracking-wider text-on-surface-variant font-bold cursor-pointer">
-                ON SALE
-              </label>
-            </div>
             <div className="flex items-center gap-2">
               <input 
                 type="checkbox" 

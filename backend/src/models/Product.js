@@ -134,6 +134,9 @@ productSchema.pre('save', function () {
       .replace(/^-+|-+$/g, '');
   }
 
+  // On sale exactly when there's a discounted price below the full price; the admin no longer sets it
+  this.isOnSale = this.discountedPrice != null && this.discountedPrice < this.price;
+
   // Update total stock based on sizes in colors
   if (this.isModified('colors')) {
     this.stock = this.colors.reduce((totalStock, colorVariant) => {
