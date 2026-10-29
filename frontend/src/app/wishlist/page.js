@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import { useApp } from '@/context/AppContext';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import { ProductGridSkeleton } from '@/components/Skeletons';
 
 export default function WishlistPage() {
   const { 
@@ -19,14 +20,17 @@ export default function WishlistPage() {
     removeFromWishlist 
   } = useApp();
 
-  // Show loading spinner while loading user or loading wishlist
+  // Placeholder grid while the user or their wishlist is loading
   if (authLoading || (wishlistLoading && user)) {
     return (
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
-        <div className="flex-1 flex items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
-        </div>
+        <main className="max-w-container-max mx-auto px-6 md:px-margin-desktop w-full pt-8 pb-20 flex-1">
+          <h1 className="font-display-lg text-2xl md:text-3xl text-on-surface mb-8 font-bold">
+            My Wishlist
+          </h1>
+          <ProductGridSkeleton count={4} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12" />
+        </main>
         <Footer />
       </div>
     );

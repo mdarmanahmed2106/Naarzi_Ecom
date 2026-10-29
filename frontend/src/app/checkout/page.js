@@ -11,6 +11,7 @@ import { ordersApi, paymentApi, couponsApi, authApi } from '@/lib/api';
 import { loadRazorpayScript } from '@/lib/razorpay';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import { CheckoutSkeleton } from '@/components/Skeletons';
 import Toast from '@/components/Toast';
 import orderConfirmedAnimation from '../../../public/animations/One Click Order.json';
 import confettiAnimation from '../../../public/animations/Confetti.json';
@@ -454,9 +455,7 @@ export default function CheckoutPage() {
     return (
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
-        <div className="flex-1 flex items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
-        </div>
+        <CheckoutSkeleton />
         <Footer />
       </div>
     );

@@ -401,7 +401,11 @@ export default function Header() {
                 {searchQuery.trim().length >= 2 && (
                   <div className="absolute left-0 right-0 top-full mt-2 bg-surface border border-accent-gold/35 shadow-[0_24px_40px_rgba(143,77,92,0.12)] overflow-hidden z-50 text-left">
                     {searchLoading ? (
-                      <p className="text-xs text-on-surface-variant font-label-caps tracking-widest text-center py-4">SEARCHING...</p>
+                      <div className="py-2" aria-busy="true" aria-label="Searching">
+                        {[0, 1, 2].map((i) => (
+                          <div key={i} className="px-4 py-2.5"><div className={`h-3.5 rounded animate-shimmer ${['w-2/5', 'w-1/2', 'w-1/3'][i]}`} /></div>
+                        ))}
+                      </div>
                     ) : wordSuggestions.length === 0 ? (
                       <div className="text-center py-6 px-4">
                         <p className="text-sm text-on-surface-variant font-body-md">No matches for &quot;{searchQuery}&quot;</p>
@@ -691,7 +695,19 @@ export default function Header() {
             {/* Live Preview Results */}
             {searchQuery.trim().length >= 2 && (
               <div className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6 sm:flex-none sm:max-h-[60vh]">
-                {searchLoading && <p className="text-sm text-on-surface-variant font-label-caps tracking-widest text-center py-4">SEARCHING...</p>}
+                {searchLoading && (
+                  <div className="flex flex-col gap-1 mt-4" aria-busy="true" aria-label="Searching">
+                    {[0, 1, 2].map((i) => (
+                      <div key={i} className="flex items-center gap-4 p-3">
+                        <div className="w-16 h-20 rounded-lg animate-shimmer flex-none" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3.5 w-1/2 rounded animate-shimmer" />
+                          <div className="h-3 w-1/5 rounded animate-shimmer" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {!searchLoading && searchResults.length === 0 && wordSuggestions.length === 0 && (
                   <div className="text-center py-8">

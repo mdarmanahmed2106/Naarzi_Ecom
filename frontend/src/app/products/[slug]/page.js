@@ -36,6 +36,8 @@ export default function ProductDetailPage({ params }) {
   const [shippingOpen, setShippingOpen] = useState(false);
   const [returnsOpen, setReturnsOpen] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  // Reviews and related products, which load after the product itself
+  const [extrasLoading, setExtrasLoading] = useState(false);
   // The details column sticks beside the photos on desktop. When it is taller than the screen (say with
   // an accordion open) it sticks by its bottom edge instead, so nothing in it is ever out of reach.
   const detailsRef = useRef(null);
@@ -131,15 +133,18 @@ export default function ProductDetailPage({ params }) {
             setCurrentColorVariant(firstColor);
           }
 
-          // Load reviews
-          const reviewsResponse = await reviewsApi.getByProduct(loadedProduct._id);
-          if (reviewsResponse.success) {
+          // Show the product now; reviews and related products load behind it, in parallel
+          setLoading(false);
+          setExtrasLoading(true);
+          const [reviewsResponse, allProdsResponse] = await Promise.all([
+            reviewsApi.getByProduct(loadedProduct._id).catch(() => null),
+            productsApi.getAll().catch(() => null),
+          ]);
+          if (reviewsResponse?.success) {
             setReviews(reviewsResponse.data);
           }
-
-          // Load related products of the category, excluding current product
-          const allProdsResponse = await productsApi.getAll();
-          if (allProdsResponse.success) {
+          // Related products, excluding the current one
+          if (allProdsResponse?.success) {
             const filtered = allProdsResponse.data.filter(p => p._id !== loadedProduct._id);
             setRelatedProducts(filtered.slice(0, 3));
           }
@@ -148,6 +153,7 @@ export default function ProductDetailPage({ params }) {
         console.error('Failed to load product details:', err);
       } finally {
         setLoading(false);
+        setExtrasLoading(false);
       }
     }
     loadData();
@@ -634,10 +640,24 @@ export default function ProductDetailPage({ params }) {
             {/* Reviews List */}
             <div className="lg:col-span-7 space-y-6">
               <h3 className="font-display-lg text-xl md:text-2xl text-on-surface flex items-center gap-2 font-semibold font-display-lg">
-                Reviews ({reviews.length})
+                Reviews {!extrasLoading && `(${reviews.length})`}
               </h3>
               
-              {reviews.length === 0 ? (
+              {extrasLoading ? (
+                <div className="space-y-6" aria-busy="true" aria-label="Loading reviews">
+                  {[0, 1].map((i) => (
+                    <div key={i} className="border-b border-outline-variant/30 pb-6 space-y-3">
+                      <div className="flex justify-between">
+                        <div className="h-4 w-24 rounded animate-shimmer" />
+                        <div className="h-3 w-16 rounded animate-shimmer" />
+                      </div>
+                      <div className="h-3 w-36 rounded animate-shimmer" />
+                      <div className="h-3.5 w-full rounded animate-shimmer" />
+                      <div className="h-3.5 w-2/3 rounded animate-shimmer" />
+                    </div>
+                  ))}
+                </div>
+              ) : reviews.length === 0 ? (
                 <div className="text-center py-12 bg-surface-container/20 rounded-xl">
                   <Icon name="rate_review" size="xl" className="text-on-surface-variant/40 mb-3 block" />
                   <p className="font-body-md text-on-surface-variant text-sm">
@@ -680,7 +700,23 @@ export default function ProductDetailPage({ params }) {
         </div>
 
         {/* You May Also Like Section (Full-width block outside inner wrapper) */}
-        {relatedProducts.length > 0 && (
+        {extrasLoading && (
+          <div className="w-full bg-surface-container-low py-20 md:py-[120px] border-t border-surface-container-highest" aria-busy="true" aria-label="Loading related products">
+            <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
+              <div className="h-8 w-56 mb-12 rounded animate-shimmer" />
+              <div className="flex sm:grid sm:grid-cols-3 gap-4 md:gap-gutter overflow-hidden">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="min-w-[280px] sm:min-w-0">
+                    <div className="aspect-[4/5] rounded-2xl mb-4 animate-shimmer" />
+                    <div className="h-4 w-2/3 mb-2 rounded animate-shimmer" />
+                    <div className="h-3.5 w-1/4 rounded animate-shimmer" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {!extrasLoading && relatedProducts.length > 0 && (
           <div className="w-full bg-surface-container-low py-20 md:py-[120px] border-t border-surface-container-highest">
             <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
               <div className="flex justify-between items-end mb-12">
@@ -742,8 +778,8 @@ export default function ProductDetailPage({ params }) {
   );
 }
 
-// Loading placeholder shaped like the product page: gallery (thumbnails on desktop) beside
-// title, price, description, colour, size and add-to-cart, so nothing jumps when it loads.
+// Loading placeholder shaped like the product page: the lookbook gallery (one large photo, then two
+// side by side) beside title, price, description, colour, size, add-to-cart and the info rows.
 function ProductPageSkeleton() {
   const bar = 'rounded animate-shimmer';
   return (
@@ -758,13 +794,10 @@ function ProductPageSkeleton() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start mb-24">
           <div className="lg:col-span-7">
             <div className="md:hidden w-full aspect-[3/4] rounded-xl animate-shimmer" />
-            <div className="hidden md:flex flex-row-reverse gap-4">
-              <div className="flex-1 aspect-[3/4] rounded-2xl animate-shimmer" />
-              <div className="flex flex-col gap-4 w-24 shrink-0">
-                {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="w-full aspect-[3/4] rounded-xl animate-shimmer" />
-                ))}
-              </div>
+            <div className="hidden md:grid grid-cols-2 gap-3">
+              <div className="col-span-2 aspect-[3/4] rounded-2xl animate-shimmer" />
+              <div className="aspect-[3/4] rounded-2xl animate-shimmer" />
+              <div className="aspect-[3/4] rounded-2xl animate-shimmer" />
             </div>
           </div>
 
@@ -789,9 +822,18 @@ function ProductPageSkeleton() {
                 <div key={i} className="w-12 h-12 rounded-xl animate-shimmer" />
               ))}
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 mb-12">
               <div className="w-32 h-14 rounded-xl animate-shimmer" />
               <div className="flex-1 h-14 rounded-xl animate-shimmer" />
+              <div className="w-14 h-14 rounded-xl animate-shimmer" />
+            </div>
+            <div className="border-t border-outline-variant/30">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="py-5 border-b border-outline-variant/30 flex justify-between items-center">
+                  <div className={`h-3 w-28 ${bar}`} />
+                  <div className={`h-3 w-3 ${bar}`} />
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
+import { ProductGridSkeleton } from '@/components/Skeletons';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { productsApi, categoriesApi } from '@/lib/api';
@@ -22,18 +23,6 @@ function FilterSection({ title, children, defaultOpen = true }) {
         <Icon name={open ? 'remove' : 'add'} size="md" className="text-on-surface-variant" />
       </button>
       {open && <div className="mt-5 space-y-3 font-body-md text-sm">{children}</div>}
-    </div>
-  );
-}
-
-function ProductCardSkeleton() {
-  return (
-    <div>
-      <div className="w-full aspect-[3/4] rounded-xl overflow-hidden mb-4 animate-shimmer" />
-      <div className="space-y-2 px-1">
-        <div className="h-4 w-3/4 rounded animate-shimmer" />
-        <div className="h-3.5 w-1/3 rounded animate-shimmer" />
-      </div>
     </div>
   );
 }
@@ -320,7 +309,7 @@ function ShopContent() {
         <main className="flex-1 w-full pb-24 lg:pb-0">
           {/* Top Bar (Desktop sorting) */}
           <div className="hidden lg:flex items-center justify-between mb-8 pb-4 border-b border-outline-variant/30">
-            <span className="font-body-md text-sm text-on-surface-variant">Showing {loading ? '...' : totalProducts} products</span>
+            {loading ? <span aria-hidden="true" className="block h-4 w-32 rounded animate-shimmer" /> : <span className="font-body-md text-sm text-on-surface-variant">Showing {totalProducts} products</span>}
             <div className="flex items-center gap-2">
               <span className="font-label-caps text-xs text-on-surface-variant tracking-widest font-bold">SORT BY:</span>
               <select
@@ -351,9 +340,7 @@ function ShopContent() {
 
           {/* Grid */}
           {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
-              {[1, 2, 3, 4, 5, 6].map(i => <ProductCardSkeleton key={i} />)}
-            </div>
+            <ProductGridSkeleton count={6} className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12" />
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
               {products.map(product => (
@@ -381,7 +368,11 @@ function ShopContent() {
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-surface"></div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-surface max-w-container-max mx-auto px-6 md:px-margin-desktop pt-32">
+        <ProductGridSkeleton count={6} className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12" />
+      </div>
+    }>
       <ShopContent />
     </Suspense>
   );

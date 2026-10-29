@@ -9,6 +9,7 @@ import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import { AccountSkeleton, OrderCardSkeleton } from '@/components/Skeletons';
 import Toast from '@/components/Toast';
 
 const ORDER_TRACKING_STEPS = [
@@ -262,9 +263,7 @@ export default function AccountDashboardPage() {
     return (
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
-        <div className="flex-1 flex items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary"></div>
-        </div>
+        <AccountSkeleton />
         <Footer />
       </div>
     );
@@ -396,8 +395,9 @@ export default function AccountDashboardPage() {
                 <div className="animate-fade-in">
 
                   {loadingOrders ? (
-                    <div className="flex items-center justify-center py-20">
-                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
+                    <div className="space-y-6" aria-busy="true" aria-label="Loading your orders">
+                      <OrderCardSkeleton />
+                      <OrderCardSkeleton />
                     </div>
                   ) : orders.length === 0 ? (
                     <div className="text-on-surface-variant text-sm py-4">

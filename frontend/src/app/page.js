@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import { useApp } from '@/context/AppContext';
 import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
+import { ProductCardSkeleton } from '@/components/Skeletons';
 import ProductCard from '@/components/ProductCard';
 import ScrollRevealText from '@/components/ScrollRevealText';
 import ScrollStorytellingSection from '@/components/ScrollStorytellingSection';
@@ -315,11 +316,7 @@ function HomePageContent() {
             {loading ? (
               <div className="flex gap-3 sm:gap-6 overflow-hidden py-6">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-[calc(50%-1.25rem)] sm:w-[280px] md:w-[300px] flex-shrink-0">
-                    <div className="w-full aspect-[3/4] rounded-xl bg-surface-container animate-pulse mb-3" />
-                    <div className="h-4 w-3/4 rounded bg-surface-container animate-pulse mb-2" />
-                    <div className="h-4 w-1/3 rounded bg-surface-container animate-pulse" />
-                  </div>
+                  <ProductCardSkeleton key={i} className="w-[calc(50%-1.25rem)] sm:w-[280px] md:w-[300px] flex-shrink-0" />
                 ))}
               </div>
             ) : (
@@ -407,9 +404,7 @@ export default function HomePage() {
     <Suspense fallback={
       <div className="flex flex-col min-h-screen bg-surface">
         <Header />
-        <div className="flex-1 flex items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto"></div>
-        </div>
+        <div aria-busy="true" aria-label="Loading" className="w-full h-[calc(100dvh-5rem)] animate-shimmer" />
         <Footer />
       </div>
     }>
