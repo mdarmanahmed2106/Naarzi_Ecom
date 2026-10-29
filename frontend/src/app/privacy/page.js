@@ -106,7 +106,7 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-2xl font-headline-sm text-on-surface mb-3">Contact Us</h2>
             <p>
-              If you have questions about this Privacy Policy, please contact us at support@naarzi.com or +91 99999 99999, Delhi, India.
+              If you have questions about this Privacy Policy, please contact us at support@naarzi.com or +91 88516 26034, Delhi, India.
             </p>
           </section>
         </div>
