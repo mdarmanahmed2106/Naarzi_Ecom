@@ -10,6 +10,7 @@ import { useApp } from '@/context/AppContext';
 import { productsApi, categoriesApi } from '@/lib/api';
 import Icon from '@/components/Icon';
 import { ProductCardSkeleton } from '@/components/Skeletons';
+import { cldImage, IMG } from '@/lib/cloudinary';
 import ProductCard from '@/components/ProductCard';
 import ScrollRevealText from '@/components/ScrollRevealText';
 import ScrollStorytellingSection from '@/components/ScrollStorytellingSection';
@@ -260,7 +261,7 @@ function HomePageContent() {
                 {/* Image settles from a gentle zoom; the inner img keeps its CSS hover zoom */}
                 <motion.div variants={categoryImageVariants} className="w-full h-full">
                   <img
-                    src={item.image}
+                    src={cldImage(item.image, IMG.card)}
                     alt={item.name}
                     className="w-full h-full object-cover object-[50%_20%] category-tile-image"
                   />

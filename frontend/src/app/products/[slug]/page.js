@@ -12,6 +12,7 @@ import Icon from '@/components/Icon';
 import ProductImageZoom from '@/components/ProductImageZoom';
 import ImageLightbox from '@/components/ImageLightbox';
 import SizeGuideModal from '@/components/SizeGuideModal';
+import { cldImage, IMG } from '@/lib/cloudinary';
 
 export default function ProductDetailPage({ params }) {
   const resolvedParams = use(params);
@@ -278,7 +279,7 @@ export default function ProductDetailPage({ params }) {
                       </div>
                     )}
                     <img 
-                      src={img} 
+                      src={cldImage(img, IMG.large)} 
                       alt={`${product.name} view ${index + 1}`} 
                       className="w-full h-full object-cover" 
                     />
@@ -741,7 +742,7 @@ export default function ProductDetailPage({ params }) {
                           <img 
                             alt={p.name} 
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103" 
-                            src={p.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500'}
+                            src={cldImage(p.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/400x500', IMG.card)}
                           />
                         </div>
                         <div className="flex justify-between items-start mb-1">

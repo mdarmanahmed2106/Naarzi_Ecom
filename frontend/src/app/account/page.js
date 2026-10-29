@@ -9,6 +9,7 @@ import { useApp } from '@/context/AppContext';
 import { ordersApi, authApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import { cldImage, IMG } from '@/lib/cloudinary';
 import { AccountSkeleton, OrderCardSkeleton } from '@/components/Skeletons';
 import Toast from '@/components/Toast';
 
@@ -461,7 +462,7 @@ export default function AccountDashboardPage() {
                                 <div className="flex items-center gap-4">
                                   <div className="w-12 h-16 bg-surface-container rounded overflow-hidden flex-none">
                                     {(item.product?.colors?.[0]?.images?.[0] || item.product?.images?.[0]) && (
-                                      <img src={item.product.colors?.[0]?.images?.[0] || item.product.images?.[0] || 'https://via.placeholder.com/150'} alt={item.product.name} className="w-full h-full object-cover" />
+                                      <img src={cldImage(item.product.colors?.[0]?.images?.[0] || item.product.images?.[0] || 'https://via.placeholder.com/150', IMG.thumb)} alt={item.product.name} className="w-full h-full object-cover" />
                                     )}
                                   </div>
                                   <div>

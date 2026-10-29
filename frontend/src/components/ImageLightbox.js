@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Icon from './Icon';
+import { cldImage, IMG } from '@/lib/cloudinary';
 import { lockPageScroll } from '@/lib/scrollLock';
 
 const TAP_ZOOM = 2.5;
@@ -179,7 +180,7 @@ export default function ImageLightbox({ images, startIndex = 0, alt, onClose }) 
         <img
           ref={imgRef}
           key={images[index]}
-          src={images[index]}
+          src={cldImage(images[index], IMG.full)}
           alt={`${alt} view ${index + 1}`}
           draggable={false}
           className="absolute inset-0 w-full h-full object-contain"
@@ -213,7 +214,7 @@ export default function ImageLightbox({ images, startIndex = 0, alt, onClose }) 
                 aria-current={i === index ? 'true' : undefined}
                 className={`w-12 h-16 md:w-14 md:h-[72px] shrink-0 overflow-hidden border transition-opacity ${i === index ? 'border-primary opacity-100' : 'border-transparent opacity-50 hover:opacity-100'}`}
               >
-                <img src={src} alt="" className="w-full h-full object-cover" draggable={false} />
+                <img src={cldImage(src, IMG.thumb)} alt="" className="w-full h-full object-cover" draggable={false} />
               </button>
             ))}
           </div>

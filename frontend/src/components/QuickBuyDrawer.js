@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
 import Icon from '@/components/Icon';
+import { cldImage, IMG } from '@/lib/cloudinary';
 import { getDefaultSize } from '@/lib/defaultSize';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { lockPageScroll } from '@/lib/scrollLock';
@@ -83,7 +84,7 @@ export default function QuickBuyDrawer() {
             <div className="flex gap-4">
               <div className="w-24 h-32 bg-surface-container rounded overflow-hidden flex-none">
                 <img 
-                  src={product.colors?.[0]?.images?.[0] || 'https://placehold.co/400x600'} 
+                  src={cldImage(product.colors?.[0]?.images?.[0] || 'https://placehold.co/400x600', IMG.card)} 
                   alt={product.name} 
                   className="w-full h-full object-cover"
                 />

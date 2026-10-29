@@ -8,6 +8,7 @@ import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
 import confettiAnimation from '../../public/animations/Confetti.json';
 import Icon from '@/components/Icon';
+import { cldImage, IMG } from '@/lib/cloudinary';
 import { lockPageScroll } from '@/lib/scrollLock';
 import { formatCurrency } from '@/lib/formatCurrency';
 
@@ -188,7 +189,7 @@ export default function CartDrawer() {
                   {/* Product Image matching selected color */}
                   <div className="w-[88px] h-[105px] bg-surface-container rounded-lg overflow-hidden flex-none">
                     <img 
-                      src={itemImage} 
+                      src={cldImage(itemImage, IMG.thumb)} 
                       alt={item.product.name} 
                       className="w-full h-full object-cover" 
                     />

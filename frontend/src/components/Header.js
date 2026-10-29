@@ -8,6 +8,7 @@ import { useApp } from '@/context/AppContext';
 import { promoBannersApi, productsApi, categoriesApi, couponsApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
+import { cldImage, IMG } from '@/lib/cloudinary';
 import { lockPageScroll } from '@/lib/scrollLock';
 
 // "50% off on orders over ₹999 (up to ₹1,500 off)" from a coupon's rules
@@ -751,7 +752,7 @@ export default function Header() {
                           }`}
                         >
                           <img
-                            src={product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150'}
+                            src={cldImage(product.colors?.[0]?.images?.[0] || 'https://via.placeholder.com/150', IMG.thumb)}
                             alt={product.name}
                             className="w-16 h-20 object-cover rounded-lg bg-surface-container-high flex-none"
                           />
