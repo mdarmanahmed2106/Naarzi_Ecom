@@ -34,6 +34,7 @@ function ShopContent() {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [availableColors, setAvailableColors] = useState([]);
   const [availableSizes, setAvailableSizes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -86,6 +87,8 @@ function ShopContent() {
         }
       } catch (err) {
         console.error('Failed to load filter options', err);
+      } finally {
+        setCategoriesLoaded(true);
       }
     }
     fetchFilterOptions();
@@ -163,7 +166,10 @@ function ShopContent() {
     }
     if (activeCategory) {
       const catObj = categories.find(c => c.slug === activeCategory || c.name === activeCategory);
-      return catObj ? catObj.name : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
+      if (catObj) return catObj.name;
+      // Wait for the real name ("Suit Sets") rather than flashing one made from the link ("Suit-sets")
+      if (!categoriesLoaded) return null;
+      return activeCategory.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     }
     if (activeSearch) {
       return `Results for "${activeSearch}"`;
@@ -180,7 +186,7 @@ function ShopContent() {
         <div className="max-w-container-max mx-auto px-6 md:px-margin-desktop">
           <div className="flex items-center">
             <h1 className="font-display-lg text-4xl md:text-5xl text-on-surface font-bold tracking-tight">
-              {getCategoryDisplayName()}
+              {getCategoryDisplayName() ?? <span aria-hidden="true" className="inline-block h-[0.9em] w-56 align-middle rounded animate-shimmer" />}
             </h1>
             {activeSearch && (
               <button
