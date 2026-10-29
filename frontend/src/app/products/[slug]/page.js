@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use, useState, useEffect, useCallback } from 'react';
+import React, { use, useState, useEffect, useCallback, useRef } from 'react';
 import { getDefaultSize } from '@/lib/defaultSize';
 import Link from 'next/link';
 import Header from '@/components/Header';
@@ -23,7 +23,6 @@ export default function ProductDetailPage({ params }) {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
-  const [activeImage, setActiveImage] = useState(0);
   // Index of the photo open in the full-screen viewer, or null when it's closed
   const [lightboxIndex, setLightboxIndex] = useState(null);
   // Layout & Interactive States matching mockups
@@ -37,6 +36,24 @@ export default function ProductDetailPage({ params }) {
   const [shippingOpen, setShippingOpen] = useState(false);
   const [returnsOpen, setReturnsOpen] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  // The details column sticks beside the photos on desktop. When it is taller than the screen (say with
+  // an accordion open) it sticks by its bottom edge instead, so nothing in it is ever out of reach.
+  const detailsRef = useRef(null);
+  const [detailsTop, setDetailsTop] = useState(112);
+
+  useEffect(() => {
+    const el = detailsRef.current;
+    if (!el) return;
+    const update = () => setDetailsTop(Math.min(112, window.innerHeight - el.offsetHeight - 32));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [product, loading]);
 
   useEffect(() => {
     if (product && product.colors && product.colors.length > 0 && !selectedColor) {
@@ -48,7 +65,6 @@ export default function ProductDetailPage({ params }) {
     if (product && product.colors) {
       const variant = product.colors.find(c => c.name === selectedColor);
       setCurrentColorVariant(variant || null);
-      setActiveImage(0); // reset image index on color change
       setSelectedSize(getDefaultSize(variant?.sizes)); // pre-select the first in-stock size
     }
   }, [selectedColor, product]);
@@ -267,38 +283,24 @@ export default function ProductDetailPage({ params }) {
                 ))}
               </div>
 
-              {/* Desktop Gallery (Active + Thumbnails) */}
-              <div className="hidden md:flex flex-row-reverse gap-4">
-                {/* Main Active Image */}
-                <ProductImageZoom
-                  src={currentColorVariant?.images?.[activeImage]}
-                  alt={product.name}
-                  onOpen={() => setLightboxIndex(activeImage)}
-                  className="flex-1 aspect-[3/4] rounded-2xl shadow-sm bg-surface-container"
-                >
-                  {product.isOnSale && (
-                    <span className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
-                      SALE
-                    </span>
-                  )}
-                </ProductImageZoom>
-                
-                {/* Gallery Thumbnails */}
-                {currentColorVariant?.images?.length > 1 && (
-                  <div className="flex flex-col gap-4 overflow-y-auto scrollbar-hide w-24 shrink-0 max-h-[800px] pr-1">
-                    {currentColorVariant?.images?.map((img, index) => (
-                      <button 
-                        key={index}
-                        onClick={() => setActiveImage(index)}
-                        className={`w-full aspect-[3/4] shrink-0 rounded-xl overflow-hidden border transition-all cursor-pointer focus:outline-none ${
-                          activeImage === index ? 'border-primary opacity-100 ring-1 ring-primary' : 'border-transparent opacity-60 hover:opacity-100'
-                        }`}
-                      >
-                        <img src={img} alt={`${product.name} thumb ${index}`} className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                )}
+              {/* Desktop Gallery: every photo laid out like a lookbook, the first full width and the
+                  rest two to a row, so the column runs as long as the details beside it */}
+              <div className="hidden md:grid grid-cols-2 gap-3">
+                {currentColorVariant?.images?.map((img, index) => (
+                  <ProductImageZoom
+                    key={img}
+                    src={img}
+                    alt={`${product.name} view ${index + 1}`}
+                    onOpen={() => setLightboxIndex(index)}
+                    className={`aspect-[3/4] rounded-2xl bg-surface-container ${index === 0 || (index === currentColorVariant.images.length - 1 && index % 2 === 1) ? 'col-span-2' : ''}`}
+                  >
+                    {product.isOnSale && index === 0 && (
+                      <span className="absolute top-4 right-4 bg-surface/90 backdrop-blur-sm text-sale text-[10px] font-label-caps tracking-[0.3em] px-3 py-1.5 z-10">
+                        SALE
+                      </span>
+                    )}
+                  </ProductImageZoom>
+                ))}
               </div>
 
               {lightboxIndex !== null && currentColorVariant?.images?.length > 0 && (
@@ -312,7 +314,7 @@ export default function ProductDetailPage({ params }) {
             </div>
 
             {/* Details & Action Column */}
-            <div className="lg:col-span-5 lg:pl-8 flex flex-col pt-8 lg:pt-0">
+            <div ref={detailsRef} style={{ top: detailsTop }} className="lg:col-span-5 lg:pl-8 flex flex-col pt-8 lg:pt-0 lg:sticky">
               {product.category?.name && (
                 <span className="text-secondary font-label-caps text-label-caps mb-4 tracking-widest text-xs uppercase">{product.category.name}</span>
               )}
@@ -461,20 +463,20 @@ export default function ProductDetailPage({ params }) {
               </div>
 
               {/* Accordions */}
-              <div className="border-t border-outline-variant/30 space-y-1">
+              <div className="border-t border-outline-variant/30">
                 {/* Details Accordion: only when the product has detail points */}
                 {product.details && product.details.length > 0 && (
                   <div className="border-b border-outline-variant/30">
                     <button
                       onClick={() => setDetailsOpen(!detailsOpen)}
                       aria-expanded={detailsOpen}
-                      className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
+                      className="w-full py-4 flex justify-between items-center focus:outline-none cursor-pointer"
                     >
                       <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">DETAILS</span>
-                      <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${detailsOpen ? 'rotate-180' : ''}`} />
+                      <Icon name="expand_more" size="md" className={`text-on-surface-variant transition-transform duration-300 ${detailsOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {detailsOpen && (
-                      <div className="pb-5 transition-all duration-300">
+                      <div className="pb-4 transition-all duration-300">
                         <ul className="list-disc pl-5 font-body-md text-sm text-on-surface-variant space-y-2">
                           {product.details.map((detail, i) => (
                             <li key={i}>{detail}</li>
@@ -491,13 +493,13 @@ export default function ProductDetailPage({ params }) {
                     <button
                       onClick={() => setCareOpen(!careOpen)}
                       aria-expanded={careOpen}
-                      className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
+                      className="w-full py-4 flex justify-between items-center focus:outline-none cursor-pointer"
                     >
                       <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">CARE INSTRUCTIONS</span>
-                      <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${careOpen ? 'rotate-180' : ''}`} />
+                      <Icon name="expand_more" size="md" className={`text-on-surface-variant transition-transform duration-300 ${careOpen ? 'rotate-180' : ''}`} />
                     </button>
                     {careOpen && (
-                      <div className="pb-5 transition-all duration-300">
+                      <div className="pb-4 transition-all duration-300">
                         <p className="font-body-md text-sm text-on-surface-variant leading-relaxed whitespace-pre-line">
                           {product.careInstructions}
                         </p>
@@ -510,13 +512,13 @@ export default function ProductDetailPage({ params }) {
                 <div className="border-b border-outline-variant/30">
                   <button 
                     onClick={() => setShippingOpen(!shippingOpen)}
-                    className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
+                    className="w-full py-4 flex justify-between items-center focus:outline-none cursor-pointer"
                   >
                     <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">SHIPPING</span>
-                    <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${shippingOpen ? 'rotate-180' : ''}`} />
+                    <Icon name="expand_more" size="md" className={`text-on-surface-variant transition-transform duration-300 ${shippingOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {shippingOpen && (
-                    <div className="pb-5 transition-all duration-300">
+                    <div className="pb-4 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
                         {shippingText} We deliver across India, and checkout shows an estimated delivery date before you pay.
                       </p>
@@ -528,13 +530,13 @@ export default function ProductDetailPage({ params }) {
                 <div className="border-b border-outline-variant/30">
                   <button 
                     onClick={() => setReturnsOpen(!returnsOpen)}
-                    className="w-full py-5 flex justify-between items-center focus:outline-none cursor-pointer"
+                    className="w-full py-4 flex justify-between items-center focus:outline-none cursor-pointer"
                   >
                     <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">RETURNS</span>
-                    <Icon name="expand_more" size="lg" className={`text-on-surface-variant transition-transform duration-300 ${returnsOpen ? 'rotate-180' : ''}`} />
+                    <Icon name="expand_more" size="md" className={`text-on-surface-variant transition-transform duration-300 ${returnsOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {returnsOpen && (
-                    <div className="pb-5 transition-all duration-300">
+                    <div className="pb-4 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
                         Items can be returned within 7 days of delivery, provided they are unused and in their original packaging. Return shipping costs are the customer’s responsibility.
                       </p>
