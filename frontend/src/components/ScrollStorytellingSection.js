@@ -4,44 +4,52 @@ import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
+// The three clips live on Cloudinary (cloud ogatxfhx) and are converted on delivery: 1280px wide,
+// auto quality, H.264 so every browser plays them (the originals are iPhone HEVC), audio stripped.
+const CLD = 'https://res.cloudinary.com/ogatxfhx/video/upload';
+const clip = (id) => `${CLD}/q_auto,w_1280,ac_none,vc_h264/${id}.mp4`;
+// First frame of the same clip, shown while it loads
+const still = (id) => `${CLD}/so_0,w_1280,q_auto/${id}.jpg`;
+
 const STORIES_DATA = [
   {
     id: 'story-1',
-    topTag: 'SIGNATURE SETS',
-    title: 'Artistic colour-blocks and relaxed tailoring crafted for effortless confidence.',
-    img: '/hero_image.png',
-    type: 'image',
-    ctaText: 'SHOP CO-ORD SETS',
-    link: '/shop?tag=new-arrival'
+    topTag: '01 · The Design',
+    title: 'It starts with intention.',
+    body: 'Every silhouette begins with an idea. Measured, considered, and shaped with purpose, each detail sets the foundation for something distinctly yours.',
+    mood: 'Thoughtful. Precise. Intentional.',
+    video: clip('v1793273879/IMG_5682'),
+    poster: still('v1793273879/IMG_5682'),
+    ctaText: 'OUR STORY',
+    link: '/about'
   },
   {
     id: 'story-2',
-    topTag: 'COLOUR FIRST · 2026',
-    title: 'Turning simple fabrics into vibrant stories with colour-led design that moves with you.',
-    // Served from Cloudinary, compressed on delivery: 1280px wide, 30fps, auto quality,
-    // H.264 for every browser incl. Safari, audio stripped (~0.5MB vs the 67MB original)
-    video: 'https://res.cloudinary.com/ogatxfhx/video/upload/q_auto,w_1280,ac_none,fps_30,vc_h264/v1791200250/ZAINUL0001.mp4',
-    // First frame of the same video, shown while it loads
-    poster: 'https://res.cloudinary.com/ogatxfhx/video/upload/so_0,w_1280,q_auto/v1791200250/ZAINUL0001.jpg',
-    type: 'video',
-    ctaText: 'EXPLORE THE CAPSULE',
-    link: '/shop?tag=trending'
+    topTag: '02 · The Craft',
+    title: 'Made with a closer look.',
+    body: 'From every stitch to every hand-finished detail, craftsmanship brings the design to life. It’s the little things that make a piece feel different.',
+    mood: 'Artful. Detailed. Considered.',
+    video: clip('v1793273876/IMG_5681'),
+    poster: still('v1793273876/IMG_5681'),
+    ctaText: 'SHOP NEW ARRIVALS',
+    link: '/shop?tag=new-arrival'
   },
   {
     id: 'story-3',
-    topTag: 'LIMITED EDITION',
-    title: 'Fluid contemporary cuts meeting timeless Indian artisanal craft for inspired moments.',
-    img: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
-    type: 'image',
-    ctaText: 'SHOP BESTSELLERS',
-    link: '/shop?category=apparel'
+    topTag: '03 · The Collection',
+    title: 'Your next favourite, in the making.',
+    body: 'Distinctive prints, expressive colours, and considered silhouettes. Pieces designed to find their place in your wardrobe, and feel entirely your own.',
+    mood: 'Expressive. Confident. Individual.',
+    video: clip('v1793273878/IMG_5684'),
+    poster: still('v1793273878/IMG_5684'),
+    ctaText: 'SHOP THE COLLECTION',
+    link: '/shop'
   }
 ];
 
 export default function ScrollStorytellingSection() {
   const containerRef = useRef(null);
-  const desktopVideoRef = useRef(null);
-  const mobileVideoRef = useRef(null);
+  const videosRef = useRef(null);
   const mobileDeckRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -51,14 +59,9 @@ export default function ScrollStorytellingSection() {
     offset: ['start start', 'end end']
   });
 
-  // Ensure autoplay video plays reliably across all browsers
+  // Ensure the muted autoplay clips start in every browser
   useEffect(() => {
-    if (desktopVideoRef.current) {
-      desktopVideoRef.current.play().catch(() => { });
-    }
-    if (mobileVideoRef.current) {
-      mobileVideoRef.current.play().catch(() => { });
-    }
+    videosRef.current?.querySelectorAll('video').forEach((v) => v.play().catch(() => { }));
   }, []);
 
   // Scroll timeline linked to the sticky stage (3 stories)
@@ -100,10 +103,20 @@ export default function ScrollStorytellingSection() {
 
   return (
     <section
-      ref={containerRef}
-      className="relative w-full h-auto lg:h-[280vh] bg-[#fbf8f5] border-b border-outline-variant/20"
-      aria-label="Naarzi Storytelling Capsule"
+      ref={videosRef}
+      className="relative w-full bg-[#fbf8f5] border-b border-outline-variant/20"
+      aria-labelledby="story-heading"
     >
+      <div className="max-w-3xl mx-auto px-6 pt-16 md:pt-24 pb-4 lg:pb-0 text-center">
+        <h2 id="story-heading" className="font-display-lg text-[2rem] md:text-5xl leading-[1.1] text-on-surface">
+          Behind every piece, a point of view.
+        </h2>
+        <p className="mt-4 md:mt-5 text-base md:text-lg leading-relaxed text-on-surface-variant max-w-xl mx-auto">
+          Every detail has a purpose. Every piece has a personality. Discover the thought and craft behind NAARZI.
+        </p>
+      </div>
+
+      <div ref={containerRef} className="relative h-auto lg:h-[280vh]">
       {/* DESKTOP PINNED VIEWPORT (>= 1024px) */}
       <div className="hidden lg:flex sticky top-0 h-screen w-full max-w-[1360px] mx-auto px-10 xl:px-16 items-center justify-between gap-12 xl:gap-20 overflow-hidden">
 
@@ -129,6 +142,12 @@ export default function ScrollStorytellingSection() {
                 <h3 className="font-display-lg text-3xl xl:text-[44px] text-[#111111] font-bold leading-[1.16] tracking-tight max-w-xl">
                   {story.title}
                 </h3>
+                <p className="-mt-2 text-base xl:text-lg leading-relaxed text-on-surface-variant max-w-md">
+                  {story.body}
+                </p>
+                <p className="font-label-caps text-[11px] tracking-[0.24em] uppercase text-gold-ink">
+                  {story.mood}
+                </p>
 
                 {/* Bottom CTA Button in Primary Dusty Rose */}
                 <div className="pt-2">
@@ -151,11 +170,16 @@ export default function ScrollStorytellingSection() {
             style={{ scale: shouldReduceMotion ? 1 : card0Scale, zIndex: 10 }}
             className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
-            <img
-              src={STORIES_DATA[0].img}
-              alt={STORIES_DATA[0].title}
+            <video
+              src={STORIES_DATA[0].video}
+              poster={STORIES_DATA[0].poster}
+              aria-label={STORIES_DATA[0].title}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
               className="w-full h-full object-cover"
-              loading="eager"
             />
           </motion.div>
 
@@ -169,9 +193,9 @@ export default function ScrollStorytellingSection() {
             className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <video
-              ref={desktopVideoRef}
               src={STORIES_DATA[1].video}
               poster={STORIES_DATA[1].poster}
+              aria-label={STORIES_DATA[1].title}
               autoPlay
               loop
               muted
@@ -189,11 +213,16 @@ export default function ScrollStorytellingSection() {
             }}
             className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
-            <img
-              src={STORIES_DATA[2].img}
-              alt={STORIES_DATA[2].title}
+            <video
+              src={STORIES_DATA[2].video}
+              poster={STORIES_DATA[2].poster}
+              aria-label={STORIES_DATA[2].title}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
               className="w-full h-full object-cover"
-              loading="lazy"
             />
           </motion.div>
         </div>
@@ -213,7 +242,6 @@ export default function ScrollStorytellingSection() {
               total={STORIES_DATA.length}
               progress={mobileProgress}
               reduceMotion={shouldReduceMotion}
-              videoRef={idx === 1 ? mobileVideoRef : undefined}
             />
             {/* The scroll gap between cards is its own element, not a margin on the card: a sticky
                 card lets go when its box (margin included) reaches the end of the deck, so cards
@@ -224,11 +252,21 @@ export default function ScrollStorytellingSection() {
         {/* Hold so the last card pins and fully covers the deck before the section scrolls away */}
         <div aria-hidden="true" className="h-[30vh]" />
       </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-6 pb-16 md:pb-24 pt-4 text-center">
+        <p className="font-display-lg italic text-[1.75rem] md:text-4xl leading-[1.2] text-primary">
+          Not just what you wear. How you express yourself.
+        </p>
+        <p className="mt-4 font-label-caps text-[11px] md:text-xs tracking-[0.3em] uppercase text-gold-ink">
+          NAARZI · Own the Moment
+        </p>
+      </div>
     </section>
   );
 }
 
-function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef }) {
+function MobileStoryCard({ story, index, total, progress, reduceMotion }) {
   const isLast = index === total - 1;
 
   // A card stays full size while it's on top, then shrinks only while the next card slides over it
@@ -253,30 +291,21 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
       >
         {/* Visual (Image or Video) */}
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eae2d5]">
-          {story.type === 'video' ? (
-            <video
-              ref={videoRef}
-              src={story.video}
-              poster={story.poster}
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <img
-              src={story.img}
-              alt={story.title}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
-          )}
+          <video
+            src={story.video}
+            poster={story.poster}
+            aria-label={story.title}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload={index === 0 ? 'auto' : 'metadata'}
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Text & CTA: fixed min-height keeps every card the same size so none peeks out behind another */}
-        <div className="p-5 space-y-3 min-h-[15rem]">
+        <div className="p-5 space-y-3 min-h-[22rem] sm:min-h-[20rem]">
           {story.topTag && (
             <span className="inline-block px-3 py-1 bg-[var(--color-primary)] text-white text-[9px] font-label-caps tracking-widest font-bold uppercase rounded-[4px]">
               {story.topTag}
@@ -285,6 +314,8 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion, videoRef
           <h3 className="font-display-lg text-[1.5rem] sm:text-3xl text-[#111111] font-bold leading-snug tracking-tight">
             {story.title}
           </h3>
+          <p className="text-[15px] leading-relaxed text-on-surface-variant">{story.body}</p>
+          <p className="font-label-caps text-[10px] tracking-[0.22em] uppercase text-gold-ink">{story.mood}</p>
           <div className="pt-1">
             <Link
               href={story.link}
