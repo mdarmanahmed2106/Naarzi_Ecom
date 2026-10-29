@@ -8,7 +8,6 @@ import { useApp } from '@/context/AppContext';
 import { promoBannersApi, productsApi, categoriesApi, couponsApi } from '@/lib/api';
 import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from '@/components/Icon';
-import { OCCASIONS } from '@/lib/occasions';
 import { lockPageScroll } from '@/lib/scrollLock';
 
 // Shown when the admin hasn't set any promo banners
@@ -538,14 +537,6 @@ export default function Header() {
                 </div>
               )}
 
-              <div className="flex flex-col gap-3.5 min-w-[160px]">
-                <p className={megaLabelClass}>Occasion</p>
-                {OCCASIONS.map((occ) => (
-                  <Link key={occ.slug} href={`/shop?occasion=${occ.slug}`} onClick={() => setActiveMegaMenu(null)} className={megaLinkClass}>
-                    {occ.name}
-                  </Link>
-                ))}
-              </div>
             </div>
           </div>
         )}

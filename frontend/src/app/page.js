@@ -15,7 +15,6 @@ import ScrollStorytellingSection from '@/components/ScrollStorytellingSection';
 import NaarziStorySection from '@/components/NaarziStorySection';
 import HighlightsStrip from '@/components/HighlightsStrip';
 import RevealFooter from '@/components/RevealFooter';
-import OccasionEdits from '@/components/OccasionEdits';
 import HeroCapsule from '@/components/HeroCapsule';
 import CapsuleBand from '@/components/CapsuleBand';
 
@@ -66,17 +65,6 @@ function HomePageContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, [products]);
 
-
-  // Instagram ticker images
-  const instaImages = [
-    'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?q=80&w=1000&auto=format&fit=crop',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuBLQNhD0BgxsXxd7P7czm7dqEpzbBox51lXdbu4amdoYSbdVfglnEoehmzAvyrwzwJ28VH91ZBwbNZVRvWtoLqTsMt51kQ9C0ytoc-CuGba8jWEAgaOSfB6ZApu0Yt9c8WJYykjpwLJg2Ovjv8ccwaSgHFTWY72RxKbHIEAwuHwQGqjM4uzEavkH5A6eWlFvZwIEtJ91FQOx89ZvcgbiLy5GrVAnABXmPPhMtLPDM4eZp5LiW3mEmubKA',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuB3pAvrBBot7wDb-k_B5z0L-qaAozsKQsK8uo9Kz4QCK4TzSF_0iQRTClaKS4lF3lT7ZArRzxdaMbzt6vLVKEW_httHrEiFkzsljgbUoeHHoqv5TVFQ1BC4XbOSW9Gwv34L1EG4RxzCdc-W8t0qBjZHCpm0w5y6u_hdAo7rOGVOPbRsBy1-A10dj_EmSax-hlJvvYpWOlHcpsDTR0U2jdoRV4NcBxwHRRsSqnnjbvHTWHXxg6vBt_-JtA',
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuCIeMBEfSxzipvrzE5_u8en_SqGEqsxK0LvLnoCn0Xu-R22dHxVwuAS40Vl72ubbo8b2o6TY40BkkMypYaSnjCixMXod5ksWMx_ci1JfqN27Tb4dyuARFXkHtP6I1jlzqPHqQnUvAnii9ckAUn5iP4Jc51V2JkGF10xGWYZjZLEP5Ka4W8sBilQCUQuGdxunTNtA58y46RGlC83URgUk-b20VP6TH3iMlhe7WsZqP4da0fxsAU1S5VDQw'
-  ];
-  // Duplicate images for seamless marquee looping
-  const instaMarqueeImages = [...instaImages, ...instaImages];
 
   // Load Categories
   useEffect(() => {
@@ -383,9 +371,6 @@ function HomePageContent() {
         {/* Launch capsule band (from the brand reference), right after the products */}
         <CapsuleBand />
 
-        {/* Shop by Occasion: editorial list with a photo that follows the active occasion */}
-        <OccasionEdits products={products} />
-
         {/* Scroll-Driven Text Reveal Manifesto Section */}
         <ScrollRevealText />
 
@@ -395,47 +380,6 @@ function HomePageContent() {
         {/* The Naarzi Story: scroll-animated editorial collage */}
         <NaarziStorySection />
 
-
-        {/* Instagram Gallery infinite loop marquee ticker */}
-        <section className="py-12 md:py-16 overflow-hidden border-t border-outline-variant/20 w-full bg-white select-none">
-          <div className="text-center max-w-xl mx-auto mb-6 md:mb-10 px-4">
-            <span className="font-label-caps text-[10px] text-gold-ink tracking-[0.35em] block mb-4">#NAARZILIFE</span>
-            <h2 className="font-display-lg text-[2rem] md:text-5xl text-on-surface">Instagram Gallery</h2>
-            <a
-              href="https://www.instagram.com/naarzi.official/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center min-h-11 mt-3 font-label-caps text-xs tracking-[0.2em] text-primary underline underline-offset-4 hover:text-on-surface transition-colors"
-            >
-              @naarzi.official
-            </a>
-          </div>
-
-          <div className="w-full relative overflow-hidden py-4">
-            <div className="flex gap-4 w-max instagram-marquee-track">
-              {instaMarqueeImages.map((img, idx) => (
-                <a
-                  key={idx}
-                  href="https://www.instagram.com/naarzi.official/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Naarzi on Instagram"
-                  tabIndex={idx >= instaImages.length ? -1 : undefined}
-                  className="block w-36 h-36 sm:w-48 sm:h-48 md:w-64 md:h-64 overflow-hidden relative group"
-                >
-                  <img
-                    src={img}
-                    alt=""
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-center justify-center">
-                    <Icon name="photo_camera" size="xl" className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Closing promises strip: the last thing on the card before it lifts away */}
         <HighlightsStrip />
