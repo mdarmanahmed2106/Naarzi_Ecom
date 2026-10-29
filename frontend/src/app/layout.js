@@ -25,6 +25,19 @@ import QuickBuyDrawer from "@/components/QuickBuyDrawer";
 import CartDrawer from "@/components/CartDrawer";
 import AuthModal from "@/components/AuthModal";
 
+// Only the icons the site uses are downloaded: about 50 KB instead of the full 4 MB set. Google
+// needs the list in alphabetical order. A new <Icon name="..."> must be added here, or it
+// shows as its name in plain text.
+const ICON_NAMES = [
+  'account_balance', 'account_balance_wallet', 'add', 'arrow_back', 'arrow_forward', 'auto_awesome', 'badge', 'cancel',
+  'celebration', 'check', 'check_circle', 'chevron_left', 'chevron_right', 'close', 'credit_card', 'delete',
+  'edit', 'error', 'expand_more', 'favorite', 'info', 'inventory_2', 'local_offer', 'local_shipping',
+  'lock', 'login', 'logout', 'mail', 'manage_accounts', 'menu', 'notifications', 'person',
+  'phone', 'progress_activity', 'qr_code_2', 'radio_button_checked', 'rate_review', 'receipt_long', 'remove', 'replay',
+  'schedule', 'search', 'search_off', 'shopping_bag', 'star', 'straighten', 'tune', 'update',
+  'verified', 'verified_user', 'warning', 'wb_sunny', 'work', 'zoom_in',
+];
+
 export default function RootLayout({ children }) {
   return (
     <html
@@ -33,7 +46,7 @@ export default function RootLayout({ children }) {
     >
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+          href={`https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=${ICON_NAMES.join(',')}&display=block`}
           rel="stylesheet"
         />
       </head>
