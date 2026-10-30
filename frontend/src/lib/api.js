@@ -64,6 +64,9 @@ export const authApi = {
   signup: (userData) => fetchApi('/auth/signup', { method: 'POST', body: userData }),
   login: (credentials) => fetchApi('/auth/login', { method: 'POST', body: credentials }),
   phoneAuth: (idToken) => fetchApi('/auth/phone', { method: 'POST', body: { idToken } }),
+  googleAuth: (idToken) => fetchApi('/auth/google', { method: 'POST', body: { idToken } }),
+  sendEmailCode: (email) => fetchApi('/auth/email/send', { method: 'POST', body: { email } }),
+  verifyEmailCode: (email, code) => fetchApi('/auth/email/verify', { method: 'POST', body: { email, code } }),
   completeProfile: (data) => fetchApi('/auth/complete-profile', { method: 'PUT', body: data }),
   // Send the stored token with the logout call so the server can revoke it, then drop it
   logout: () => fetchApi('/auth/logout', { method: 'POST' }).finally(() => {
