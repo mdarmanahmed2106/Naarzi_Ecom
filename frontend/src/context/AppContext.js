@@ -29,7 +29,7 @@ export function AppProvider({ children }) {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [isQuickBuyOpen, setIsQuickBuyOpen] = useState(false);
   const [quickBuyProduct, setQuickBuyProduct] = useState(null);
-  const [settings, setSettings] = useState({ freeShippingThreshold: 999, shippingCost: 99 });
+  const [settings, setSettings] = useState({ freeShippingThreshold: 5999, shippingCost: 149 });
   const quantityDebounceRef = useRef(null);
   const hasSyncedRef = useRef(false);
 
@@ -68,8 +68,8 @@ export function AppProvider({ children }) {
         const response = await settingsApi.get();
         if (response?.success && response?.data) {
           setSettings({
-            freeShippingThreshold: response.data.freeShippingThreshold ?? 999,
-            shippingCost: response.data.shippingCost ?? 99,
+            freeShippingThreshold: response.data.freeShippingThreshold ?? 5999,
+            shippingCost: response.data.shippingCost ?? 149,
           });
         }
       } catch (err) {

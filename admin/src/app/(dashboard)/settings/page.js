@@ -16,7 +16,7 @@ export default function SettingsPage() {
         <form onSubmit={handleSaveSettings} className="bg-white border border-outline-variant/30 rounded-3xl p-8 space-y-8">
           <div>
             <h3 className="text-xl font-display-md text-on-surface font-bold">Shipping</h3>
-            <p className="text-on-surface-variant text-sm mt-1">Controls the free-shipping threshold shown in the storefront cart.</p>
+            <p className="text-on-surface-variant text-sm mt-1">Orders above the threshold ship free; orders at or below it pay the standard shipping cost. Used at checkout and shown across the storefront. The Shipping Policy page states ₹5,999 and ₹149, so update it too if you change these.</p>
             <div className="grid sm:grid-cols-2 gap-6 mt-5">
               <div>
                 <label className="block text-[10px] font-label-caps text-on-surface-variant tracking-wider font-bold mb-2">

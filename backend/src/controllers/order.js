@@ -207,10 +207,11 @@ exports.createOrder = async (req, res, next) => {
       appliedCouponCode = coupon.code;
     }
 
-    // Shipping cost: free once the (pre-discount) items subtotal clears the configured threshold
+    // Shipping cost: free only when the (pre-discount) items subtotal is above the configured
+    // threshold ("orders above ₹5,999"); an order of exactly the threshold pays the fee
     const settings = await Settings.getSingleton();
     const freeShippingThreshold = settings.freeShippingThreshold || 0;
-    const qualifiesForFreeShipping = freeShippingThreshold <= 0 || itemsSubtotal >= freeShippingThreshold;
+    const qualifiesForFreeShipping = freeShippingThreshold <= 0 || itemsSubtotal > freeShippingThreshold;
     const shippingCost = qualifiesForFreeShipping ? 0 : (settings.shippingCost || 0);
     const totalAmount = itemsSubtotal - discountAmount + shippingCost;
 

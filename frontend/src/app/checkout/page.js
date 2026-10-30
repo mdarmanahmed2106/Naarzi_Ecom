@@ -59,13 +59,24 @@ export default function CheckoutPage() {
   const [pendingOrderId, setPendingOrderId] = useState(null);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
-  const deliveryEstimate = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short'
-  });
+  // Shipping policy: dispatched within 3–5 business days, delivered 3–7 days after dispatch
+  const addBusinessDays = (date, days) => {
+    const d = new Date(date);
+    while (days > 0) {
+      d.setDate(d.getDate() + 1);
+      if (d.getDay() !== 0 && d.getDay() !== 6) days--;
+    }
+    return d;
+  };
+  const addDays = (date, days) => new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+  const fmtDay = (d) => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const now = new Date();
+  const deliveryEstimate = `${fmtDay(addDays(addBusinessDays(now, 3), 3))} and ${fmtDay(addDays(addBusinessDays(now, 5), 7))}`;
 
   const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
+
+  // Exchange policy: discounted and promotional pieces generally can't be exchanged
+  const hasDiscountedItem = cartItems.some((i) => i.product.isOnSale || (i.product.discountedPrice != null && i.product.discountedPrice < i.product.price));
 
   const renderOrderItems = () => (
     <div className="space-y-4">
@@ -95,6 +106,9 @@ export default function CheckoutPage() {
           </div>
         );
       })}
+      {hasDiscountedItem && (
+        <p className="text-[11px] text-on-surface-variant">Discounted pieces aren’t eligible for exchange unless they arrive damaged, defective or incorrect.</p>
+      )}
     </div>
   );
 
@@ -166,7 +180,7 @@ export default function CheckoutPage() {
   const needsEmail = !user?.email;
 
   const freeShippingThreshold = settings?.freeShippingThreshold || 0;
-  const qualifiesForFreeShipping = freeShippingThreshold <= 0 || cartTotal >= freeShippingThreshold;
+  const qualifiesForFreeShipping = freeShippingThreshold <= 0 || cartTotal > freeShippingThreshold; // "above", as in the shipping policy
   const shippingCost = qualifiesForFreeShipping ? 0 : (settings?.shippingCost || 0);
 
   const finalTotal = (appliedCoupon ? cartTotal - appliedCoupon.discountAmount : cartTotal) + shippingCost;
@@ -594,8 +608,11 @@ export default function CheckoutPage() {
 
               <div className="mb-4 flex items-center gap-2 text-[11px] font-medium text-on-surface-variant bg-surface-container/60 border border-outline-variant/30 rounded-lg px-3 py-2 w-fit">
                 <Icon name="local_shipping" size="sm" className="text-primary" />
-                Estimated delivery: <span className="text-on-surface font-bold">{deliveryEstimate}</span>
+                Estimated delivery between <span className="text-on-surface font-bold">{deliveryEstimate}</span>
               </div>
+              <p className="-mt-2 mb-4 text-[11px] text-on-surface-variant">
+                Please check your address carefully. If an order has to be re-shipped because of an incorrect or incomplete address, extra shipping charges may apply.
+              </p>
 
               {selectedAddressId && !isEditingAddress ? (
                 /* Compact Saved Address Summary */
@@ -845,7 +862,7 @@ export default function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-on-surface">Pay securely with Razorpay</p>
                     <p className="text-xs text-on-surface-variant">
-                      Choose UPI, card, net banking or wallet in the next step.
+                      Choose UPI, card, net banking or wallet in the next step. Prepaid orders only; Cash on Delivery isn’t available.
                     </p>
                   </div>
                   <Icon name="radio_button_checked" size="md" className="text-primary flex-none" />
@@ -873,6 +890,11 @@ export default function CheckoutPage() {
                 <Icon name="verified_user" size="sm" className="text-accent-gold" />
                 256-bit encrypted &middot; powered by Razorpay &middot; we never store your card details
               </div>
+              <p className="mt-2 text-[11px] text-on-surface-variant">
+                By placing your order you agree to our{' '}
+                <Link href="/shipping-policy" target="_blank" className="underline hover:text-primary">Shipping Policy</Link> and{' '}
+                <Link href="/exchange-policy" target="_blank" className="underline hover:text-primary">Exchange Policy</Link>. Orders can be cancelled only before dispatch.
+              </p>
             </div>
 
               <div className="hidden lg:flex flex-row items-center justify-between gap-4 border-t border-outline-variant/30 mt-2 pt-6">
@@ -957,6 +979,9 @@ export default function CheckoutPage() {
                     <span className="text-xs text-green-700 font-bold font-label-caps bg-green-50 px-2 py-0.5 rounded border border-green-200">FREE</span>
                   )}
                 </div>
+                {shippingCost > 0 && freeShippingThreshold > 0 && (
+                  <p className="text-[11px] text-on-surface-variant mt-1">Free shipping on orders above {formatCurrency(freeShippingThreshold)}.</p>
+                )}
 
                 <div className="border-t border-outline-variant/30 mt-4 pt-4 flex justify-between items-center font-bold text-base">
                   <span className="font-label-caps text-xs text-on-surface">TOTAL</span>
@@ -1091,7 +1116,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex items-center gap-1.5 text-[11px] font-medium bg-surface-container-lowest border border-outline-variant/30 rounded-full px-3 py-1.5">
                 <Icon name="replay" size="sm" className="text-primary" />
-                Easy 7-day returns
+                14-day size &amp; colour exchange
               </div>
             </div>
 

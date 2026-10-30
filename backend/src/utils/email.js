@@ -162,7 +162,9 @@ const STATUS_COPY = {
     subject: `Your Naarzi order #${orderNumber(order)} has been delivered`,
     heading: 'Delivered',
     body: `<p>Order <strong>#${orderNumber(order)}</strong> has been delivered. We hope you love it.</p>
-      <p>If something isn't right, you can request a return within 7 days of delivery by replying to this email.</p>`
+      <p>Need a different size or colour? You can request an exchange within 14 days of delivery by replying to this email with your order number. Pieces need to be unused and unwashed, with tags attached and in their original packaging.</p>
+      <p>If anything arrived damaged, defective or incorrect, reply within 48 hours with photos and we'll put it right.</p>
+      <p style="color:#7a6f6a;font-size:12px">Full details: <a href="${shopUrl()}/exchange-policy" style="color:#7a6f6a">Exchange Policy</a></p>`
   }),
   cancelled: (order) => ({
     subject: `Your Naarzi order #${orderNumber(order)} has been cancelled`,

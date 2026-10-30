@@ -107,11 +107,10 @@ export default function CartDrawer() {
   const finalTotal = cartTotal - (appliedCoupon ? appliedCoupon.discountAmount : 0);
 
   const freeShippingThreshold = settings?.freeShippingThreshold || 0;
-  const qualifiesForFreeShipping = freeShippingThreshold <= 0 || cartTotal >= freeShippingThreshold;
+  const qualifiesForFreeShipping = freeShippingThreshold <= 0 || cartTotal > freeShippingThreshold; // "above", as in the shipping policy
   const shippingProgress = freeShippingThreshold > 0
     ? Math.min(100, (cartTotal / freeShippingThreshold) * 100)
     : 100;
-  const amountToFreeShipping = Math.max(0, freeShippingThreshold - cartTotal);
 
   return (
     <div 
@@ -154,7 +153,7 @@ export default function CartDrawer() {
             <span>
               {qualifiesForFreeShipping
                 ? 'FREE Pan-India Shipping Applied'
-                : `Add ${formatCurrency(amountToFreeShipping, { decimals: 2 })} more for FREE Shipping`}
+                : `FREE shipping on orders above ${formatCurrency(freeShippingThreshold)}`}
             </span>
           </p>
           <div className="w-full h-1.5 bg-outline-variant/30 rounded-full overflow-hidden mx-auto max-w-[90%]">
