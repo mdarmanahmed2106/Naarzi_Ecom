@@ -8,22 +8,25 @@ export const metadata = {
   description: 'Answers to common questions about NAARZI: who we are, what we sell, sizing, fabric, styling and more.',
 };
 
-// Free-shipping amount comes from the admin's store settings; refreshed at most hourly
-async function getFreeShippingThreshold() {
+// Free-shipping amount and fee come from the admin's store settings; refreshed at most hourly
+async function getShippingSettings() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) return 0;
+  if (!apiUrl) return {};
   try {
     const res = await fetch(`${apiUrl}/settings`, { next: { revalidate: 3600 } });
-    if (!res.ok) return 0;
+    if (!res.ok) return {};
     const json = await res.json();
-    return Number(json?.data?.freeShippingThreshold) || 0;
+    return {
+      freeShippingThreshold: Number(json?.data?.freeShippingThreshold) || 0,
+      shippingCost: Number(json?.data?.shippingCost) || 0,
+    };
   } catch {
-    return 0;
+    return {};
   }
 }
 
 export default async function FaqPage() {
-  const groups = getFaqGroups({ freeShippingThreshold: await getFreeShippingThreshold() });
+  const groups = getFaqGroups(await getShippingSettings());
 
   // FAQPage structured data so search engines and AI assistants can quote answers directly
   const jsonLd = {

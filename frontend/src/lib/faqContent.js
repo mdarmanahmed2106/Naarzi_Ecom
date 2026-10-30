@@ -5,14 +5,16 @@ export const SUPPORT_HOURS = 'Mon – Sat, 10am – 7pm IST';
 
 /**
  * Site-wide FAQ, grouped. Copy from the NAARZI brand content doc (section 7), written
- * answer-first so search and AI answer boxes can quote it directly. Shipping/returns use the
- * policies already published on the site; the free-shipping amount comes from store settings.
+ * answer-first so search and AI answer boxes can quote it directly. Shipping and exchanges follow
+ * the Shipping and Exchange policies (effective 30 October 2026); the free-shipping amount and
+ * fee come from store settings.
  */
-export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
+export function getFaqGroups({ freeShippingThreshold = 0, shippingCost = 0 } = {}) {
+  const timing = 'Orders are dispatched within 3–5 business days and usually arrive 3–7 days after dispatch; you get tracking details by email once it ships. We ship across India. Timelines are estimates, as courier delays can occasionally happen.';
   const shippingAnswer =
     freeShippingThreshold > 0
-      ? `Shipping is free on orders over ${formatCurrency(freeShippingThreshold)}; below that, a delivery charge is shown at checkout before you pay. We deliver across India, and every order shows an estimated delivery date at checkout. Timelines are estimates rather than guarantees, as courier delays can occasionally happen.`
-      : 'We deliver across India, and every order shows its delivery charge and an estimated delivery date at checkout, before you pay. Timelines are estimates rather than guarantees, as courier delays can occasionally happen.';
+      ? `Shipping is free on orders above ${formatCurrency(freeShippingThreshold)}${shippingCost > 0 ? `; orders of ${formatCurrency(freeShippingThreshold)} or below have a ${formatCurrency(shippingCost)} shipping fee` : ''}. The charge is always shown at checkout before you pay. ${timing}`
+      : `The shipping charge, if any, is shown at checkout before you pay. ${timing}`;
 
   return [
     {
@@ -66,21 +68,26 @@ export function getFaqGroups({ freeShippingThreshold = 0 } = {}) {
     },
     {
       id: 'orders',
-      title: 'Orders, Shipping & Returns',
+      title: 'Orders, Shipping & Exchanges',
       items: [
         { q: 'How much does shipping cost, and how long does delivery take?', a: shippingAnswer },
         {
           q: 'How do I pay?',
-          a: 'Payments are processed securely through Razorpay at checkout. UPI, cards, net banking and wallets are all supported.',
+          a: 'Payments are processed securely through Razorpay at checkout. UPI, cards, net banking and wallets are all supported. We accept prepaid orders only; Cash on Delivery is not available.',
         },
         {
           q: 'Can I cancel my order?',
-          a: 'Yes, while it is still processing. You can cancel it yourself from the orders section of your account. Once an order has shipped it can no longer be cancelled online, but write to us and we’ll help.',
+          a: `Yes, before it is dispatched. Cancel it yourself from the orders section of your account while it shows as processing, or email ${SUPPORT_EMAIL} with your order number. Once an order has been dispatched it can no longer be cancelled.`,
           link: { href: '/account', label: 'Go to my orders' },
         },
         {
-          q: 'What is your returns policy?',
-          a: 'Items can be returned within 7 days of delivery, provided they are unused and in their original packaging. Return shipping costs are the customer’s responsibility. To start a return, write to us with your order ID.',
+          q: 'Can I return or exchange an order?',
+          a: `NAARZI is exchange-only: we don’t offer returns or refunds for change of mind, size or colour preference. You can exchange for a different size or colour within 14 days of delivery by emailing ${SUPPORT_EMAIL} with your order number. Pieces must be unused and unwashed, with tags attached and in their original packaging. Discounted and Final Sale pieces aren’t eligible, and size or colour exchanges are one per order, with exchange shipping paid by you.`,
+          link: { href: '/exchange-policy', label: 'Read the exchange policy' },
+        },
+        {
+          q: 'What if my order arrives damaged or incorrect?',
+          a: `Email ${SUPPORT_EMAIL} within 48 hours of delivery with your order number, a description of the issue and clear photos of the product and packaging. Keep the product and its packaging until we’ve reviewed it. For damaged, defective or incorrect pieces we cover the exchange shipping.`,
         },
         {
           q: 'How do I contact NAARZI?',

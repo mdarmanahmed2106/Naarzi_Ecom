@@ -231,7 +231,7 @@ export default function ProductDetailPage({ params }) {
   const freeShippingThreshold = Number(settings?.freeShippingThreshold) || 0;
   const shippingCost = Number(settings?.shippingCost) || 0;
   const shippingText = freeShippingThreshold > 0
-    ? `Free shipping on orders over ${formatCurrency(freeShippingThreshold)}${shippingCost > 0 ? `; below that, delivery is ${formatCurrency(shippingCost)}` : ''}.`
+    ? `Free shipping on orders above ${formatCurrency(freeShippingThreshold)}${shippingCost > 0 ? `; orders of ${formatCurrency(freeShippingThreshold)} or below have a ${formatCurrency(shippingCost)} shipping fee` : ''}.`
     : shippingCost > 0 ? `Delivery is ${formatCurrency(shippingCost)} per order.` : 'Free shipping on every order.';
   const isOutOfStock = selectedSizeObj ? selectedSizeObj.stock <= 0 : false;
 
@@ -527,26 +527,36 @@ export default function ProductDetailPage({ params }) {
                   {shippingOpen && (
                     <div className="pb-4 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                        {shippingText} We deliver across India, and checkout shows an estimated delivery date before you pay.
+                        {shippingText} Orders are dispatched within 3–5 business days and usually arrive 3–7 days after dispatch, with tracking sent by email. We ship across India; prepaid orders only.
                       </p>
+                      <Link href="/shipping-policy" className="inline-block mt-2 text-xs font-label-caps tracking-widest text-primary underline underline-offset-4">Shipping policy</Link>
                     </div>
                   )}
                 </div>
 
-                {/* Returns Accordion */}
+                {/* Exchanges Accordion (exchange-only policy, no returns) */}
                 <div className="border-b border-outline-variant/30">
                   <button 
                     onClick={() => setReturnsOpen(!returnsOpen)}
                     className="w-full py-4 flex justify-between items-center focus:outline-none cursor-pointer"
                   >
-                    <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">RETURNS</span>
+                    <span className="font-label-caps text-xs text-on-surface font-bold tracking-widest">EXCHANGES</span>
                     <Icon name="expand_more" size="md" className={`text-on-surface-variant transition-transform duration-300 ${returnsOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {returnsOpen && (
                     <div className="pb-4 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                        Items can be returned within 7 days of delivery, provided they are unused and in their original packaging. Return shipping costs are the customer’s responsibility.
+                        Need a different size or colour? Request an exchange within 14 days of delivery by emailing support@naarzi.com with your order number. Pieces must be unused and unwashed, with tags attached and in their original packaging. We offer exchanges only, not returns or refunds for change of mind.
                       </p>
+                      {(product.isOnSale || (product.discountedPrice != null && product.discountedPrice < product.price)) && (
+                        <p className="font-body-md text-sm text-on-surface-variant leading-relaxed mt-2">
+                          This piece is discounted, so it isn’t eligible for exchange unless it arrives damaged, defective or incorrect.
+                        </p>
+                      )}
+                      <p className="font-body-md text-sm text-on-surface-variant leading-relaxed mt-2">
+                        Received something damaged, defective or incorrect? Email us within 48 hours of delivery with photos.
+                      </p>
+                      <Link href="/exchange-policy" className="inline-block mt-2 text-xs font-label-caps tracking-widest text-primary underline underline-offset-4">Exchange policy</Link>
                     </div>
                   )}
                 </div>

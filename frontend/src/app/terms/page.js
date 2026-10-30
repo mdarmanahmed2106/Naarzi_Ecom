@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 
 export const metadata = {
   title: 'Terms of Service | Naarzi',
@@ -12,7 +13,7 @@ export default function TermsOfServicePage() {
       <Header />
       <main className="max-w-3xl mx-auto px-6 py-16 flex-1 w-full text-on-surface">
         <h1 className="text-4xl font-display-lg mb-2">Terms of Service</h1>
-        <p className="text-sm text-on-surface-variant mb-10">Last updated: September 1, 2026</p>
+        <p className="text-sm text-on-surface-variant mb-10">Last updated: October 30, 2026</p>
         
         <div className="space-y-8 font-body-md text-base leading-relaxed text-on-surface/80">
           <p>
@@ -50,21 +51,21 @@ export default function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-headline-sm text-on-surface mb-3">Shipping</h2>
             <p>
-              Shipping timelines provided are estimates and not guarantees. We are not responsible for delays caused by circumstances outside our control, including courier delays or force majeure events.
+              We ship across India and accept prepaid orders only. Shipping timelines provided are estimates and not guarantees. We are not responsible for delays caused by circumstances outside our control, including courier delays or force majeure events. Dispatch times, shipping charges and delivery are set out in our <Link href="/shipping-policy" className="text-primary underline underline-offset-2">Shipping Policy</Link>.
             </p>
           </section>
 
           <section>
             <h2 className="text-2xl font-headline-sm text-on-surface mb-3">Cancellations</h2>
             <p>
-              Orders may be cancelled by the customer while still in "processing" status, before shipment, through the account order page. Once an order has shipped, it cannot be cancelled through self-service and must be handled as a return, subject to our Return Policy.
+              Orders may be cancelled only before dispatch: by the customer from the account order page while the order is still in “processing” status, or by emailing support@naarzi.com with the order number. Once an order has been dispatched, it cannot be cancelled.
             </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-headline-sm text-on-surface mb-3">Returns and Refunds</h2>
+            <h2 className="text-2xl font-headline-sm text-on-surface mb-3">Exchanges, Returns and Refunds</h2>
             <p>
-              Items may be returned within 7 days of delivery, provided they are unused and in original packaging. The customer is responsible for return shipping costs. (Note: This is a draft policy and requires finalized details from Naarzi.)
+              Naarzi follows an exchange-only policy. Size and colour exchanges may be requested within 14 days of delivery, for unused and unwashed products with original tags and packaging, subject to our <Link href="/exchange-policy" className="text-primary underline underline-offset-2">Exchange Policy</Link>. We do not offer standard returns or refunds for change of mind or size and colour preferences, except where a refund or other remedy is required under applicable law. Nothing in these Terms limits your rights under applicable Indian consumer law.
             </p>
           </section>
 
