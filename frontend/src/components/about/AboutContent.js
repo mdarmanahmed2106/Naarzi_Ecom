@@ -71,9 +71,9 @@ export default function AboutContent() {
           initial={reduce ? false : { opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: EASE, delay: 0.2 }}
-          className="lg:col-span-6 relative rounded-[3px] overflow-hidden aspect-[4/3] lg:aspect-[5/4] bg-surface-container shadow-[0_24px_60px_-30px_rgba(28,26,23,0.45)]"
+          className="lg:col-span-6 relative rounded-[3px] overflow-hidden aspect-[3/2] bg-surface-container shadow-[0_24px_60px_-30px_rgba(28,26,23,0.45)]"
         >
-          <img src="/hero_image.png" alt="Inside the NAARZI studio: colour, sketches and fabric" className="w-full h-full object-cover" />
+          <img src="/about/fashion-rail.jpg" alt="NAARZI tunics and skirts in blush, maroon, blue and yellow on a gold clothing rail, beside the NAARZI Own the Moment logo" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
           <figcaption className="absolute bottom-4 left-5 right-5 text-white font-label-caps text-[10px] tracking-widest font-bold">
             WHERE EVERY COLLECTION BEGINS
