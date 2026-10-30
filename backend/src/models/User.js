@@ -24,13 +24,20 @@ const userSchema = new mongoose.Schema({
     sparse: true,
     trim: true,
     lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email']
+    // Any TLD length (.store, .online), not just 2-3 letters
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'Please provide a valid email']
   },
   password: {
     type: String,
     minlength: [6, 'Password must be at least 6 characters'],
     select: false,
-    required: function () { return !this.phone; }
+    // Phone, Google and email-code accounts sign in without a password
+    required: function () { return !this.phone && !this.emailVerified; }
+  },
+  // Set when the email was proven by a Google sign-in or an emailed login code
+  emailVerified: {
+    type: Boolean,
+    default: false
   },
   phone: {
     type: String,

@@ -189,3 +189,24 @@ exports.sendOrderStatusEmail = (orderId, status) => {
     });
   });
 };
+
+// Login code for email sign-in. Unlike the order emails this is awaited and throws, so the
+// customer is told straight away if the code couldn't be sent. Returns false when no email
+// service is configured (local development), so the caller can say so.
+exports.sendLoginCodeEmail = async (to, code) => {
+  const configured = process.env.BREVO_API_KEY || process.env.RESEND_API_KEY || (process.env.SMTP_USER && process.env.SMTP_PASS);
+  if (!configured) {
+    console.log(`Login code for ${to}: ${code} (not emailed, no email service configured)`);
+    return false;
+  }
+  await sendMail({
+    to,
+    subject: `${code} is your Naarzi login code`,
+    html: layout('Your login code', `
+      <p style="text-align:center;margin:0 0 8px">Enter this code to sign in to Naarzi:</p>
+      <p style="text-align:center;font-size:32px;letter-spacing:10px;font-weight:bold;margin:16px 0">${code}</p>
+      <p style="text-align:center;color:#7a6f6a;margin:0">It expires in 10 minutes. If you didn't ask for it, you can ignore this email.</p>`),
+    text: `Your Naarzi login code is ${code}. It expires in 10 minutes. If you didn't ask for it, you can ignore this email.`
+  });
+  return true;
+};

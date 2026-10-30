@@ -16,6 +16,19 @@ const loginSchema = z.object({
   })
 });
 
+const emailCodeSendSchema = z.object({
+  body: z.object({
+    email: z.string().trim().email('Please enter a valid email address')
+  })
+});
+
+const emailCodeVerifySchema = z.object({
+  body: z.object({
+    email: z.string().trim().email('Please enter a valid email address'),
+    code: z.string().trim().regex(/^\d{6}$/, 'The code is 6 digits')
+  })
+});
+
 const completeProfileSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters').optional(),
@@ -149,6 +162,8 @@ module.exports = {
   signupSchema,
   loginSchema,
   completeProfileSchema,
+  emailCodeSendSchema,
+  emailCodeVerifySchema,
   createCategorySchema,
   updateCategorySchema,
   createProductSchema,

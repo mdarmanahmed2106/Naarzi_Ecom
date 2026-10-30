@@ -1,4 +1,7 @@
+const crypto = require('crypto');
 const User = require('../models/User');
+const EmailOtp = require('../models/EmailOtp');
+const { sendLoginCodeEmail } = require('../utils/email');
 const { auth: firebaseAuth } = require('../config/firebaseAdmin');
 const { sendTokenResponse, authCookieOptions } = require('../utils/helpers');
 const { userFromToken } = require('../middleware/auth');
@@ -36,6 +39,140 @@ exports.phoneAuth = async (req, res, next) => {
   } catch (error) {
     if (error.code === 'auth/id-token-expired' || error.code === 'auth/argument-error') {
       return res.status(401).json({ success: false, message: 'Invalid or expired verification. Please try again.' });
+    }
+    next(error);
+  }
+};
+
+// Email-code and Google sign-in are for customers. An admin account found this way is refused,
+// so the admin panel stays behind its own password login.
+const ADMIN_REFUSED = 'This account signs in through the admin panel.';
+
+// Finds the customer with this (proven) email, or creates one
+const findOrCreateEmailCustomer = async (email, name) => {
+  let user = await User.findOne({ email });
+  if (user) {
+    if (!user.emailVerified || (name && user.name === 'New Customer')) {
+      user.emailVerified = true;
+      if (name && user.name === 'New Customer') {
+        user.name = name;
+        user.profileComplete = true;
+      }
+      await user.save();
+    }
+    return user;
+  }
+  return User.create({
+    email,
+    emailVerified: true,
+    name: name || 'New Customer',
+    role: 'customer',
+    profileComplete: Boolean(name),
+  });
+};
+
+const CODE_TTL_MS = 10 * 60 * 1000;
+const RESEND_AFTER_MS = 30 * 1000;
+const MAX_ATTEMPTS = 5;
+const hashCode = (email, code) =>
+  crypto.createHmac('sha256', process.env.JWT_SECRET || 'naarzi').update(`${email}:${code}`).digest('hex');
+
+// @desc    Email a 6-digit login code
+// @route   POST /api/auth/email/send
+// @access  Public
+exports.sendEmailCode = async (req, res, next) => {
+  try {
+    const email = req.body.email.trim().toLowerCase();
+
+    const existing = await User.findOne({ email }).select('role');
+    if (existing?.role === 'admin') {
+      return res.status(403).json({ success: false, message: ADMIN_REFUSED });
+    }
+
+    const live = await EmailOtp.findOne({ email });
+    if (live && Date.now() - live.sentAt.getTime() < RESEND_AFTER_MS) {
+      return res.status(429).json({ success: false, message: 'A code was just sent. Please wait a few seconds before asking for another.' });
+    }
+
+    const code = String(crypto.randomInt(100000, 1000000));
+    await EmailOtp.findOneAndUpdate(
+      { email },
+      { codeHash: hashCode(email, code), attempts: 0, sentAt: new Date(), expiresAt: new Date(Date.now() + CODE_TTL_MS) },
+      { upsert: true }
+    );
+
+    try {
+      await sendLoginCodeEmail(email, code);
+    } catch (err) {
+      console.error('Login code email failed:', err.message);
+      await EmailOtp.deleteOne({ email });
+      return res.status(502).json({ success: false, message: 'We could not send the code right now. Please try again in a moment.' });
+    }
+
+    res.status(200).json({ success: true, message: 'Code sent.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Sign in with the emailed code
+// @route   POST /api/auth/email/verify
+// @access  Public
+exports.verifyEmailCode = async (req, res, next) => {
+  try {
+    const email = req.body.email.trim().toLowerCase();
+    const code = String(req.body.code).trim();
+    const invalid = () => res.status(401).json({ success: false, message: 'That code is wrong or has expired. Please try again.' });
+
+    const otp = await EmailOtp.findOne({ email });
+    if (!otp || otp.expiresAt < new Date() || otp.attempts >= MAX_ATTEMPTS) return invalid();
+
+    const expected = Buffer.from(otp.codeHash, 'hex');
+    const given = Buffer.from(hashCode(email, code), 'hex');
+    if (expected.length !== given.length || !crypto.timingSafeEqual(expected, given)) {
+      await EmailOtp.updateOne({ _id: otp._id }, { $inc: { attempts: 1 } });
+      return invalid();
+    }
+    await EmailOtp.deleteOne({ _id: otp._id }); // single use
+
+    const existing = await User.findOne({ email }).select('role');
+    if (existing?.role === 'admin') {
+      return res.status(403).json({ success: false, message: ADMIN_REFUSED });
+    }
+
+    const user = await findOrCreateEmailCustomer(email);
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Sign in with Google (Firebase ID token)
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleAuth = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) {
+      return res.status(400).json({ success: false, message: 'Google sign-in token is required' });
+    }
+
+    const decoded = await firebaseAuth.verifyIdToken(idToken);
+    if (decoded.firebase?.sign_in_provider !== 'google.com' || !decoded.email || !decoded.email_verified) {
+      return res.status(401).json({ success: false, message: 'Google sign-in could not be verified. Please try again.' });
+    }
+
+    const email = decoded.email.toLowerCase();
+    const existing = await User.findOne({ email }).select('role');
+    if (existing?.role === 'admin') {
+      return res.status(403).json({ success: false, message: ADMIN_REFUSED });
+    }
+
+    const user = await findOrCreateEmailCustomer(email, (decoded.name || '').trim() || undefined);
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
+    if (error.code === 'auth/id-token-expired' || error.code === 'auth/argument-error') {
+      return res.status(401).json({ success: false, message: 'Google sign-in expired. Please try again.' });
     }
     next(error);
   }
