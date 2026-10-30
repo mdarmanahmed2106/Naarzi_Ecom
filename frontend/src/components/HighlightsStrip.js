@@ -15,12 +15,13 @@ export default function HighlightsStrip() {
   const threshold = settings?.freeShippingThreshold || 0;
 
   const items = [
-    { title: 'New customers get 10% off', sub: 'on your first order' },
+    { num: '01', title: 'Thoughtfully Designed', sub: 'Pieces made with intention, detail by detail.' },
     {
-      title: 'Free shipping',
-      sub: threshold > 0 ? `on orders over ${formatCurrency(threshold)}` : 'on every order',
+      num: '02',
+      title: 'Free Shipping',
+      sub: threshold > 0 ? `On orders above ${formatCurrency(threshold)}.` : 'On every order.',
     },
-    { title: 'Secure payments', sub: 'UPI, cards & netbanking via Razorpay' },
+    { num: '03', title: 'Secure Payments', sub: 'Pay securely via UPI, cards & net banking.' },
   ];
 
   return (
@@ -46,6 +47,7 @@ export default function HighlightsStrip() {
                 className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 h-[70%] w-px bg-accent-gold origin-top"
               />
             )}
+            <p aria-hidden="true" className="font-label-caps text-[11px] tracking-[0.3em] text-gold-ink mb-2">{item.num}</p>
             <p className="font-headline-sm text-lg md:text-2xl text-on-surface font-bold">{item.title}</p>
             <p className="font-body-md text-sm text-on-surface-variant mt-1.5">{item.sub}</p>
           </motion.li>

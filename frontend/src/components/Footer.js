@@ -5,8 +5,8 @@ import Link from 'next/link';
 import Icon from '@/components/Icon';
 
 const HELP_LINKS = [
-  { label: 'Shipping & Delivery', href: '/faq' },
-  { label: 'Returns & Exchanges', href: '/faq' },
+  { label: 'Shipping Policy', href: '/shipping-policy' },
+  { label: 'Exchange Policy', href: '/exchange-policy' },
   { label: 'Size & Fit Guide', href: '/faq' },
   { label: 'Contact Us', href: '/contact' },
 ];
@@ -136,7 +136,7 @@ export default function Footer() {
               Be first to the next drop.
             </h4>
             <p className="hidden sm:block text-sm text-surface/80 leading-relaxed mt-2">
-              Join for capsule drops, private previews, and 10% off your first order.
+              Join for capsule drops and private previews.
             </p>
             <form
               onSubmit={handleSubscribe}
@@ -216,7 +216,8 @@ export default function Footer() {
             <div className="flex flex-wrap justify-center gap-x-2 text-[11px] font-label-caps tracking-wide text-surface/75">
               <Link href="/terms" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Terms</Link>
               <Link href="/privacy" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Privacy</Link>
-              <Link href="/faq" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Shipping &amp; Returns</Link>
+              <Link href="/shipping-policy" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Shipping</Link>
+              <Link href="/exchange-policy" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Exchanges</Link>
               <Link href="/contact" className="inline-flex items-center min-h-9 px-1.5 hover:text-surface transition-colors">Help</Link>
             </div>
             <p className="text-xs text-surface/70">© {new Date().getFullYear()} Naarzi. All rights reserved.</p>
