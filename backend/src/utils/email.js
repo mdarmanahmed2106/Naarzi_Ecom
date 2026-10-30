@@ -131,7 +131,8 @@ exports.sendOrderPlacedEmails = (orderId) => fireAndForget('order placed', async
       to: order.user.email,
       subject: `Your Naarzi order #${num} is confirmed`,
       html: layout(`Thank you, ${name}`, `
-        <p>We've received your payment and your order <strong>#${num}</strong> is confirmed. We'll email you again when it ships.</p>
+        <p>We've received your payment and your order <strong>#${num}</strong> is confirmed. Orders are dispatched within 7–10 business days, and we'll email your tracking details as soon as it ships.</p>
+        <p style="color:#7a6f6a">Need to cancel? That's possible only before dispatch: cancel it from your account or reply to this email with your order number.</p>
         ${itemsTable(order)}
         ${addressBlock(order.shippingAddress)}
         ${button('VIEW YOUR ORDER', `${shopUrl()}/account`)}`),

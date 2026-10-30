@@ -527,7 +527,7 @@ export default function ProductDetailPage({ params }) {
                   {shippingOpen && (
                     <div className="pb-4 transition-all duration-300">
                       <p className="font-body-md text-sm text-on-surface-variant leading-relaxed">
-                        {shippingText} Orders are dispatched within 3–5 business days and usually arrive 3–7 days after dispatch, with tracking sent by email. We ship across India; prepaid orders only.
+                        {shippingText} Orders are dispatched within 7–10 business days and usually arrive 3–7 days after dispatch, with tracking sent by email. We ship across India; prepaid orders only.
                       </p>
                       <Link href="/shipping-policy" className="inline-block mt-2 text-xs font-label-caps tracking-widest text-primary underline underline-offset-4">Shipping policy</Link>
                     </div>

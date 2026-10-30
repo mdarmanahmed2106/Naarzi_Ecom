@@ -59,7 +59,7 @@ export default function CheckoutPage() {
   const [pendingOrderId, setPendingOrderId] = useState(null);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
-  // Shipping policy: dispatched within 3–5 business days, delivered 3–7 days after dispatch
+  // Shipping policy: dispatched within 7–10 business days, delivered 3–7 days after dispatch
   const addBusinessDays = (date, days) => {
     const d = new Date(date);
     while (days > 0) {
@@ -71,7 +71,7 @@ export default function CheckoutPage() {
   const addDays = (date, days) => new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
   const fmtDay = (d) => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
   const now = new Date();
-  const deliveryEstimate = `${fmtDay(addDays(addBusinessDays(now, 3), 3))} and ${fmtDay(addDays(addBusinessDays(now, 5), 7))}`;
+  const deliveryEstimate = `${fmtDay(addDays(addBusinessDays(now, 7), 3))} and ${fmtDay(addDays(addBusinessDays(now, 10), 7))}`;
 
   const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -426,7 +426,7 @@ export default function CheckoutPage() {
             Order Confirmed
           </h2>
           <p className="font-body-md text-sm text-on-surface-variant mb-6">
-            Thank you for your purchase! Your payment has been successfully confirmed.
+            Thank you for your purchase! Your payment has been successfully confirmed. Orders are dispatched within 7–10 business days, and we’ll email your tracking details once it ships.
           </p>
 
           <div className="w-full bg-surface-container/50 border border-outline-variant/30 rounded-xl p-6 text-left space-y-4 mb-8 text-sm">

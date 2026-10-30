@@ -13,14 +13,14 @@ const ROUTES = [
   {
     icon: 'local_shipping',
     title: 'Track or cancel an order',
-    body: 'See every order and its status, and cancel while it’s still processing.',
+    body: 'See every order and its status, and cancel any time before it’s dispatched.',
     href: '/account',
     cta: 'My orders',
   },
   {
     icon: 'straighten',
-    title: 'Sizing, fabric & delivery',
-    body: 'Quick answers on sizes, fabrics, shipping and returns.',
+    title: 'Sizing, shipping & exchanges',
+    body: 'Quick answers on sizes, fabrics, delivery times and our 14-day size and colour exchanges.',
     href: '/faq',
     cta: 'Read the FAQs',
   },

@@ -20,7 +20,7 @@ export default function ShippingPolicyPage() {
         {
           heading: '2. Order Processing and Dispatch',
           blocks: [
-            'Orders are generally processed and dispatched within 3–5 business days after the order is placed.',
+            'Orders are generally processed and dispatched within 7–10 business days after the order is placed.',
             'Dispatch timelines may vary during peak periods, promotional events, public holidays, or due to circumstances beyond our control.',
             'Once your order has been dispatched, you will receive an email containing your tracking details.',
           ],

@@ -84,7 +84,7 @@ export default function ExchangePolicyPage() {
             { h3: 'Step 4: Send the Product Back' },
             'Once your request is approved, follow the return shipping instructions provided by NAARZI. Please do not send products back before receiving approval and instructions.',
             { h3: 'Step 5: Receive Your Replacement' },
-            'After we receive and inspect the returned product, the replacement will generally be dispatched within 3–5 business days, subject to product availability and completion of the required checks.',
+            'After we receive and inspect the returned product, the replacement will generally be dispatched within 7–10 business days, subject to product availability and completion of the required checks.',
           ],
         },
         {

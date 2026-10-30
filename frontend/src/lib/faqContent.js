@@ -10,7 +10,7 @@ export const SUPPORT_HOURS = 'Mon – Sat, 10am – 7pm IST';
  * fee come from store settings.
  */
 export function getFaqGroups({ freeShippingThreshold = 0, shippingCost = 0 } = {}) {
-  const timing = 'Orders are dispatched within 3–5 business days and usually arrive 3–7 days after dispatch; you get tracking details by email once it ships. We ship across India. Timelines are estimates, as courier delays can occasionally happen.';
+  const timing = 'Orders are dispatched within 7–10 business days and usually arrive 3–7 days after dispatch; you get tracking details by email once it ships. We ship across India. Timelines are estimates, as courier delays can occasionally happen.';
   const shippingAnswer =
     freeShippingThreshold > 0
       ? `Shipping is free on orders above ${formatCurrency(freeShippingThreshold)}${shippingCost > 0 ? `; orders of ${formatCurrency(freeShippingThreshold)} or below have a ${formatCurrency(shippingCost)} shipping fee` : ''}. The charge is always shown at checkout before you pay. ${timing}`
