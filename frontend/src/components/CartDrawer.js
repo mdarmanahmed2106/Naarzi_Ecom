@@ -3,13 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Lottie } from 'lottie-react';
+import dynamic from 'next/dynamic';
 import { useApp } from '@/context/AppContext';
 import { couponsApi } from '@/lib/api';
-import confettiAnimation from '../../public/animations/Confetti.json';
 import Icon from '@/components/Icon';
 import { cldImage, IMG } from '@/lib/cloudinary';
 import { lockPageScroll } from '@/lib/scrollLock';
+
+// Loaded only when a coupon celebration plays
+const ConfettiBurst = dynamic(() => import('@/components/ConfettiBurst'), { ssr: false });
 import { formatCurrency } from '@/lib/formatCurrency';
 
 export default function CartDrawer() {
@@ -123,13 +125,7 @@ export default function CartDrawer() {
       >
         {showConfetti && (
           <div className="absolute inset-0 pointer-events-none z-[60] overflow-hidden">
-            <Lottie
-              src={confettiAnimation}
-              loop={false}
-              autoplay
-              style={{ width: '100%', height: '100%' }}
-              subscriptions={{ complete: () => setShowConfetti(false) }}
-            />
+            <ConfettiBurst onComplete={() => setShowConfetti(false)} />
           </div>
         )}
 

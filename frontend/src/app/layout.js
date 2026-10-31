@@ -23,20 +23,7 @@ export const metadata = {
 
 import QuickBuyDrawer from "@/components/QuickBuyDrawer";
 import CartDrawer from "@/components/CartDrawer";
-import AuthModal from "@/components/AuthModal";
-
-// Only the icons the site uses are downloaded: about 50 KB instead of the full 4 MB set. Google
-// needs the list in alphabetical order. A new <Icon name="..."> must be added here, or it
-// shows as its name in plain text.
-const ICON_NAMES = [
-  'account_balance', 'account_balance_wallet', 'add', 'arrow_back', 'arrow_forward', 'auto_awesome', 'badge', 'cancel',
-  'celebration', 'check', 'check_circle', 'chevron_left', 'chevron_right', 'close', 'credit_card', 'delete',
-  'edit', 'error', 'expand_more', 'favorite', 'info', 'inventory_2', 'local_offer', 'local_shipping',
-  'lock', 'login', 'logout', 'mail', 'manage_accounts', 'menu', 'notifications', 'person',
-  'phone', 'progress_activity', 'qr_code_2', 'radio_button_checked', 'rate_review', 'receipt_long', 'remove', 'replay',
-  'schedule', 'search', 'search_off', 'shopping_bag', 'star', 'straighten', 'tune', 'update',
-  'verified', 'verified_user', 'warning', 'wb_sunny', 'work', 'zoom_in',
-];
+import SiteOverlays from "@/components/SiteOverlays";
 
 export default function RootLayout({ children }) {
   return (
@@ -45,17 +32,16 @@ export default function RootLayout({ children }) {
       className={`${cormorant.variable} ${jost.variable} h-full antialiased overflow-x-clip`}
     >
       <head>
-        <link
-          href={`https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=${ICON_NAMES.join(',')}&display=block`}
-          rel="stylesheet"
-        />
+        {/* Icon font served by the site (see scripts/update-icon-font.mjs); preloaded so header
+            icons are ready with the first paint */}
+        <link rel="preload" href="/fonts/material-symbols-outlined.woff2" as="font" type="font/woff2" crossOrigin="" />
       </head>
       <body className="min-h-full flex flex-col bg-surface font-body-md text-on-surface overflow-x-clip">
         <AppProvider>
           {children}
           {/* Site-wide overlays, mounted once so every page (shop, legal pages, 404...) has them */}
           <CartDrawer />
-          <AuthModal />
+          <SiteOverlays />
           <QuickBuyDrawer />
         </AppProvider>
       </body>

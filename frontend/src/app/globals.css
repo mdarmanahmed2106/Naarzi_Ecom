@@ -1,5 +1,32 @@
 @import "tailwindcss";
 
+/* Material Symbols, trimmed to the icons the site uses and served by the site itself
+   (rebuild with scripts/update-icon-font.mjs when adding an icon) */
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url('/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
 /* Screens where the homepage footer fits on one screen, so it can be revealed from under the page:
    phones/tablets at least 760px tall (the stacked footer is ~700px), or desktop widths at
    least 600px tall (the footer is ~510px there). Used by RevealFooter. */
