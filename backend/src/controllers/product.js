@@ -34,21 +34,22 @@ exports.getProducts = async (req, res, next) => {
       query.stock = 0;
     }
 
-    // 0.5 Size Filter
-    if (size) {
-      const sizesArray = Array.isArray(size) ? size : size.split(',');
-      query['colors.sizes'] = {
-        $elemMatch: {
-          size: { $in: sizesArray },
-          stock: { $gt: 0 }
-        }
-      };
-    }
-
-    // 0.75 Color Filter
-    if (color) {
-      const colorsArray = Array.isArray(color) ? color : color.split(',');
-      query['colors.name'] = { $in: colorsArray };
+    // 0.5 / 0.75 Size and Color Filters
+    const sizesArray = size ? (Array.isArray(size) ? size : size.split(',')) : [];
+    // Colour names are typed in the admin, so "Sea Green" and "Sea green" are the same colour
+    const colorPatterns = color
+      ? (Array.isArray(color) ? color : color.split(','))
+        .map((c) => String(c).trim()).filter(Boolean)
+        .map((c) => new RegExp(`^${escapeRegex(c)}$`, 'i'))
+      : [];
+    const sizeInStock = { $elemMatch: { size: { $in: sizesArray }, stock: { $gt: 0 } } };
+    if (sizesArray.length && colorPatterns.length) {
+      // Both chosen: the chosen size must be in stock in one of the chosen colours
+      query.colors = { $elemMatch: { name: { $in: colorPatterns }, sizes: sizeInStock } };
+    } else if (sizesArray.length) {
+      query['colors.sizes'] = sizeInStock;
+    } else if (colorPatterns.length) {
+      query['colors.name'] = { $in: colorPatterns };
     }
 
     // 0.85 Tag Filter
@@ -208,10 +209,14 @@ exports.getFilters = async (req, res, next) => {
     const colorMap = new Map();
     const sizeSet = new Set();
 
+    // One swatch per colour however it was capitalised in the admin ("Sea Green" / "Sea green",
+    // "peach"), shown in title case; the product filter matches names ignoring case
+    const titleCase = (s) => s.trim().split(/\s+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
     products.forEach(product => {
       product.colors.forEach(color => {
         if (color.name && color.hexCode) {
-          colorMap.set(color.name, color.hexCode);
+          const key = color.name.trim().toLowerCase();
+          if (!colorMap.has(key)) colorMap.set(key, { name: titleCase(color.name), hexCode: color.hexCode });
         }
         color.sizes.forEach(size => {
           if (size.stock > 0) {
@@ -221,7 +226,7 @@ exports.getFilters = async (req, res, next) => {
       });
     });
 
-    const colors = Array.from(colorMap.entries()).map(([name, hexCode]) => ({ name, hexCode }));
+    const colors = Array.from(colorMap.values());
     // Define a standard size order to sort sizes
     const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Free Size', 'One Size'];
     const sizes = Array.from(sizeSet).sort((a, b) => {

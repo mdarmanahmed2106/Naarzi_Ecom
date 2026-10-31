@@ -7,7 +7,8 @@ import { formatCurrency } from '@/lib/formatCurrency';
 import Icon from './Icon';
 import { cldImage, IMG } from '@/lib/cloudinary';
 
-export default function ProductCard({ product, className = '' }) {
+// preferredColors: colour names chosen in the shop filter; the card opens on the first of them it has
+export default function ProductCard({ product, className = '', preferredColors = [] }) {
   const { 
     wishlistItems = [], 
     addToWishlist, 
@@ -18,7 +19,11 @@ export default function ProductCard({ product, className = '' }) {
     requireLogin
   } = useApp();
 
-  const [activeColorIdx, setActiveColorIdx] = useState(0);
+  const [activeColorIdx, setActiveColorIdx] = useState(() => {
+    const wanted = preferredColors.map((c) => c.trim().toLowerCase());
+    const idx = (product.colors || []).findIndex((c) => wanted.includes(String(c.name).trim().toLowerCase()));
+    return idx > 0 ? idx : 0;
+  });
   const [isPopping, setIsPopping] = useState(false);
 
   if (!product) return null;

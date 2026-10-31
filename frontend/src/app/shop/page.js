@@ -254,6 +254,8 @@ function ShopContent() {
                   <button
                     key={color.name}
                     onClick={() => handleColorToggle(color.name)}
+                    aria-label={color.name}
+                    aria-pressed={activeColors.includes(color.name)}
                     className={`w-8 h-8 rounded-full border-2 transition-all ${activeColors.includes(color.name) ? 'border-primary scale-110' : 'border-outline-variant/30 hover:border-outline'}`}
                     style={{ backgroundColor: color.hexCode }}
                     title={color.name}
@@ -350,7 +352,8 @@ function ShopContent() {
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-12">
               {products.map(product => (
-                <ProductCard key={product._id} product={product} />
+                // Keyed on the colour filter too, so a card re-opens on the newly chosen colour
+                <ProductCard key={`${product._id}-${colorParam}`} product={product} preferredColors={activeColors} />
               ))}
             </div>
           ) : (
