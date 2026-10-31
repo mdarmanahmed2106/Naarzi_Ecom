@@ -200,6 +200,9 @@ export default function NaarziStorySection() {
         >
           <motion.img
             src={HERO_IMAGE.src}
+            srcSet={`${HERO_IMAGE.src.replace('.jpg', '-700.jpg')} 700w, ${HERO_IMAGE.src} 1100w`}
+            sizes="(max-width: 1023px) 45vw, 320px"
+            loading="lazy"
             alt={HERO_IMAGE.alt}
             initial={reduce ? false : { scale: 1.15 }}
             whileInView={{ scale: 1 }}
@@ -220,6 +223,9 @@ export default function NaarziStorySection() {
           >
             <motion.img
               src={SECOND_IMAGE.src}
+              srcSet={`${SECOND_IMAGE.src.replace('.jpg', '-700.jpg')} 700w, ${SECOND_IMAGE.src} 1100w`}
+              sizes="(max-width: 1023px) 45vw, 320px"
+              loading="lazy"
               alt={SECOND_IMAGE.alt}
               initial={reduce ? false : { scale: 1.15 }}
               whileInView={{ scale: 1 }}

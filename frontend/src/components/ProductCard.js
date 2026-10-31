@@ -45,14 +45,19 @@ export default function ProductCard({ product, className = '' }) {
           {/* Image Frame */}
           <div className="w-full aspect-[3/4] bg-surface-container overflow-hidden mb-4 relative product-crossfade-container">
             <img 
-              src={cldImage(primaryImg, IMG.card)} 
-              alt={product.name} 
+              src={cldImage(primaryImg, IMG.card)}
+              alt={product.name}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover product-image-primary transition-transform duration-500 group-hover:scale-103"
             />
             <img 
               src={cldImage(secondaryImg, IMG.card)} 
-              alt={`${product.name} alternate`} 
-              className="absolute inset-0 w-full h-full object-cover product-image-secondary transition-transform duration-500 group-hover:scale-103"
+              alt={`${product.name} alternate`}
+              // Hover-only photo: hidden on touch screens, where (being lazy) it's never downloaded
+              loading="lazy"
+              decoding="async"
+              className="[@media(hover:none)]:hidden absolute inset-0 w-full h-full object-cover product-image-secondary transition-transform duration-500 group-hover:scale-103"
             />
             
             {/* Quick buy: bag icon that expands into a "QUICK BUY" pill on hover */}

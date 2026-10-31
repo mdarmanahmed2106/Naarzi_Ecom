@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
 
@@ -59,10 +59,25 @@ export default function ScrollStorytellingSection() {
     offset: ['start start', 'end end']
   });
 
-  // Ensure the muted autoplay clips start in every browser
+  // The clips (~1.5 MB together) sit far down the page, so they and their posters only start
+  // loading once the section is within about a screen and a half of view. Until then they'd
+  // compete with the hero photo for a phone's connection.
+  const [near, setNear] = useState(false);
   useEffect(() => {
-    videosRef.current?.querySelectorAll('video').forEach((v) => v.play().catch(() => { }));
+    const el = videosRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setNear(true); io.disconnect(); }
+    }, { rootMargin: '150% 0px' });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
+
+  // Ensure the muted autoplay clips start in every browser once they have a source
+  useEffect(() => {
+    if (!near) return;
+    videosRef.current?.querySelectorAll('video').forEach((v) => v.play().catch(() => { }));
+  }, [near]);
 
   // Scroll timeline linked to the sticky stage (3 stories)
   const { scrollYProgress } = useScroll({
@@ -171,8 +186,8 @@ export default function ScrollStorytellingSection() {
             className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <video
-              src={STORIES_DATA[0].video}
-              poster={STORIES_DATA[0].poster}
+              src={near ? STORIES_DATA[0].video : undefined}
+              poster={near ? STORIES_DATA[0].poster : undefined}
               aria-label={STORIES_DATA[0].title}
               autoPlay
               loop
@@ -193,8 +208,8 @@ export default function ScrollStorytellingSection() {
             className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <video
-              src={STORIES_DATA[1].video}
-              poster={STORIES_DATA[1].poster}
+              src={near ? STORIES_DATA[1].video : undefined}
+              poster={near ? STORIES_DATA[1].poster : undefined}
               aria-label={STORIES_DATA[1].title}
               autoPlay
               loop
@@ -214,8 +229,8 @@ export default function ScrollStorytellingSection() {
             className="absolute inset-0 w-full h-full rounded-[3px] overflow-hidden border border-black/10 bg-[#eae2d5] select-none will-change-transform"
           >
             <video
-              src={STORIES_DATA[2].video}
-              poster={STORIES_DATA[2].poster}
+              src={near ? STORIES_DATA[2].video : undefined}
+              poster={near ? STORIES_DATA[2].poster : undefined}
               aria-label={STORIES_DATA[2].title}
               autoPlay
               loop
@@ -242,6 +257,7 @@ export default function ScrollStorytellingSection() {
               total={STORIES_DATA.length}
               progress={mobileProgress}
               reduceMotion={shouldReduceMotion}
+              near={near}
             />
             {/* The scroll gap between cards is its own element, not a margin on the card: a sticky
                 card lets go when its box (margin included) reaches the end of the deck, so cards
@@ -266,7 +282,7 @@ export default function ScrollStorytellingSection() {
   );
 }
 
-function MobileStoryCard({ story, index, total, progress, reduceMotion }) {
+function MobileStoryCard({ story, index, total, progress, reduceMotion, near }) {
   const isLast = index === total - 1;
 
   // A card stays full size while it's on top, then shrinks only while the next card slides over it
@@ -292,8 +308,8 @@ function MobileStoryCard({ story, index, total, progress, reduceMotion }) {
         {/* Visual (Image or Video) */}
         <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eae2d5]">
           <video
-            src={story.video}
-            poster={story.poster}
+            src={near ? story.video : undefined}
+            poster={near ? story.poster : undefined}
             aria-label={story.title}
             autoPlay
             loop

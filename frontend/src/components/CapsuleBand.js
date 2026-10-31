@@ -25,12 +25,16 @@ export default function CapsuleBand() {
         <motion.div {...rise()} className="relative w-full lg:flex-1 max-w-[600px] mx-auto lg:mx-0 aspect-[15/16]">
           <img
             src="/capsule/nawab-maroon-arch.jpg"
+            srcSet="/capsule/nawab-maroon-arch-500.jpg 500w, /capsule/nawab-maroon-arch.jpg 706w"
+            sizes="(max-width: 640px) 60vw, 400px"
             alt="Model in the maroon Nawab-e-Khas kurta and sheer dupatta in front of a carved arch"
             loading="lazy"
             className="absolute left-0 top-0 w-[66%] h-[87.5%] object-cover object-[50%_20%] rounded-t-full"
           />
           <img
             src="/capsule/nawab-maroon-closeup.jpg"
+            srcSet="/capsule/nawab-maroon-closeup-600.jpg 600w, /capsule/nawab-maroon-closeup.jpg 1000w"
+            sizes="(max-width: 640px) 42vw, 280px"
             alt="Close up of the embellished halter neckline on the maroon Nawab-e-Khas kurta"
             loading="lazy"
             className="absolute right-0 bottom-0 w-[46%] h-[53%] object-cover object-[50%_25%] border-[6px] md:border-8 border-primary"

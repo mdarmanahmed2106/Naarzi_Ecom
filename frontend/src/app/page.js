@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -34,8 +33,6 @@ function MarqueeBadge({ text }) {
 }
 
 function HomePageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { addToCart, setIsCartOpen, setQuickBuyProduct, setIsQuickBuyOpen, wishlistItems = [], addToWishlist, removeFromWishlist, user, setIsAuthOpen, setAuthModalTab } = useApp();
   const shouldReduceMotion = useReducedMotion();
   const [poppingWishlistId, setPoppingWishlistId] = useState(null);
@@ -263,6 +260,8 @@ function HomePageContent() {
                   <img
                     src={cldImage(item.image, IMG.card)}
                     alt={item.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-[50%_20%] category-tile-image"
                   />
                 </motion.div>
@@ -398,18 +397,8 @@ function HomePageContent() {
   );
 }
 
-import { Suspense } from 'react';
-
+// Rendered straight away on the server (no Suspense / search params), so the hero photo is in
+// the first HTML and starts loading before any JavaScript runs
 export default function HomePage() {
-  return (
-    <Suspense fallback={
-      <div className="flex flex-col min-h-screen bg-surface">
-        <Header />
-        <div aria-busy="true" aria-label="Loading" className="w-full h-[calc(100dvh-5rem)] animate-shimmer" />
-        <Footer />
-      </div>
-    }>
-      <HomePageContent />
-    </Suspense>
-  );
+  return <HomePageContent />;
 }

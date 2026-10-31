@@ -8,7 +8,8 @@ const EASE = [0.215, 0.61, 0.355, 1];
 const SLIDE_MS = 6500;
 
 // The client's campaign photos: wide shots with the model on the right and open wall on the left,
-// so the copy sits over the left. pos = desktop crop, mobilePos = the tighter phone crop on the model.
+// so the copy sits over the left. pos = desktop crop; mobilePos = where the phone copy in
+// public/hero/m was cut from (re-cut it if you change this or the photo).
 const SLIDES = [
   {
     name: 'Sapphire Love',
@@ -126,36 +127,38 @@ export default function HeroCapsule() {
     >
       {/* Photos. Phones / tablets: an arched crop on the model with a gold offset frame, below the
           copy. Desktop: the full photo behind the copy. */}
-      <motion.div
+      {/* Shown at once, not faded in: it's the largest thing on screen, so it should paint from the
+          first HTML rather than wait for JavaScript */}
+      <div
         className="order-2 lg:order-none relative w-[min(78vw,360px)] aspect-[25/32] mx-auto max-lg:-translate-x-[7px] mt-2 mb-2 lg:m-0 lg:w-auto lg:aspect-auto lg:absolute lg:inset-0"
-        initial={reduce ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.9, ease: EASE }}
       >
         <div aria-hidden="true" className="lg:hidden absolute left-3.5 top-3.5 -right-3.5 -bottom-3.5 border border-accent-gold rounded-t-full" />
         <div className="absolute inset-0 overflow-hidden rounded-t-full lg:rounded-none bg-surface-container">
         {SLIDES.map((s, i) => (
-          <img
-            key={s.img}
-            src={s.img}
-            alt={s.alt}
-            aria-hidden={i !== active}
-            fetchPriority={i === 0 ? 'high' : undefined}
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover object-(--pos-m) lg:object-(--pos) transition-[opacity,transform] ease-out"
-            style={{
-              '--pos': s.pos,
-              '--pos-m': s.mobilePos,
-              opacity: i === active ? 1 : 0,
-              transform: !reduce && i === active ? 'scale(1.05)' : 'scale(1)',
-              transitionDuration: '0.9s, 7s',
-            }}
-          />
+          // Phones get a portrait copy already cut to the arch (public/hero/m, made from mobilePos),
+          // about half the size of the full landscape photo
+          <picture key={s.img}>
+            <source media="(max-width: 1023px)" srcSet={s.img.replace('/hero/', '/hero/m/')} />
+            <img
+              src={s.img}
+              alt={s.alt}
+              aria-hidden={i !== active}
+              fetchPriority={i === 0 ? 'high' : 'low'}
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover object-center lg:object-(--pos) transition-[opacity,transform] ease-out"
+              style={{
+                '--pos': s.pos,
+                opacity: i === active ? 1 : 0,
+                transform: !reduce && i === active ? 'scale(1.05)' : 'scale(1)',
+                transitionDuration: '0.9s, 7s',
+              }}
+            />
+          </picture>
         ))}
         {/* Darkens the open left side so the copy reads on every photo (desktop) */}
         <div aria-hidden="true" className="hidden lg:block absolute inset-0 bg-linear-to-r from-black/60 via-black/30 via-45% to-transparent to-70%" />
         </div>
-      </motion.div>
+      </div>
 
       {/* Current look + picker under the arch (phones / tablets) */}
       <div className="order-3 lg:hidden flex flex-col items-center gap-1 w-[min(78vw,360px)] mx-auto -translate-x-[7px] mt-7 pb-12 text-center">
