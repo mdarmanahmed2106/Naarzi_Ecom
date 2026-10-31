@@ -665,14 +665,15 @@ export default function Header() {
           )}
         </div>
       </div>
-      {/* Search Overlay: full-screen takeover on mobile, centered modal from sm: to lg:. Desktop (lg+) uses the inline header search instead. */}
+      {/* Search Overlay: a panel at the top on phones, a centred modal from sm: to lg:, over a dimmed
+          page; tapping the dimmed area closes it. Desktop (lg+) uses the inline header search instead. */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col bg-surface sm:items-center sm:justify-center sm:bg-black/40 sm:pt-24 sm:backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-[100] flex flex-col bg-black/40 backdrop-blur-sm sm:items-center sm:justify-center sm:pt-24 lg:hidden"
           onClick={closeSearch}
         >
           <div
-            className="flex h-full w-full flex-col overflow-hidden bg-surface sm:h-auto sm:max-h-[80vh] sm:w-full sm:max-w-2xl sm:mx-4 sm:rounded-2xl sm:shadow-2xl"
+            className="flex w-full max-h-[85dvh] flex-col overflow-hidden bg-surface rounded-b-2xl shadow-2xl sm:max-h-[80vh] sm:max-w-2xl sm:mx-4 sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 sm:gap-4 border-b border-outline-variant/30 p-4 sm:p-6 sm:pb-4">
@@ -696,7 +697,7 @@ export default function Header() {
 
             {/* Live Preview Results */}
             {searchQuery.trim().length >= 2 && (
-              <div className="flex-1 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6 sm:flex-none sm:max-h-[60vh]">
+              <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4 sm:px-6 sm:pb-6 sm:flex-none sm:max-h-[60vh]">
                 {searchLoading && (
                   <div className="flex flex-col gap-1 mt-4" aria-busy="true" aria-label="Searching">
                     {[0, 1, 2].map((i) => (
