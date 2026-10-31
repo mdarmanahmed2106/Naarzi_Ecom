@@ -432,6 +432,20 @@ export default function AdminProvider({ children }) {
     setColors(updated);
   };
 
+  // The storefront shows a product's first colour by default (cards, product page, search, cart),
+  // so making a colour primary moves it to the front. Uploads track their colour by position, so
+  // this waits until no photo is still uploading.
+  const handleMakePrimaryColor = (index) => {
+    if (index <= 0) return;
+    if (colors.some((c) => c.uploadedImages?.some((img) => img.status === 'uploading'))) {
+      setErrorMsg('Wait for the photos to finish uploading, then choose the primary colour.');
+      return;
+    }
+    const updated = [...colors];
+    const [chosen] = updated.splice(index, 1);
+    setColors([chosen, ...updated]);
+  };
+
   // Same limit as the API (backend/src/routes/upload.js). Photos are shrunk in the browser first
   // (lib/compressImage), so this only catches the rare file still too big after that.
   const MAX_IMAGE_MB = 10;
@@ -1237,6 +1251,7 @@ export default function AdminProvider({ children }) {
     setIsCategoryDropdownOpen,
     colors,
     setColors,
+    handleMakePrimaryColor,
     isCategoryModalOpen,
     setIsCategoryModalOpen,
     categoryModalMode,

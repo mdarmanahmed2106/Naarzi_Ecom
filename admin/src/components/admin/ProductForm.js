@@ -41,6 +41,7 @@ export default function ProductForm() {
     handleColorChange,
     handleAddColor,
     handleRemoveColor,
+    handleMakePrimaryColor,
     handleFileUpload,
     handleRemoveImage,
     handleMoveImage,
@@ -211,7 +212,25 @@ export default function ProductForm() {
             </div>
 
             {colors.map((color, colorIdx) => (
-              <div key={color.id} className="p-4 border border-outline-variant/30 rounded-xl bg-surface-container/10 space-y-5">
+              <div key={color.id} className={`p-4 border rounded-xl bg-surface-container/10 space-y-5 ${colorIdx === 0 && colors.length > 1 ? 'border-primary/50' : 'border-outline-variant/30'}`}>
+                {/* The first colour is the one the shop shows by default */}
+                {colors.length > 1 && (
+                  <div className="flex items-center justify-between gap-3 -mb-2">
+                    {colorIdx === 0 ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-label-caps tracking-wider font-bold">
+                        <span className="material-symbols-outlined text-[14px]">star</span> PRIMARY: SHOWN FIRST ON THE WEBSITE
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleMakePrimaryColor(colorIdx)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-primary/40 text-primary hover:bg-primary/10 text-[10px] font-label-caps tracking-wider font-bold transition-colors cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">star</span> MAKE PRIMARY
+                      </button>
+                    )}
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <div className="flex gap-4 items-center flex-1">
                     <div className="flex-1 space-y-1">
