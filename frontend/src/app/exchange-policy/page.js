@@ -1,7 +1,7 @@
 import PolicyPage from '@/components/PolicyPage';
 
 export const metadata = {
-  title: 'Exchange Policy | Naarzi',
+  title: 'Exchange Policy',
   description: 'Naarzi’s exchange-only policy: size and colour exchanges within 14 days of delivery, eligibility, and how to request one.',
 };
 

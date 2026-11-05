@@ -4,7 +4,7 @@ import FaqContent from '@/components/faq/FaqContent';
 import { getFaqGroups } from '@/lib/faqContent';
 
 export const metadata = {
-  title: 'FAQs | NAARZI',
+  title: 'FAQs',
   description: 'Answers to common questions about NAARZI: who we are, what we sell, sizing, fabric, styling and more.',
 };
 

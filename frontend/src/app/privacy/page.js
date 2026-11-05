@@ -2,7 +2,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'Privacy Policy | Naarzi',
+  title: 'Privacy Policy',
   description: 'How Naarzi collects, uses, and protects your personal information.',
 };
 

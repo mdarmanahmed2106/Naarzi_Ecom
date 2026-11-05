@@ -5,7 +5,7 @@ import Icon from '@/components/Icon';
 import { SUPPORT_EMAIL, SUPPORT_HOURS } from '@/lib/faqContent';
 
 export const metadata = {
-  title: 'Contact Us | NAARZI',
+  title: 'Contact Us',
   description: `Get in touch with NAARZI. Write to ${SUPPORT_EMAIL} for help with orders, sizing, fabric or styling.`,
 };
 

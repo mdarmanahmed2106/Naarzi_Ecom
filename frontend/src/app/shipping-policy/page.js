@@ -1,7 +1,7 @@
 import PolicyPage from '@/components/PolicyPage';
 
 export const metadata = {
-  title: 'Shipping Policy | Naarzi',
+  title: 'Shipping Policy',
   description: 'How Naarzi processes, ships and delivers orders across India: dispatch times, shipping charges, tracking and cancellations.',
 };
 

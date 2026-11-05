@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Terms of Service | Naarzi',
+  title: 'Terms of Service',
   description: 'Naarzi Terms of Service and user agreement.',
 };
 
